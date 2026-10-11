@@ -67,18 +67,11 @@ function recordAnswer() {
 }
 
 const EMPTY_METRICS = {
-  words: 0,
   wpm: 0,
-  confidence: 50,
   fillers: 0,
   fillerBreakdown: {},
-  sessionFillers: 0,
-  hedges: 0,
-  flags: 0,
   star: { situation: false, task: false, action: false, result: false },
   tip: 'Your interviewer is about to ask the first question.',
-  vocal: null,
-  level: 0,
 }
 
 const STAGE_LABEL = {
@@ -107,7 +100,6 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
   const [provider, setProvider] = useState(null)
   const [ttsError, setTtsError] = useState(null)
   const [metrics, setMetrics] = useState(EMPTY_METRICS)
-  const [history, setHistory] = useState([])
   const [simulating, setSimulating] = useState(false)
   const [micStatus, setMicStatus] = useState('pending')
   const [engine, setEngine] = useState(defaultEngine)
@@ -134,10 +126,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
       answerStart: 0,
       final: '',
       interim: '',
-      pastFillers: 0,
-      conf: 55,
       wpm: 0,
-      tick: 0,
       nextLead: null,
       sim: null,
       simCount: 0,
@@ -315,7 +304,6 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
       audioUrl: s.simUsed ? null : audioUrl,
     }
     s.answers.push(answer)
-    s.pastFillers += liveMetrics(text, durationSec).fillers
     addLog('you', text || '(no answer heard)')
     return answer
   }
@@ -408,23 +396,9 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
     if (s.stage !== 'listening') return
     const text = `${s.final} ${s.interim}`.trim()
     const m = liveMetrics(text, (Date.now() - s.answerStart) / 1000)
-    if (m.words > 0) {
-      s.conf = s.conf * 0.75 + m.confidence * 0.25 + (Math.random() - 0.5) * 2.4
-      s.wpm = s.wpm ? s.wpm * 0.6 + m.wpm * 0.4 : m.wpm
-    }
-    const conf = Math.round(Math.max(1, Math.min(99, s.conf)))
-    const vocal = s.simUsed ? null : s.meter.live()
-    setMetrics({
-      ...m,
-      confidence: conf,
-      wpm: Math.round(s.wpm),
-      sessionFillers: s.pastFillers + m.fillers,
-      tip: liveTip(m, s.wpm),
-      vocal,
-      level: s.meter.level(),
-      simulated: s.simUsed,
-    })
-    if (++s.tick % 3 === 0) setHistory((h) => [...h.slice(-36), conf])
+    // Smooth pace so the marker doesn't jump with every recognized word.
+    if (m.words > 0) s.wpm = s.wpm ? s.wpm * 0.6 + m.wpm * 0.4 : m.wpm
+    setMetrics({ ...m, wpm: Math.round(s.wpm), tip: liveTip(m, s.wpm) })
   }
 
   useEffect(() => {
@@ -520,10 +494,6 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
             <span className="mono">
               {String(qNumber).padStart(2, '0')} / {total}
             </span>
-          </div>
-          <div className="stat hide-sm">
-            <span className="muted tiny">FORMAT</span>
-            <span className="mono">{config.mode === 'endless' ? 'ENDLESS' : config.mode === 'timed' ? 'TIMED' : 'FIXED'}</span>
           </div>
         </div>
         <button className="btn danger" onClick={() => endInterview('manual')}>
@@ -670,7 +640,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
           </section>
         </main>
 
-        <LiveSidebar metrics={metrics} history={history} stage={stage} coaching={config.coaching} />
+        <LiveSidebar metrics={metrics} stage={stage} coaching={config.coaching} />
       </div>
 
       {silentExit && (

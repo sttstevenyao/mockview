@@ -3,6 +3,7 @@ import Setup from './components/Setup.jsx'
 import Interview from './components/Interview.jsx'
 import Feedback from './components/Feedback.jsx'
 import Credits from './components/Credits.jsx'
+import About from './components/About.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import TopNav from './components/TopNav.jsx'
 import AuthForm from './components/AuthForm.jsx'
@@ -94,6 +95,13 @@ export default function App() {
       <TopNav tab={phase} onTab={setPhase} user={user} onAuth={setAuth} onLogOut={signOut} />
       {phase === 'credits' ? (
         <Credits />
+      ) : phase === 'about' ? (
+        <About
+          onStart={() => {
+            setPhase('setup')
+            window.scrollTo(0, 0)
+          }}
+        />
       ) : (
         <Setup
           cfg={config}

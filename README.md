@@ -22,7 +22,7 @@
 | 🌐 **Works in Brave & Firefox** | Where built-in speech recognition is missing or blocked, answers are transcribed with **ElevenLabs Scribe** instead. You can also type answers. |
 | 🧾 **Recorded & transcribed** | A live conversation log of every line, a recording of each answer you can replay on the report, and a downloadable transcript. |
 | ⏱️ **Flexible sessions** | Fixed number of questions, a timed session, or **Endless Mode** that runs until you stop. |
-| 📊 **Live grading sidebar** | A filler-word counter, a WPM pace gauge, a shifting confidence score with a sparkline, a STAR structure tracker, and a live coach tip. All of it updates while you speak. |
+| 📊 **Live feedback panel** | Only what you can act on mid-answer: a coaching tip, a STAR checklist, a pace bar with the ideal range marked, and a filler-word counter. Detailed scores wait for the report. |
 | 🔊 **Vocal delivery analysis** | Scores how you *sound*, not just what you say: projection (loudness), pitch variety (monotone vs. expressive), volume steadiness, and pauses, computed from the raw mic signal. |
 | 📝 **Feedback report** | Your transcript with **red** (red flag) and **amber** (filler / hedge) pills. Click one to read the *interviewer's inner monologue*. |
 | 🔁 **Rewrite + Hear Ideal Delivery** | A GitHub-style diff rewrites your weakest sentence, then ElevenLabs reads the improved version aloud so you can compare it with your original. |
@@ -99,6 +99,7 @@ mockview/
 │   │   ├── Onboarding.jsx     # pop-up setup questions + account step
 │   │   ├── AuthForm.jsx       # sign up / log in form
 │   │   ├── Setup.jsx          # interview summary, persona, voice, resume
+│   │   ├── About.jsx          # what MockView is, who it's for, how it works
 │   │   ├── Credits.jsx        # team and acknowledgements
 │   │   ├── Interview.jsx      # interview flow, timers, follow-ups, interruptions
 │   │   ├── LiveSidebar.jsx    # real-time grading widgets

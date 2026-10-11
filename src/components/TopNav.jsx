@@ -9,6 +9,7 @@ export default function TopNav({ tab, onTab, user, onAuth, onLogOut }) {
         <div className="tabs" role="tablist">
           {[
             ['setup', 'Practice'],
+            ['about', 'About'],
             ['credits', 'Credits'],
           ].map(([id, label]) => (
             <button key={id} role="tab" aria-selected={tab === id} className={tab === id ? 'on' : ''} onClick={() => onTab(id)}>

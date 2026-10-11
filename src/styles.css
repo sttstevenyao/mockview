@@ -1801,3 +1801,262 @@ b.plain {
 .field .hint {
   margin-top: -2px;
 }
+
+/* ── Dialog motion ─────────────────────────── */
+.overlay {
+  animation: overlay-in 0.22s ease-out both;
+}
+.overlay .dialog {
+  animation: dialog-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.overlay.closing {
+  animation: overlay-out 0.18s ease-in both;
+}
+.overlay.closing .dialog {
+  animation: dialog-out 0.18s ease-in both;
+}
+.ob-step.fwd {
+  animation: step-fwd 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.ob-step.back {
+  animation: step-back 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+/* options and field chips arrive one after another */
+.ob-step .ob-option,
+.ob-step .ob-tracks button {
+  animation: rise 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.ob-step .ob-option:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.ob-step .ob-option:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.ob-step .ob-tracks button:nth-child(n + 5) {
+  animation-delay: 0.04s;
+}
+.ob-step .ob-tracks button:nth-child(n + 9) {
+  animation-delay: 0.08s;
+}
+.ob-step .ob-tracks button:nth-child(n + 13) {
+  animation-delay: 0.12s;
+}
+.ob-option,
+.ob-tracks button {
+  transition:
+    border-color 0.15s,
+    background-color 0.15s,
+    transform 0.15s;
+}
+.ob-option:active,
+.ob-tracks button:active {
+  transform: scale(0.985);
+}
+.ob-progress i {
+  transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes overlay-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+}
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+@keyframes step-fwd {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+}
+@keyframes step-back {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .overlay .dialog,
+  .overlay.closing,
+  .overlay.closing .dialog,
+  .ob-step,
+  .ob-step .ob-option,
+  .ob-step .ob-tracks button {
+    animation: none !important;
+  }
+  .ob-progress i {
+    transition: none;
+  }
+}
+
+/* ── Simplified live sidebar ───────────────── */
+.coach p {
+  font-size: 15px;
+  line-height: 1.45;
+}
+.star-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.star-list li {
+  display: grid;
+  grid-template-columns: 18px 70px 1fr;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.star-list li.hit {
+  color: var(--text);
+}
+.star-box {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border-2);
+  border-radius: 3px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  color: var(--bg);
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+.star-list li.hit .star-box {
+  background: var(--good);
+  border-color: var(--good);
+}
+.pace-bar {
+  position: relative;
+  height: 8px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 10px 0 6px;
+}
+.pace-ideal {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(63, 185, 80, 0.35);
+}
+.pace-mark {
+  position: absolute;
+  top: -4px;
+  width: 3px;
+  height: 16px;
+  margin-left: -1px;
+  background: var(--muted);
+  transition: left 0.4s ease-out;
+}
+.pace-mark.good {
+  background: var(--good);
+}
+.pace-mark.warn {
+  background: var(--warn);
+}
+.pace-scale {
+  display: flex;
+  justify-content: space-between;
+}
+.filler-n {
+  font-size: 20px;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── About ─────────────────────────────────── */
+.about {
+  max-width: 760px;
+  padding: 26px 0 20px;
+}
+.about-head h1 {
+  font-size: clamp(30px, 5vw, 42px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+.about .lead {
+  font-size: 18px;
+  line-height: 1.55;
+  margin: 0 0 8px;
+}
+.about-block {
+  border-top: 1px solid var(--border);
+  padding: 24px 0;
+}
+.about-block h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.about-block p {
+  margin: 0 0 12px;
+}
+.about-list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+.about-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+.about-steps li {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+}
+.about-steps h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.about-steps p {
+  margin: 0;
+}
+.step-n {
+  color: var(--accent);
+  font-size: 13px;
+  padding-top: 2px;
+}
+.about-note {
+  margin-top: 14px !important;
+}
+.about-cta {
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
