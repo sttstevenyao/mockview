@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { grade } from '../lib/analysis.js'
 
 const reducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduce'
@@ -73,7 +74,7 @@ export default function UserStats({ history = [], onProgress }) {
   return (
     <section className="user-stats" aria-label="Your practice">
       <div className="rings">
-        <Ring value={last?.score ?? null} label="Latest score" sub={last?.grade} />
+        <Ring value={last?.score ?? null} label="Latest score" sub={last ? grade(last.score) : null} />
         <Ring value={best} label="Best score" delay={120} />
         <Ring value={avg} label="Average score" delay={240} />
         <Ring value={star} label="STAR coverage" sub={star != null ? '%' : null} delay={360} />

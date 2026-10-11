@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { LEVELS, TRACKS } from '../data/questions.js'
+import { grade } from '../lib/analysis.js'
 
 const fmtDate = (iso) => new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 const fmtTime = (iso) => new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
@@ -134,7 +135,7 @@ export default function Progress({ history, onStart }) {
         <div className="tile">
           <span className="muted tiny">Latest</span>
           <b className="mono">
-            {last.score} <small>{last.grade}</small>
+            {last.score} <small>{grade(last.score)}</small>
           </b>
         </div>
         <div className="tile">
@@ -193,7 +194,7 @@ export default function Progress({ history, onStart }) {
                 {s.planned ? <span className="muted"> of {s.planned}</span> : null}
               </td>
               <td className="num mono">
-                {s.score} <span className="muted">{s.grade}</span>
+                {s.score} <span className="muted">{grade(s.score)}</span>
               </td>
               <td className="num mono">{s.fillers}</td>
               <td className="num mono">{s.wpm ?? 'n/a'}</td>

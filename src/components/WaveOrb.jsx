@@ -38,7 +38,12 @@ export default function WaveOrb({ className = '', ambient = false }) {
       return { width, height }
     }
     let box = size()
-    const ro = new ResizeObserver(() => (box = size()))
+    // Resizing a canvas clears it. Animated, the next frame repaints it; with reduced motion
+    // there is no next frame, so repaint the still ring here.
+    const ro = new ResizeObserver(() => {
+      box = size()
+      if (reduced) draw(0)
+    })
     ro.observe(canvas)
 
     const draw = (time) => {
@@ -86,7 +91,8 @@ export default function WaveOrb({ className = '', ambient = false }) {
       g.globalAlpha = 1
       if (!reduced) raf = requestAnimationFrame(draw)
     }
-    raf = requestAnimationFrame(draw)
+    if (reduced) draw(0)
+    else raf = requestAnimationFrame(draw)
 
     return () => {
       cancelAnimationFrame(raf)
