@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Brand from './Brand.jsx'
 
@@ -11,7 +11,7 @@ const TABS = [
 ]
 
 // Header for the tab pages: logo on the left, account controls on the right, tabs in a dock at the bottom.
-export default function TopNav({ tab, onTab, user, onAuth, onLogOut }) {
+export default function TopNav({ tab, onTab, user, onAuth, onLogOut, locked = false }) {
   // The active-tab underline is one element that slides to the selected tab.
   const refs = useRef({})
   const [bar, setBar] = useState(null)
@@ -28,15 +28,23 @@ export default function TopNav({ tab, onTab, user, onAuth, onLogOut }) {
     return () => ro.disconnect()
   }, [tab])
 
+  // While a pop-up is open, the header and the dock can't be clicked or focused.
+  const navRef = useRef(null)
+  const dockRef = useRef(null)
+  useEffect(() => {
+    if (navRef.current) navRef.current.inert = locked
+    if (dockRef.current) dockRef.current.inert = locked
+  }, [locked])
+
   return (
-    <nav className="topnav">
+    <nav className={`topnav ${locked ? 'locked' : ''}`} ref={navRef}>
       <div className="row nav-left">
         <Brand onClick={() => onTab('setup')} />
       </div>
       {/* Tabs float in a small dock above the bottom of the page. Rendered on <body> so the
           large-screen zoom on .setup doesn't shift a fixed element off screen. */}
       {createPortal(
-        <div className="dock">
+        <div className={`dock ${locked ? 'locked' : ''}`} ref={dockRef}>
           <div className="tabs" role="tablist">
             {TABS.map(([id, label]) => (
               <button

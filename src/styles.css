@@ -4336,3 +4336,16 @@ body:has(.setup) {
     transform: translateX(-50%) scale(1.5);
   }
 }
+
+/* A pop-up is open: the header and dock sit behind it, dimmed and unclickable */
+.dock.locked,
+.topnav.locked {
+  pointer-events: none;
+}
+.dock.locked {
+  opacity: 0.35;
+  filter: blur(1px);
+  transition:
+    opacity 0.2s,
+    filter 0.2s;
+}

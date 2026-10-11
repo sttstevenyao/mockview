@@ -118,6 +118,9 @@ export default function App() {
     setConfig((c) => ({ ...DEFAULT_CONFIG, settings: c.settings, history: loadHistory() })) // appearance stays with the device
   }
 
+  // A setup, edit or login pop-up is on screen: nothing behind it can be clicked or focused.
+  const popupOpen = Boolean((onboarding && !intro) || editing || auth)
+
   if (phase === 'interview')
     return (
       <Interview
@@ -156,11 +159,15 @@ export default function App() {
       <WaveOrb className="bg-wave" ambient />
       <div className="setup">
         {intro && <Intro onReveal={revealPage} onDone={endIntro} />}
-        <TopNav tab={phase} onTab={setPhase} user={user} onAuth={setAuth} onLogOut={signOut} />
+        <TopNav tab={phase} onTab={setPhase} user={user} onAuth={setAuth} onLogOut={signOut} locked={popupOpen} />
         {/* Mounted as the opening animation fades, so the page's entrance cascade plays underneath */}
         {intro !== 'playing' && (
           // Keyed on the account too: logging in or out replays the page's entrance with the new setup.
-          <div key={`${phase}:${user?.email || ''}`} className={`tab-view ${slide.current}`}>
+          <div
+            key={`${phase}:${user?.email || ''}`}
+            className={`tab-view ${slide.current}`}
+            ref={(el) => el && (el.inert = popupOpen)}
+          >
             {phase === 'progress' ? (
               <Progress
                 history={config.history}
