@@ -1,7 +1,7 @@
 const TEAM = [
   ['Zexing Yao', 'Project lead'],
   ['Kevin Wang', 'UI/UX designer'],
-  ['Daniel Kim', 'Programmer'],
+  ['Daniel Kim', 'Ideation'],
 ]
 
 const BUILT_WITH = [

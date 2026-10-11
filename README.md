@@ -103,7 +103,7 @@ showcase/                                   files for the ElevenLabs Showcase PR
 |---|---|
 | Zexing Yao | Project lead |
 | Kevin Wang | UI/UX design |
-| Daniel Kim | Programming |
+| Daniel Kim | Ideation |
 
 First hackathon for all three of us.
 
