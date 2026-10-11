@@ -66,11 +66,25 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
         <h1>
           {user ? (
             <>
-              Welcome, <em>{cfg.name && cfg.name !== 'Candidate' ? cfg.name : user.email.split('@')[0]}.</em>
+              <span className="line">
+                <span>Welcome,</span>
+              </span>{' '}
+              <span className="line">
+                <span>
+                  <em>{cfg.name && cfg.name !== 'Candidate' ? cfg.name : user.email.split('@')[0]}.</em>
+                </span>
+              </span>
             </>
           ) : (
             <>
-              Practice the interview <em>before it counts.</em>
+              <span className="line">
+                <span>Practice the interview</span>
+              </span>{' '}
+              <span className="line">
+                <span>
+                  <em>before it counts.</em>
+                </span>
+              </span>
             </>
           )}
         </h1>

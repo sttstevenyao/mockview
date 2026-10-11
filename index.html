@@ -31,7 +31,23 @@
       #boot { --b: #f6f8fa; --t: #1f2328; --a: #0969da; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: var(--t); }
       html[data-theme='dark'] #boot { --b: #07090d; --t: #e6edf3; --a: #58a6ff; }
       @media (prefers-color-scheme: dark) { html:not([data-theme]) #boot { --b: #07090d; --t: #e6edf3; --a: #58a6ff; } }
-      #boot.skip { animation: intro-out 0.3s ease forwards; }
+      #boot.skip { animation: intro-out 0.35s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
+      /* Loading counter in the corner, rolls 0 to 100 */
+      @property --n { syntax: '<integer>'; inherits: false; initial-value: 0; }
+      #boot .intro-count {
+        position: absolute; top: 28px; left: 36px;
+        font-size: clamp(64px, 11vw, 150px); font-weight: 400; letter-spacing: -0.04em; line-height: 1;
+        font-variant-numeric: tabular-nums; opacity: 0.9;
+        animation: count 1.15s cubic-bezier(0.3, 0, 0.2, 1) both;
+        counter-reset: n var(--n);
+      }
+      #boot .intro-count::after { content: counter(n); }
+      #boot .intro-tag {
+        position: absolute; left: 36px; bottom: 32px; font-size: 15px; line-height: 1.35; opacity: 0.75;
+        animation: word-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
+      }
+      @keyframes count { from { --n: 0; } to { --n: 100; } }
+      @media (max-width: 520px) { #boot .intro-count { top: 20px; left: 20px; } #boot .intro-tag { left: 20px; bottom: 24px; } }
       #boot {
         position: fixed;
         inset: 0;
@@ -104,11 +120,13 @@
       }
       @keyframes intro-out {
         to {
-          opacity: 0;
+          clip-path: inset(0 0 100% 0);
           visibility: hidden;
-          transform: scale(1.03);
         }
       }
+      #boot { clip-path: inset(0 0 0 0); }
+      #boot .intro-mark { animation: intro-mark 1.25s cubic-bezier(0.2, 0.8, 0.2, 1) both, mark-out 0.5s cubic-bezier(0.7, 0, 0.3, 1) 1.2s forwards; }
+      @keyframes mark-out { to { transform: translateY(-40px) scale(1.06); opacity: 0; } }
       @media (max-width: 520px) {
         #boot .intro-word {
           font-size: 32px;
@@ -125,6 +143,8 @@
   </head>
   <body>
     <div id="boot" aria-hidden="true">
+      <div class="intro-count"></div>
+      <div class="intro-tag">Practice the interview<br />before it counts.</div>
       <div class="intro-mark">
         <div class="intro-bars">
           <i style="--h: 0.34; --d: 0ms"></i><i style="--h: 0.62; --d: 70ms"></i><i class="accent" style="--h: 1; --d: 140ms"></i><i style="--h: 0.7; --d: 210ms"></i><i style="--h: 0.3; --d: 280ms"></i>

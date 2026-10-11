@@ -3571,3 +3571,83 @@ html,
 body {
   overflow-x: clip;
 }
+
+/* ── Entrance motion ───────────────────────── */
+/* Headline lines rise from behind a mask, one after the other. */
+.hero h1 {
+  animation: none;
+}
+.hero h1 .line {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em; /* room for the underline and descenders inside the mask */
+}
+.hero h1 .line > span {
+  display: inline-block;
+  animation: line-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.hero h1 .line + .line > span {
+  animation-delay: 0.09s;
+}
+@keyframes line-up {
+  from {
+    transform: translateY(105%);
+  }
+}
+/* Panels and cards come up out of a soft blur. The columns stay put; their panels move. */
+.setup-grid > .col {
+  animation: none;
+}
+.setup-grid > :not(.col),
+.col > .panel,
+.about-block,
+.credits-block,
+.set-group,
+.tiles > .tile,
+.chart,
+.history-table,
+.fb-summary,
+.fb-split > * {
+  animation-name: rise-blur;
+  animation-duration: 0.7s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation-fill-mode: both;
+}
+.col > .panel:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.col > .panel:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.setup-grid > .col:nth-child(2) > .panel {
+  animation-delay: 0.12s;
+}
+.setup-grid > .col:nth-child(2) > .panel:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.chart:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.chart:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.history-table {
+  animation-delay: 0.22s;
+}
+@keyframes rise-blur {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero h1 .line > span,
+  .setup-grid > *,
+  .col > .panel,
+  .chart,
+  .history-table {
+    animation: none;
+  }
+}
