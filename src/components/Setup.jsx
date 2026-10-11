@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { LEVELS, PERSONAS, TRACKS, VOICES } from '../data/questions.js'
 import ResumePanel from './ResumePanel.jsx'
-import { MODES } from './Onboarding.jsx'
 import { initAudio } from '../lib/audio.js'
 import { checkTtsHealth, speak } from '../lib/tts.js'
 import { browserNote, defaultEngine, ENGINE_LABEL } from '../lib/transcriber.js'
@@ -52,7 +51,7 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample }) 
     ['Experience', level],
     ['Field', track],
     ['Role', cfg.role?.trim() || 'Not specified'],
-    ['Format', `${MODES.find((x) => x.id === cfg.mode)?.title} · ${summary}`],
+    ['Length', summary],
   ]
 
   return (
@@ -64,132 +63,114 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample }) 
             : 'Practice the interview before it counts.'}
         </h1>
         <p className="muted">
-          An ElevenLabs-voiced interviewer asks behavioral questions out loud. MockView grades your delivery as you talk (filler
-          words, pace, confidence, STAR structure) and then shows you how to say it better.
+          An ElevenLabs-voiced interviewer asks behavioral questions out loud, grades your delivery as you talk, and shows you how
+          to say it better.
         </p>
       </header>
 
       <div className="setup-grid">
-        <div className="col">
-          <section className="panel">
-            <div className="panel-head">
-              <h2 className="panel-title">
-                <span className="step">01</span> Your interview
-              </h2>
-              <button className="btn ghost sm" onClick={onEdit}>
-                Change answers
+        <section className="panel">
+          <div className="panel-head">
+            <h2 className="panel-title">Your interview</h2>
+            <button className="btn ghost sm" onClick={onEdit}>
+              Change answers
+            </button>
+          </div>
+          <dl className="facts">
+            {facts.map(([k, v]) => (
+              <div key={k}>
+                <dt className="muted tiny">{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <h2 className="panel-title sub">Interviewer</h2>
+          <div className="persona-row" role="radiogroup" aria-label="Interviewer persona">
+            {Object.values(PERSONAS).map((p) => (
+              <button
+                key={p.id}
+                role="radio"
+                aria-checked={cfg.persona === p.id}
+                className={`persona ${cfg.persona === p.id ? 'on' : ''}`}
+                onClick={() => choosePersona(p.id)}
+              >
+                <b>{p.name}</b>
+                <span className="mono tiny">{p.title}</span>
               </button>
-            </div>
-            <dl className="facts">
-              {facts.map(([k, v]) => (
-                <div key={k}>
-                  <dt className="muted tiny">{k}</dt>
-                  <dd>{v}</dd>
-                </div>
+            ))}
+          </div>
+          <p className="muted tiny persona-desc">{PERSONAS[cfg.persona].desc}</p>
+
+          <div className="row voice-row">
+            <select value={cfg.voiceId} onChange={(e) => set('voiceId', e.target.value)} aria-label="Interviewer voice">
+              {VOICES.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.label}
+                </option>
               ))}
-            </dl>
-          </section>
+            </select>
+            <button className="btn ghost" onClick={preview} disabled={previewing}>
+              {previewing ? 'Playing…' : 'Preview voice'}
+            </button>
+          </div>
+          {voiceStatus?.provider === 'elevenlabs' && <span className="tiny good">Playing through ElevenLabs</span>}
+          {voiceStatus?.provider === 'browser' && (
+            <span className="tiny warn">ElevenLabs error: {voiceStatus.error}. Using the browser voice instead.</span>
+          )}
+        </section>
 
-          <section className="panel">
-            <h2 className="panel-title">
-              <span className="step">02</span> Interviewer
-            </h2>
+        <div className="col">
+          <section className="panel start-panel">
+            <button
+              className="btn primary big-btn"
+              onClick={() =>
+                onStart({
+                  ...cfg,
+                  name: cfg.name.trim() || 'Candidate',
+                  resumeQuestions: cfg.useResume && cfg.resume ? cfg.resume.questions : [],
+                })
+              }
+            >
+              Start interview <span className="mono tiny">· {summary}</span>
+            </button>
+            <button className="link" onClick={onSample}>
+              or view a sample feedback report
+            </button>
 
-            <div className="field">
-              <span>Interviewer persona</span>
-              <div className="persona-grid">
-                {Object.values(PERSONAS).map((p) => (
-                  <button
-                    key={p.id}
-                    className={`persona ${cfg.persona === p.id ? 'on' : ''}`}
-                    onClick={() => choosePersona(p.id)}
-                  >
-                    <b>{p.name}</b>
-                    <span className="mono tiny">{p.title}</span>
-                    <span className="muted tiny">{p.desc}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            <label className="toggle">
+              <input type="checkbox" checked={cfg.coaching} onChange={(e) => set('coaching', e.target.checked)} />
+              <span className="switch" />
+              <span>Live coaching tips during answers</span>
+            </label>
 
-            <div className="field">
-              <span>Interviewer voice · ElevenLabs</span>
-              <div className="row">
-                <select value={cfg.voiceId} onChange={(e) => set('voiceId', e.target.value)}>
-                  {VOICES.map((v) => (
-                    <option key={v.id} value={v.id}>
-                      {v.label}
-                    </option>
-                  ))}
-                </select>
-                <button className="btn ghost" onClick={preview} disabled={previewing}>
-                  {previewing ? '♪ Playing…' : '▶ Preview'}
-                </button>
-              </div>
-              {voiceStatus?.provider === 'elevenlabs' && <span className="tiny good">✓ Playing through ElevenLabs</span>}
-              {voiceStatus?.provider === 'browser' && (
-                <span className="tiny warn">⚠ ElevenLabs error: {voiceStatus.error}. Using the browser voice instead.</span>
-              )}
-            </div>
+            <ul className="checks">
+              <Check
+                ok={defaultEngine === 'webspeech'}
+                warn={defaultEngine === 'scribe'}
+                label="Voice input"
+                detail={defaultEngine === 'none' ? 'not supported, type your answers instead' : ENGINE_LABEL[defaultEngine]}
+              />
+              <Check
+                ok={health?.configured}
+                warn={!health || health.reachable}
+                label="ElevenLabs voice"
+                detail={
+                  !health
+                    ? 'checking…'
+                    : health.configured
+                      ? 'connected'
+                      : health.reachable
+                        ? 'no API key, using the browser voice'
+                        : 'unreachable, using the browser voice'
+                }
+              />
+            </ul>
+            {browserNote && <p className="tiny muted">{browserNote}</p>}
           </section>
 
           <ResumePanel resume={cfg.resume} useResume={cfg.useResume} onChange={(patch) => setCfg((c) => ({ ...c, ...patch }))} />
         </div>
-        <section className="panel sticky">
-          <h2 className="panel-title">
-            <span className="step">04</span> Start
-          </h2>
-          <p className="muted tiny">
-            {MODES.find((x) => x.id === cfg.mode)?.desc} The interviewer reacts to each answer, and if it can’t hear you it will
-            ask again before stopping.
-          </p>
-
-          <label className="toggle">
-            <input type="checkbox" checked={cfg.coaching} onChange={(e) => set('coaching', e.target.checked)} />
-            <span className="switch" />
-            <span>Live coaching tips during answers</span>
-          </label>
-
-          <ul className="checks">
-            <Check
-              ok={defaultEngine === 'webspeech'}
-              warn={defaultEngine === 'scribe'}
-              label="Voice input"
-              detail={defaultEngine === 'none' ? 'not supported, type your answers instead' : ENGINE_LABEL[defaultEngine]}
-            />
-            <Check
-              ok={health?.configured}
-              warn={!health || health.reachable}
-              label="ElevenLabs voice"
-              detail={
-                !health
-                  ? 'checking…'
-                  : health.configured
-                    ? 'connected'
-                    : health.reachable
-                      ? 'no API key — browser voice fallback'
-                      : 'API unreachable — browser voice fallback'
-              }
-            />
-          </ul>
-          {browserNote && <p className="tiny muted">{browserNote}</p>}
-
-          <button
-            className="btn primary big-btn"
-            onClick={() =>
-              onStart({
-                ...cfg,
-                name: cfg.name.trim() || 'Candidate',
-                resumeQuestions: cfg.useResume && cfg.resume ? cfg.resume.questions : [],
-              })
-            }
-          >
-            Start interview <span className="mono tiny">· {summary}</span>
-          </button>
-          <button className="link" onClick={onSample}>
-            or view a sample feedback report
-          </button>
-        </section>
       </div>
     </>
   )

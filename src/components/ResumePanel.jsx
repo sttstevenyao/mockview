@@ -42,30 +42,36 @@ export default function ResumePanel({ resume, useResume, onChange }) {
   }
 
   const s = resume?.stats
+  const drop = {
+    onDragOver: (e) => {
+      e.preventDefault()
+      setDragging(true)
+    },
+    onDragLeave: () => setDragging(false),
+    onDrop: (e) => {
+      e.preventDefault()
+      setDragging(false)
+      load(e.dataTransfer.files[0])
+    },
+  }
   return (
-    <section className="panel">
+    <section className={`panel resume-panel ${dragging ? 'over' : ''}`} {...drop}>
       <h2 className="panel-title">
-        <span className="step">03</span> Your resume <span className="muted tiny">(optional)</span>
+        Resume <span className="muted tiny">(optional)</span>
       </h2>
 
       {!resume ? (
         <>
-          <div
-            className={`drop ${dragging ? 'over' : ''}`}
-            onClick={() => input.current?.click()}
-            onDragOver={(e) => {
-              e.preventDefault()
-              setDragging(true)
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault()
-              setDragging(false)
-              load(e.dataTransfer.files[0])
-            }}
-          >
-            <b>{status?.busy ? 'Reading your resume…' : 'Drop your resume PDF here, or click to choose'}</b>
-            <span className="muted tiny">The interviewer will ask about your real experience, projects and skills.</span>
+          <p className="muted tiny">
+            Get questions about your own projects and experience. Read on your device and never uploaded.
+          </p>
+          <div className="row">
+            <button className="btn ghost sm" onClick={() => input.current?.click()} disabled={status?.busy}>
+              {status?.busy ? 'Reading…' : 'Upload PDF'}
+            </button>
+            <button className="link tiny" onClick={() => setPasting((p) => !p)}>
+              {pasting ? 'Cancel' : 'Paste text instead'}
+            </button>
             <input
               ref={input}
               type="file"
@@ -74,21 +80,15 @@ export default function ResumePanel({ resume, useResume, onChange }) {
               onChange={(e) => load(e.target.files[0])}
             />
           </div>
-          <div className="row resume-foot">
-            <span className="muted tiny">🔒 Read on your device. Your resume is never uploaded.</span>
-            <button className="link" onClick={() => setPasting((p) => !p)}>
-              {pasting ? 'cancel' : 'or paste text'}
-            </button>
-          </div>
           {pasting && (
-            <div className="field">
+            <div className="field paste">
               <textarea
-                rows={6}
+                rows={4}
                 value={pasted}
                 onChange={(e) => setPasted(e.target.value)}
                 placeholder="Paste your resume text here…"
               />
-              <button className="btn ghost" onClick={usePasted}>
+              <button className="btn ghost sm" onClick={usePasted}>
                 Use this text
               </button>
             </div>
@@ -97,32 +97,32 @@ export default function ResumePanel({ resume, useResume, onChange }) {
       ) : (
         <>
           <div className="resume-file">
-            <span className="mono tiny">📄 {resume.fileName}</span>
-            <button className="link" onClick={() => onChange({ resume: null })}>
-              remove
+            <span className="mono tiny">{resume.fileName}</span>
+            <button className="link tiny" onClick={() => onChange({ resume: null })}>
+              Remove
             </button>
           </div>
-          <div className="chips">
-            <span className="chip good">{s.experiences} experiences</span>
-            <span className="chip good">{s.projects} projects</span>
-            <span className="chip good">{s.leadership} activities</span>
-            <span className="chip good">{s.skills} skills</span>
-          </div>
+          <p className="muted tiny">
+            Found {s.experiences} experiences, {s.projects} projects, {s.leadership} activities and {s.skills} skills.
+          </p>
           <label className="toggle resume-toggle">
             <input type="checkbox" checked={useResume} onChange={(e) => onChange({ useResume: e.target.checked })} />
             <span className="switch" />
             <span>Ask questions from my resume</span>
           </label>
           {useResume && (
-            <ol className="resume-qs">
-              {resume.questions.map((q) => (
-                <li key={q.id}>{q.text}</li>
-              ))}
-            </ol>
+            <details className="resume-qs-wrap">
+              <summary className="tiny">See the {resume.questions.length} questions</summary>
+              <ol className="resume-qs">
+                {resume.questions.map((q) => (
+                  <li key={q.id}>{q.text}</li>
+                ))}
+              </ol>
+            </details>
           )}
         </>
       )}
-      {status?.error && <p className="tiny warn">⚠ {status.error}</p>}
+      {status?.error && <p className="tiny warn">{status.error}</p>}
     </section>
   )
 }

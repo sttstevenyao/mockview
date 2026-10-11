@@ -76,7 +76,7 @@ const EMPTY_METRICS = {
 
 const STAGE_LABEL = {
   asking: 'Interviewer speaking',
-  listening: 'Your turn — answer out loud',
+  listening: 'Your turn. Answer out loud.',
   thinking: 'Next question…',
   reacting: 'Interviewer responding',
   ending: 'Wrapping up…',
@@ -478,7 +478,13 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
   return (
     <div className="interview">
       <header className="ibar">
-        <Brand />
+        <Brand
+          onClick={() => {
+            if (!window.confirm('Leave this interview? Your answers so far won’t be graded.')) return
+            stopSpeaking()
+            onExit()
+          }}
+        />
         <div className="ibar-mid">
           <span className={`rec ${listening ? 'on' : ''}`}>
             <i /> {listening ? 'REC' : 'PAUSED'}
@@ -497,7 +503,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
           </div>
         </div>
         <button className="btn danger" onClick={() => endInterview('manual')}>
-          ■ End Interview
+          End interview
         </button>
       </header>
 
@@ -510,13 +516,13 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
                 {persona.name} <span className="muted tiny mono">· {persona.title}</span>
               </div>
               <div className="muted tiny mono">
-                {provider === 'elevenlabs' && <span className="good">● ElevenLabs voice</span>}
+                {provider === 'elevenlabs' && <span className="good">ElevenLabs voice</span>}
                 {provider === 'browser' && (
                   <span className="warn" title={ttsError || ''}>
-                    ● Browser voice fallback{ttsError ? ` — ${ttsError}` : ''}
+                    Browser voice fallback{ttsError ? `: ${ttsError}` : ''}
                   </span>
                 )}
-                {!provider && <span>● connecting voice…</span>}
+                {!provider && <span>Connecting voice…</span>}
               </div>
             </div>
             <span className="stage-label mono tiny">{STAGE_LABEL[stage]}</span>
@@ -609,10 +615,10 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
 
           <div className="controls">
             <button className="btn ghost" onClick={repeatQuestion} disabled={!listening || simulating}>
-              ↻ Repeat <kbd>R</kbd>
+              Repeat <kbd>R</kbd>
             </button>
             <button className="btn ghost" onClick={simulateAnswer} disabled={!listening || simulating}>
-              ✦ Simulate answer <kbd>S</kbd>
+              Simulate answer <kbd>S</kbd>
             </button>
             <button className="btn primary" onClick={nextQuestion} disabled={!listening}>
               {config.mode === 'count' && qNumber >= config.count && !mann.followUps ? 'Finish' : 'Next'} <kbd>N</kbd>

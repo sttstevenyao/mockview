@@ -6,7 +6,7 @@
 const PREF_KEYS = ['name', 'track', 'role', 'level', 'mode', 'count', 'minutes', 'persona', 'mannerisms', 'voiceId', 'coaching']
 export const pickPrefs = (cfg) => Object.fromEntries(PREF_KEYS.filter((k) => k in cfg).map((k) => [k, cfg[k]]))
 
-export const USERNAME_RULE = '3–24 letters, numbers, dots, dashes or underscores'
+export const USERNAME_RULE = '3 to 24 letters, numbers, dots, dashes or underscores'
 export const PASSWORD_RULE = 'at least 6 characters'
 
 // Returns { user } or { error }.

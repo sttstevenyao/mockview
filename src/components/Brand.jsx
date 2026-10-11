@@ -1,6 +1,8 @@
-export default function Brand() {
+// Logo. With onClick it becomes a button that takes you to the Practice page.
+export default function Brand({ onClick }) {
+  const Tag = onClick ? 'button' : 'div'
   return (
-    <div className="brand">
+    <Tag className="brand" onClick={onClick} aria-label={onClick ? 'MockView home' : undefined}>
       <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
         <rect width="32" height="32" rx="5" fill="#161b22" />
         <g fill="#e6edf3">
@@ -14,6 +16,6 @@ export default function Brand() {
       <span>
         Mock<b>View</b>
       </span>
-    </div>
+    </Tag>
   )
 }

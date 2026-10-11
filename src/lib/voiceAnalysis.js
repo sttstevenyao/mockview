@@ -75,7 +75,7 @@ export function scoreVocal(v) {
     flow,
     labels: {
       volume: v.meanDb < -42 ? 'Too quiet' : v.meanDb > -14 ? 'Very loud' : 'Good projection',
-      pitch: s < 1.2 ? 'Monotone' : s > 6 ? 'Very animated' : s < 2.5 ? 'Somewhat flat' : 'Expressive',
+      pitch: s < 1.2 ? 'Monotone' : s > 6 ? 'Very animated' : s < 2.5 ? 'Flat' : 'Expressive',
       flow: r < 0.5 ? 'Lots of dead air' : v.longPauses > 3 ? 'Choppy' : 'Smooth',
     },
   }
@@ -84,12 +84,11 @@ export function scoreVocal(v) {
 export function vocalNotes(v, s) {
   if (!s) return []
   const out = []
-  if (s.projection < 60) out.push('Speak up — project as if the interviewer is across a conference table.')
+  if (s.projection < 60) out.push('Speak up. Project as if the interviewer is across a conference table.')
   if (s.expressiveness < 65) out.push('Your pitch stayed flat. Lift your voice on key results and numbers.')
-  else if (s.expressiveness >= 85) out.push('Great vocal variety — you sounded engaged.')
+  else if (s.expressiveness >= 85) out.push('Good vocal variety. You sounded engaged.')
   if (s.steadiness < 65) out.push('Your volume trailed off and surged. Keep energy through the end of sentences.')
-  if (s.flow < 60)
-    out.push(`Long silences (${v.longPauses} pauses over ${LONG_PAUSE_SEC}s). Brief pauses are good — dead air isn’t.`)
+  if (s.flow < 60) out.push(`Long silences (${v.longPauses} pauses over ${LONG_PAUSE_SEC}s). Keep pauses to a beat or two.`)
   if (!out.length) out.push('Clear, steady, well-paced delivery.')
   return out
 }

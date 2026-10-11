@@ -14,11 +14,11 @@ export const SILENCE_GOODBYE = 'I still can’t hear you, so let’s stop here. 
 
 const LINES = {
   empty: {
-    warm: ['I didn’t actually hear an answer there. That’s okay, let’s try the next one.'],
+    warm: ['I didn’t hear an answer there. That’s okay. Let’s try the next one.'],
     curt: ['I didn’t hear an answer. Moving on.'],
   },
   nonAnswer: {
-    warm: ['Hm, I’m not sure that really answered the question. Try telling me one specific story next time.'],
+    warm: ['Hm, that didn’t answer the question. Next time, tell me one specific story.'],
     curt: ['That didn’t answer the question.'],
   },
   short: {

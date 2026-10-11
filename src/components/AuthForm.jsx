@@ -72,7 +72,7 @@ export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, onM
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
             />
-            <span className="tiny muted hint">Add one if you’d like to log in with your email instead.</span>
+            <span className="tiny muted hint">Add one to log in with your email.</span>
           </label>
         </>
       ) : (

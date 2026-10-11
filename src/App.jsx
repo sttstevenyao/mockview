@@ -93,25 +93,27 @@ export default function App() {
   return (
     <div className="setup">
       <TopNav tab={phase} onTab={setPhase} user={user} onAuth={setAuth} onLogOut={signOut} />
-      {phase === 'credits' ? (
-        <Credits />
-      ) : phase === 'about' ? (
-        <About
-          onStart={() => {
-            setPhase('setup')
-            window.scrollTo(0, 0)
-          }}
-        />
-      ) : (
-        <Setup
-          cfg={config}
-          setCfg={setConfig}
-          user={user}
-          onEdit={() => setOnboarding(true)}
-          onStart={start}
-          onSample={showSample}
-        />
-      )}
+      <div key={phase} className="tab-view">
+        {phase === 'credits' ? (
+          <Credits />
+        ) : phase === 'about' ? (
+          <About
+            onStart={() => {
+              setPhase('setup')
+              window.scrollTo(0, 0)
+            }}
+          />
+        ) : (
+          <Setup
+            cfg={config}
+            setCfg={setConfig}
+            user={user}
+            onEdit={() => setOnboarding(true)}
+            onStart={start}
+            onSample={showSample}
+          />
+        )}
+      </div>
       <footer className="foot muted tiny mono">Built at HackRU Fall 2026 · Voice by ElevenLabs</footer>
       {onboarding && <Onboarding initial={config} user={user} onDone={finishOnboarding} onClose={() => setOnboarding(false)} />}
       {auth && (

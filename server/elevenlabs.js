@@ -24,7 +24,7 @@ export function health(apiKey) {
 const num = (v, lo, hi, dflt) => (Number.isFinite(+v) ? Math.min(hi, Math.max(lo, +v)) : dflt)
 
 export async function synthesize({ text, voiceId, quality, speed, expressiveness, apiKey }) {
-  if (!hasKey(apiKey)) return json(503, { error: 'ELEVENLABS_API_KEY is not set in .env' })
+  if (!hasKey(apiKey)) return json(503, { error: 'ELEVENLABS_API_KEY isn’t set in .env' })
   apiKey = apiKey.trim()
   if (typeof text !== 'string' || !text.trim() || text.length > 900) {
     return json(400, { error: 'text is required (max 900 chars)' })
@@ -65,7 +65,7 @@ export async function synthesize({ text, voiceId, quality, speed, expressiveness
 
 // Speech-to-text with ElevenLabs Scribe. `audio` is a base64 clip recorded in the browser.
 export async function transcribe({ audio, mime, apiKey }) {
-  if (!hasKey(apiKey)) return json(503, { error: 'ELEVENLABS_API_KEY is not set in .env' })
+  if (!hasKey(apiKey)) return json(503, { error: 'ELEVENLABS_API_KEY isn’t set in .env' })
   if (typeof audio !== 'string' || !audio || audio.length > 3_000_000) {
     return json(400, { error: 'audio is required (max ~2 MB)' })
   }

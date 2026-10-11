@@ -62,7 +62,7 @@ function VocalReport({ vocal }) {
       ))}
       <ul className="changes">
         {vocalNotes(vocal, sc).map((n) => (
-          <li key={n}>→ {n}</li>
+          <li key={n}>{n}</li>
         ))}
       </ul>
     </div>
@@ -89,7 +89,7 @@ function EmptyState({ onSample, onSetup }) {
   return (
     <div className="feedback">
       <header className="fb-top">
-        <Brand />
+        <Brand onClick={onSetup} />
       </header>
       <div className="panel empty">
         <h2>We didn’t capture any answers</h2>
@@ -175,7 +175,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
   return (
     <div className="feedback">
       <header className="fb-top">
-        <Brand />
+        <Brand onClick={onSetup} />
         <div className="muted tiny mono hide-sm">
           INTERVIEW REPORT · {new Date().toLocaleDateString()} · {fmtDur(result.totalSec)}
           {result.reason === 'sample' && ' · SAMPLE DATA'}
@@ -188,7 +188,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
             New setup
           </button>
           <button className="btn primary" onClick={onRestart}>
-            ↻ Practice again
+            Practice again
           </button>
         </div>
       </header>
@@ -203,7 +203,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
           <div className="tile">
             <span className="muted tiny">Avg pace</span>
             <b className="mono">
-              {o.avgWpm || '—'}
+              {o.avgWpm || 'n/a'}
               <small> wpm</small>
             </b>
           </div>
@@ -217,7 +217,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
           </div>
           <div className="tile">
             <span className="muted tiny">Vocal delivery</span>
-            <b className={`mono ${o.vocal == null ? 'muted' : tone(o.vocal)}`}>{o.vocal ?? '—'}</b>
+            <b className={`mono ${o.vocal == null ? 'muted' : tone(o.vocal)}`}>{o.vocal ?? 'n/a'}</b>
           </div>
           <div className="tile">
             <span className="muted tiny">STAR coverage</span>
@@ -231,7 +231,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
               {report.strengths.length ? (
                 report.strengths.map((s) => <li key={s}>{s}</li>)
               ) : (
-                <li className="muted">Keep practicing — strengths will show up here.</li>
+                <li className="muted">Strengths show up here as you improve.</li>
               )}
             </ul>
           </div>
@@ -252,7 +252,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
             {report.answers.map((x, i) => (
               <button key={i} className={`qtab ${i === active ? 'on' : ''}`} onClick={() => selectQ(i)}>
                 {x.question?.followUp
-                  ? '↳ follow-up'
+                  ? 'Follow-up'
                   : `Q${report.answers.slice(0, i + 1).filter((y) => !y.question?.followUp).length}`}{' '}
                 <span className={`dot ${tone(x.confidence)}`} />
                 {i === report.weakestIndex && <span className="tiny muted"> weakest</span>}
@@ -269,7 +269,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
           {a.quality.issues.length > 0 && (
             <div className="issues">
               {a.quality.issues.map((t) => (
-                <div key={t}>⚠ {t}</div>
+                <div key={t}>{t}</div>
               ))}
             </div>
           )}
@@ -364,7 +364,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
                   <b>Result:</b> How did it end, with a number? e.g. “As a result, {a.question?.resultHint}.”
                 </li>
               </ol>
-              <p className="muted tiny">Aim for 60–90 seconds (about 150–250 words).</p>
+              <p className="muted tiny">Aim for 60 to 90 seconds (about 150 to 250 words).</p>
             </div>
           ) : !a.rewrite ? (
             <p className="muted">Your weakest sentence here is already clean and quantified. Nice work.</p>
@@ -401,18 +401,16 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
 
               <ul className="changes">
                 {a.rewrite.changes.map((c) => (
-                  <li key={c}>
-                    <span className="good">✓</span> {c}
-                  </li>
+                  <li key={c}>{c}</li>
                 ))}
               </ul>
 
               <div className="playback">
                 <button className={`btn primary ${playing === 'ideal' ? 'active' : ''}`} onClick={() => play('ideal')}>
-                  {playing === 'ideal' ? '■ Stop' : '▶ Hear Ideal Delivery'}
+                  {playing === 'ideal' ? 'Stop' : 'Hear ideal delivery'}
                 </button>
                 <button className={`btn ghost ${playing === 'original' ? 'active' : ''}`} onClick={() => play('original')}>
-                  {playing === 'original' ? '■ Stop' : '▶ Hear original'}
+                  {playing === 'original' ? 'Stop' : 'Hear original'}
                 </button>
               </div>
               <div className={`viz-wrap small ${playing ? 'voice' : 'idle'}`}>

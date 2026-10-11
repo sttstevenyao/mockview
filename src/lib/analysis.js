@@ -24,48 +24,42 @@ const FILLERS = [
 
 const FILLER_MONO = {
   um: [
-    '“Um” #{n}. I can hear the gears turning — I just want to hear the answer.',
+    '“Um” #{n}. I can hear the gears turning. I want to hear the answer.',
     'Another “um.” A one-second silent pause would sound so much more in control.',
     'That’s “um” #{n}. I’ve started tallying them in the margin of my notes.',
   ],
-  uh: [
-    '“Uh” #{n}. Silence is fine — I promise I won’t fill it for you.',
-    'The “uh” is buying time, but it’s spending credibility.',
-  ],
+  uh: ['“Uh” #{n}. Silence is fine. I won’t fill it for you.', 'The “uh” is buying time, but it’s spending credibility.'],
   like: [
     '“Like” #{n}. Was it like that, or was it that?',
-    'Every “like” makes the story sound less certain than it probably was.',
+    'Every “like” makes the story sound less certain.',
     'I’m hearing “like” more than I’m hearing results.',
   ],
-  'you know': ['I don’t know, actually — that’s why I asked.', '“You know” — I’d rather you told me.'],
+  'you know': ['I don’t know, actually. That’s why I asked.', '“You know”? Tell me.'],
   basically: ['“Basically” usually means the important details are about to get skipped.'],
   literally: ['“Literally” is doing a lot of figurative work here.'],
-  actually: ['“Actually” — was the rest not actual? Drop it and the sentence gets stronger.'],
-  'I mean': ['“I mean…” — just say what you mean the first time.'],
+  actually: ['“Actually” adds nothing. Drop it and the sentence gets stronger.'],
+  'I mean': ['“I mean…” Say what you mean the first time.'],
   'kind of': ['Kind of? Did it happen or not?', '“Kind of” softens a claim I wanted to hear stated plainly.'],
-  'sort of': ['“Sort of” — I’m now sort of unsure what you did.'],
+  'sort of': ['“Sort of.” Now I’m sort of unsure what you did.'],
 }
 
 const HEDGES = [
   {
     label: 'I think',
     re: /\bi think\b/gi,
-    mono: [
-      '“I think” — you were there. You know. Say it like you know it.',
-      'Second-guessing your own story? That’s what I’ll remember.',
-    ],
+    mono: ['“I think”? You were there. Say it like you know it.', 'Second-guessing your own story? That’s what I’ll remember.'],
   },
   { label: 'I guess', re: /\bi guess\b/gi, mono: ['“I guess” is doing real damage to an otherwise solid sentence.'] },
   { label: 'maybe', re: /\bmaybe\b/gi, mono: ['“Maybe” in a story about the past? Either it happened or it didn’t.'] },
   { label: 'probably', re: /\bprobably\b/gi, mono: ['“Probably” makes me wonder whether they actually checked.'] },
-  { label: 'I feel like', re: /\bi feel like\b/gi, mono: ['I don’t need the feeling — I need the fact.'] },
-  { label: 'hopefully', re: /\bhopefully\b/gi, mono: ['Hope isn’t a strategy. What was the plan?'] },
+  { label: 'I feel like', re: /\bi feel like\b/gi, mono: ['Give me the fact. “I feel like” buries it.'] },
+  { label: 'hopefully', re: /\bhopefully\b/gi, mono: ['“Hopefully” tells me there was no plan. What was it?'] },
   {
     label: 'not sure',
     re: /\bi'?m not (?:really |totally |entirely )?sure\b/gi,
     mono: ['If they’re not sure about their own story, I’m definitely not sure.'],
   },
-  { label: 'I just', re: /\bi just\b/gi, mono: ['“I just…” — don’t shrink your own contribution.'] },
+  { label: 'I just', re: /\bi just\b/gi, mono: ['“I just…” shrinks your own contribution.'] },
 ]
 
 const RED_FLAGS = [
@@ -81,7 +75,7 @@ const RED_FLAGS = [
   {
     label: 'Deflecting blame',
     re: /\b(?:it )?(?:was not|wasn'?t|isn'?t|not) (?:really )?my fault\b|\b(?:i|we) blamed\b/gi,
-    mono: ['“Not my fault” — I asked what you did, not who to blame.', 'Accountability check: failed.'],
+    mono: ['“Not my fault.” I asked what you did.', 'Accountability check: failed.'],
     fix: 'Own your part first: “I should have flagged it earlier, so I…”',
   },
   {
@@ -96,7 +90,7 @@ const RED_FLAGS = [
   {
     label: 'No idea',
     re: /\bno idea\b/gi,
-    mono: ['“No idea” — then what was the plan?'],
+    mono: ['“No idea.” Then what was the plan?'],
     fix: 'Say how you got from no answer to an answer.',
   },
   {
@@ -114,13 +108,13 @@ const RED_FLAGS = [
   {
     label: 'Boredom',
     re: /\b(?:boring|bored)\b/gi,
-    mono: ['“Boring” — will they call this job boring in six months?'],
+    mono: ['“Boring.” Will they call this job boring in six months?'],
     fix: 'Say “repetitive” and explain how you automated or improved it.',
   },
   {
     label: '“Honestly”',
     re: /\b(?:honestly|to be honest|tbh)\b/gi,
-    mono: ['“Honestly” — wait, were the other answers not honest?'],
+    mono: ['“Honestly”? Were the other answers dishonest?'],
     fix: 'Drop it. Every answer should already be honest.',
   },
   {
@@ -132,13 +126,13 @@ const RED_FLAGS = [
   {
     label: 'Credit to luck',
     re: /\b(?:got lucky|winged it|wing it)\b/gi,
-    mono: ['“We got lucky” — so it wasn’t a skill? Can they repeat it?'],
+    mono: ['“We got lucky.” Can they repeat it on purpose?'],
     fix: 'Credit the decision that made the outcome possible.',
   },
   {
     label: 'Gave up',
     re: /\b(?:i|we) (?:just )?gave up\b|\bi quit\b/gi,
-    mono: ['“Gave up” — I’m listening for persistence, not surrender.'],
+    mono: ['“Gave up.” I’m listening for persistence.'],
     fix: 'Frame it as a deliberate re-scope with a reason.',
   },
   {
@@ -195,7 +189,7 @@ export function findMatches(text) {
     m.mono = pool[(n - 1) % pool.length].replace('{n}', n)
     m.fix =
       m.def.fix ||
-      (m.type === 'filler' ? 'Replace it with a deliberate one-beat pause.' : 'State it directly — drop the qualifier.')
+      (m.type === 'filler' ? 'Replace it with a deliberate one-beat pause.' : 'Drop the qualifier and state it directly.')
   }
   return kept
 }
@@ -276,14 +270,14 @@ export function contentQuality(text, questionText = '') {
     issues.push('This doesn’t sound like a real answer: the same words repeat over and over.')
     cap = 8
   } else if (words < 12) {
-    issues.push(`Only ${words} words. A strong behavioral answer is usually 150–250 words (60–90 seconds).`)
+    issues.push(`Only ${words} words. A strong behavioral answer runs 150 to 250 words (60 to 90 seconds).`)
     cap = 15
   } else if (words < 40) {
-    issues.push(`Too short (${words} words). Aim for 60–90 seconds and walk through Situation, Task, Action and Result.`)
+    issues.push(`Too short (${words} words). Aim for 60 to 90 seconds and walk through Situation, Task, Action and Result.`)
     cap = 30 + words
   }
   if (offTopic) {
-    issues.push('This may not answer the question that was asked. Tie your story back to it explicitly.')
+    issues.push('This doesn’t clearly answer the question. Tie your story back to it.')
     cap = Math.min(cap, 35)
   }
   return { words, repetitive, offTopic, nonAnswer: !words || repetitive || words < 12, issues, cap }
@@ -332,15 +326,15 @@ export function liveMetrics(text, seconds) {
 export function liveTip(m, wpm = m.wpm) {
   if (m.words < 4) return 'Listening… open with the Situation: where were you, and when?'
   if (m.repetitive) return 'That doesn’t sound like a real answer yet. Tell one specific story.'
-  if (m.flags > 0) return 'Red flag detected — reframe it positively and focus on what you did.'
-  if (m.words > 15 && (m.fillers / m.words) * 100 > 6) return 'Pause instead of saying “um” — silence reads as confidence.'
+  if (m.flags > 0) return 'Red flag. Reframe it positively and focus on what you did.'
+  if (m.words > 15 && (m.fillers / m.words) * 100 > 6) return 'Replace “um” with a short pause. Silence reads as confidence.'
   if (wpm > 180) return 'You’re rushing. Slow down and let key points land.'
-  if (wpm && wpm < 100 && m.words > 20) return 'Pick up the pace a little — keep the energy up.'
-  if (m.hedges > 2) return 'Drop “I think” and “maybe” — state it like you know it.'
-  if (m.words > 35 && !m.star.action) return 'Say what YOU did — use “I”, not “we”.'
+  if (wpm && wpm < 100 && m.words > 20) return 'Pick up the pace to keep the energy up.'
+  if (m.hedges > 2) return 'Drop “I think” and “maybe”. State it like you know it.'
+  if (m.words > 35 && !m.star.action) return 'Say what you did, using “I”.'
   if (m.words > 60 && !m.star.result) return 'Land the plane: what was the measurable Result?'
-  if (m.words > 40 && !m.hasNumber) return 'Add a number — %, time saved, users, dollars.'
-  return 'Strong delivery — keep going.'
+  if (m.words > 40 && !m.hasNumber) return 'Add a number: a percentage, time saved, users, or dollars.'
+  return 'Strong delivery. Keep going.'
 }
 
 // ───────────────────────── Post-interview analysis ─────────────────────────
@@ -405,11 +399,11 @@ const REWRITE_RULES = [
   { re: /\bhated\b/gi, to: 'struggled with', why: 'Swapped negative emotion for a neutral challenge' },
   { re: /\bhate\b/gi, to: 'struggle with', why: 'Swapped negative emotion for a neutral challenge' },
   { re: /\bsucked\b/gi, to: 'was tough', why: 'Swapped negative emotion for a neutral challenge' },
-  { re: /\b(?:honestly|to be honest|tbh)\b,?\s*/gi, to: '', why: 'Dropped “honestly” — every answer is honest' },
+  { re: /\b(?:honestly|to be honest|tbh)\b,?\s*/gi, to: '', why: 'Dropped “honestly”' },
   { re: /\bwhatever\b,?\s*/gi, to: '', why: 'Removed dismissive language' },
   { re: /\bboring\b/gi, to: 'repetitive', why: 'Replaced “boring” with a neutral descriptor' },
-  { re: /\bgot lucky\b/gi, to: 'executed well', why: 'Credited skill instead of luck' },
-  { re: /\bwinged it\b/gi, to: 'adapted quickly', why: 'Credited skill instead of luck' },
+  { re: /\bgot lucky\b/gi, to: 'executed well', why: 'Credited the skill behind the outcome' },
+  { re: /\bwinged it\b/gi, to: 'adapted quickly', why: 'Credited the skill behind the outcome' },
   { re: /\b(i|we) (?:just )?gave up(?: on)?\b/gi, to: '$1 deliberately re-scoped', why: 'Framed the pivot as a decision' },
   { re: /\bi (?:think|guess|feel like)(?: that)?,?\s*/gi, to: '', why: 'Removed hedging (“I think”, “I guess”)' },
   { re: /\b(?:maybe|probably|hopefully)\b,?\s*/gi, to: '', why: 'Removed hedging (“maybe”, “probably”)' },
@@ -471,7 +465,7 @@ export function rewriteSentence(sentence, resultHint) {
   out = tidy(out)
   if (!NUMBER_RE.test(out) && resultHint && countWords(out) >= 6) {
     out = `${out} As a result, ${resultHint}.`
-    changes.push('Added a quantified result — swap in your real metric')
+    changes.push('Added a quantified result. Swap in your real metric.')
   }
   return changes.length ? { text: out, changes } : null
 }
@@ -570,18 +564,18 @@ export function analyzeSession(answers) {
   const strengths = []
   const focus = []
   ;(fillerRate < 3 ? strengths : focus).push(
-    fillerRate < 3 ? 'Clean delivery — very few filler words' : `Cut filler words (${fillerRate.toFixed(1)} per 100 words)`,
+    fillerRate < 3 ? 'Clean delivery with very few filler words' : `Cut filler words (${fillerRate.toFixed(1)} per 100 words)`,
   )
   if (avgWpm >= 115 && avgWpm <= 175) strengths.push(`Pace in the sweet spot (${avgWpm} WPM)`)
-  else if (avgWpm) focus.push(avgWpm > 175 ? `Slow down — ${avgWpm} WPM reads as nervous` : `Pick up the pace — ${avgWpm} WPM`)
+  else if (avgWpm) focus.push(avgWpm > 175 ? `Slow down: ${avgWpm} WPM reads as nervous` : `Pick up the pace from ${avgWpm} WPM`)
   ;(starCoverage >= 75 ? strengths : focus).push(
     starCoverage >= 75 ? 'Well-structured STAR answers' : `Complete the STAR structure (${starCoverage}% coverage)`,
   )
   ;(flags === 0 ? strengths : focus).push(
-    flags === 0 ? 'No red flags — professional framing throughout' : `Reframe ${flags} red-flag phrase${flags > 1 ? 's' : ''}`,
+    flags === 0 ? 'No red flags, professional framing throughout' : `Reframe ${flags} red-flag phrase${flags > 1 ? 's' : ''}`,
   )
   if (quantified === items.length && items.length) strengths.push('You quantified your impact in every answer')
-  else focus.push('Quantify results — %, time saved, users, dollars')
+  else focus.push('Quantify results: percentages, time saved, users, dollars')
   if (hedges > items.length * 2) focus.push('Drop hedges like “I think” and “maybe”')
   if (skipped) focus.unshift(`Answer every question (${skipped} had no answer)`)
 
@@ -589,13 +583,13 @@ export function analyzeSession(answers) {
   const vocal = voiced.length ? Math.round(voiced.reduce((s, a) => s + a.vocal.scores.score, 0) / voiced.length) : null
   if (vocal !== null)
     (vocal >= 75 ? strengths : focus).unshift(
-      vocal >= 75 ? 'Confident, expressive voice' : 'Work on vocal delivery — projection & pitch variety',
+      vocal >= 75 ? 'Confident, expressive voice' : 'Work on vocal delivery: projection and pitch variety',
     )
 
   if (items.length && items.every((a) => a.quality.nonAnswer)) {
     strengths.length = 0
     focus.length = 0
-    focus.push('Give complete answers: 60–90 seconds each, using the STAR structure')
+    focus.push('Give complete answers: 60 to 90 seconds each, using the STAR structure')
   }
 
   return {

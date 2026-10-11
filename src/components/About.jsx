@@ -41,9 +41,8 @@ export default function About({ onStart }) {
       <section className="about-block">
         <h2>What it’s for</h2>
         <p className="muted">
-          Knowing your stories isn’t the hard part; saying them clearly under pressure is. Most people never get honest feedback
-          on how they come across, and practicing out loud with a friend is awkward. MockView gives you unlimited, low-stakes
-          reps.
+          The hard part of an interview is telling your stories clearly under pressure. Most people never get honest feedback on
+          how they come across, and practicing out loud with a friend is awkward. MockView gives you unlimited, low-stakes reps.
         </p>
         <ul className="about-list">
           <li>Students preparing for internship, co-op, and new-grad interviews</li>
@@ -79,8 +78,7 @@ export default function About({ onStart }) {
           ))}
         </dl>
         <p className="muted tiny about-note">
-          Grading runs on a rules engine in your browser rather than an AI model, so it’s instant and every point can be
-          explained.
+          Grading runs on a rules engine in your browser, so it’s instant and every point can be explained.
         </p>
       </section>
 
@@ -115,7 +113,7 @@ export default function About({ onStart }) {
         <h2>Your privacy</h2>
         <ul className="about-list">
           <li>Your resume is read in your browser and never uploaded.</li>
-          <li>Recordings of your answers stay in your browser for that session. They aren’t saved to our server.</li>
+          <li>Recordings of your answers stay in your browser for that session.</li>
           <li>
             To turn speech into text, Chrome and Edge use the browser’s own speech service. In Brave and Firefox, short clips of
             your answer are sent to ElevenLabs to transcribe.

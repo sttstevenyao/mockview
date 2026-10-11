@@ -119,7 +119,7 @@ export async function handleAuth({ method, body = {}, cookie, env, allowed }) {
       .trim()
       .toLowerCase()
     if (!USERNAME_RE.test(username))
-      return reply(400, { error: 'Username must be 3–24 letters, numbers, dots, dashes or underscores.' })
+      return reply(400, { error: 'Username must be 3 to 24 letters, numbers, dots, dashes or underscores.' })
     if (password.length < 6 || password.length > 200) return reply(400, { error: 'Password must be at least 6 characters.' })
     if (email && !EMAIL_RE.test(email)) return reply(400, { error: 'That email address doesn’t look right.' })
     if (await readJson(userPath(username), token)) return reply(409, { error: 'That username is taken.' })

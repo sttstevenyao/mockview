@@ -198,7 +198,7 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
                   <input type="range" min="2" max="30" value={a.minutes} onChange={(e) => set('minutes', +e.target.value)} />
                 </label>
               )}
-              {a.mode === 'endless' && <p className="muted tiny">Press End Interview whenever you’re done.</p>}
+              {a.mode === 'endless' && <p className="muted tiny">Press End interview whenever you’re done.</p>}
               <div className="ob-actions">
                 <button className="btn ghost" onClick={back}>
                   Back

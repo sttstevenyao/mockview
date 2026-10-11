@@ -134,7 +134,7 @@ export const QUESTIONS = [
   q(
     'p3',
     'product',
-    'Tell me about a feature you shipped that did not land the way you expected.',
+    'Tell me about a feature you shipped that didn’t land the way you expected.',
     'the redesign doubled weekly active usage',
   ),
   q(
@@ -234,7 +234,7 @@ export const QUESTIONS = [
     'Describe a time you had to balance cost, quality, and schedule.',
     'we cut unit cost by 18 percent without missing the deadline',
   ),
-  q('h3', 'hardware', 'Tell me about a hands-on project you are proud of.', 'it placed second out of 30 teams'),
+  q('h3', 'hardware', 'Tell me about a hands-on project you’re proud of.', 'it placed second out of 30 teams'),
   q(
     'h4',
     'hardware',
@@ -301,7 +301,7 @@ export const QUESTIONS = [
   q(
     'm2',
     'marketing',
-    'Describe a time a marketing idea did not work. What did you learn?',
+    'Describe a time a marketing idea didn’t work. What did you learn?',
     'the revised version doubled our click-through rate',
   ),
   q('m3', 'marketing', 'Tell me about a time you used customer insights to change your approach.', 'sign-ups rose 22 percent'),
@@ -346,7 +346,7 @@ export const QUESTIONS = [
   q(
     't2',
     'teaching',
-    'Describe a lesson or activity that did not go as planned. What did you change?',
+    'Describe a lesson or activity that didn’t go as planned. What did you change?',
     'participation doubled the next time',
   ),
   q(
@@ -418,7 +418,7 @@ export const PERSONAS = {
     desc: 'Warm and encouraging. Says “mm-hmm”, never interrupts.',
     intro: (name, fmt, role, level) =>
       `Hi ${name}! I'm Alex, and I'll be interviewing you today${role}. This is a ${fmt} behavioral round. ${level} Take a breath, use specific examples, and let's begin.`,
-    closing: (name) => `That wraps up our session, ${name}. Thanks so much — let's look at your feedback together.`,
+    closing: (name) => `That wraps up our session, ${name}. Thanks so much. Let's look at your feedback together.`,
     preview: "Hi there! I'm Alex. Ready when you are.",
     mannerisms: { speed: 1.0, expressiveness: 0.7, acks: 'warm', backchannel: true, followUps: false, interruptSec: 0 },
   },
@@ -464,9 +464,9 @@ export const ACK_STYLES = {
 export const BACKCHANNELS = ['Mm-hmm.', 'Okay…', 'Right, right.', 'Mm, okay.', 'Ah, I see.']
 export const TRANSITIONS = ['So,', 'Alright, so…', 'Okay, next one.', 'Let me ask you this.', 'Next question.']
 export const INTERRUPTS = [
-  'Sorry to cut in — let’s get to the point. What was the result?',
+  'Sorry to cut in. Let’s get to the point. What was the result?',
   'Let me stop you there. In one sentence, what did you personally do?',
-  'I’m going to jump in, we’re short on time. How did it end?',
+  'I’m going to jump in. We’re short on time. How did it end?',
 ]
 export const INTERRUPT_OPTIONS = [
   { value: 0, label: 'Never' },
@@ -478,7 +478,7 @@ export const INTERRUPT_OPTIONS = [
 // Picks a follow-up probe when an answer is missing something; null if it's solid.
 export function followUpFor(metrics) {
   if (metrics.words < 12) return 'Can you expand on that with a specific example?'
-  if (!metrics.star.action) return 'What did you personally do there — not the team, you?'
+  if (!metrics.star.action) return 'What did you personally do there?'
   if (!metrics.hasNumber) return 'Can you put a number on that? What was the measurable impact?'
   if (!metrics.star.result) return 'And how did it turn out in the end?'
   return null
@@ -486,10 +486,10 @@ export function followUpFor(metrics) {
 
 // Premade ElevenLabs voices available on every account.
 export const VOICES = [
-  { id: 'JBFqnCBsd6RMkjVDRZzb', label: 'George — warm, British' },
-  { id: 'EXAVITQu4vr4xnSDxMaL', label: 'Sarah — confident, American' },
-  { id: 'nPczCjzI2devNBz1zQrb', label: 'Brian — deep, American' },
-  { id: 'Xb7hH8MSUJpSbSDYk0k2', label: 'Alice — clear, British' },
+  { id: 'JBFqnCBsd6RMkjVDRZzb', label: 'George: warm, British' },
+  { id: 'EXAVITQu4vr4xnSDxMaL', label: 'Sarah: confident, American' },
+  { id: 'nPczCjzI2devNBz1zQrb', label: 'Brian: deep, American' },
+  { id: 'Xb7hH8MSUJpSbSDYk0k2', label: 'Alice: clear, British' },
 ]
 
 export const DEFAULT_CONFIG = {
