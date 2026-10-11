@@ -7,6 +7,8 @@ import {
   BACKCHANNELS,
   buildQueue,
   describeFormat,
+  describeRole,
+  LEVELS,
   extendQueue,
   followUpFor,
   INTERRUPTS,
@@ -129,7 +131,16 @@ export default function Interview({ config, onComplete }) {
     setTranscript({ final: '', interim: '' })
 
     const lead =
-      i === 0 ? persona.intro(config.name, describeFormat(config)) : q.followUp ? followUpLead() : (s.nextLead ?? makeLead())
+      i === 0
+        ? persona.intro(
+            config.name,
+            describeFormat(config),
+            describeRole(config),
+            LEVELS.find((l) => l.id === config.level)?.line || '',
+          )
+        : q.followUp
+          ? followUpLead()
+          : (s.nextLead ?? makeLead())
     const next = s.questions[i + 1]
     s.nextLead = makeLead()
     await say(`${lead} ${BREAK} ${q.text}`, () => {
@@ -141,6 +152,7 @@ export default function Interview({ config, onComplete }) {
     s.answerStart = Date.now()
     s.wpm = 0
     s.answering = true
+    s.lastWordAt = 0
     s.simUsed = false
     s.interrupted = false
     s.transcriber.begin()
@@ -191,8 +203,9 @@ export default function Interview({ config, onComplete }) {
     const { text, chunks } = s.transcriber.end()
     const vocal = s.meter.stop()
     const durationSec = (Date.now() - s.answerStart) / 1000
+    const speakingSec = s.lastWordAt > s.answerStart ? (s.lastWordAt - s.answerStart) / 1000 + 0.5 : durationSec
     // Vocal scores only describe real mic audio, never a simulated answer.
-    s.answers.push({ question: s.questions[s.qIndex], text, chunks, durationSec, vocal: s.simUsed ? null : vocal })
+    s.answers.push({ question: s.questions[s.qIndex], text, chunks, durationSec, speakingSec, vocal: s.simUsed ? null : vocal })
     s.pastFillers += liveMetrics(text, durationSec).fillers
   }
 
@@ -289,6 +302,7 @@ export default function Interview({ config, onComplete }) {
       onUpdate: ({ final, interim }) => {
         // Pace is measured from the first spoken word, not from when the mic opened.
         if (!s.final && !s.interim && (final || interim)) s.answerStart = Date.now() - 400
+        if (final.length + interim.length > s.final.length + s.interim.length) s.lastWordAt = Date.now()
         s.final = final
         s.interim = interim
         setTranscript({ final, interim })
@@ -378,7 +392,7 @@ export default function Interview({ config, onComplete }) {
                 {provider === 'elevenlabs' && <span className="good">● ElevenLabs voice</span>}
                 {provider === 'browser' && (
                   <span className="warn" title={ttsError || ''}>
-                    ● Browser voice fallback
+                    ● Browser voice fallback{ttsError ? ` — ${ttsError}` : ''}
                   </span>
                 )}
                 {!provider && <span>● connecting voice…</span>}

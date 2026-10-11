@@ -4,11 +4,34 @@
 import { scoreVocal } from '../lib/voiceAnalysis.js'
 
 export const TRACKS = [
-  { id: 'general', label: 'General Behavioral' },
-  { id: 'swe', label: 'Software Engineering' },
-  { id: 'product', label: 'Product & Design' },
-  { id: 'leadership', label: 'Leadership' },
+  { id: 'general', label: 'General Behavioral', role: '' },
+  { id: 'swe', label: 'Software Engineering', role: 'software engineering' },
+  { id: 'data', label: 'Data Science & Analytics', role: 'data' },
+  { id: 'product', label: 'Product & Design', role: 'product' },
+  { id: 'cyber', label: 'Cybersecurity & IT', role: 'cybersecurity' },
+  { id: 'hardware', label: 'Mechanical & Hardware', role: 'engineering' },
+  { id: 'finance', label: 'Finance & Banking', role: 'finance' },
+  { id: 'consulting', label: 'Consulting', role: 'consulting' },
+  { id: 'marketing', label: 'Marketing', role: 'marketing' },
+  { id: 'sales', label: 'Sales', role: 'sales' },
+  { id: 'healthcare', label: 'Healthcare & Nursing', role: 'healthcare' },
+  { id: 'teaching', label: 'Teaching & Education', role: 'teaching' },
+  { id: 'service', label: 'Customer Service & Retail', role: 'customer-facing' },
+  { id: 'leadership', label: 'Leadership & Management', role: 'leadership' },
 ]
+
+export const LEVELS = [
+  { id: 'intern', label: 'Internship', line: 'Examples from classes, clubs, and projects are completely fine.' },
+  { id: 'newgrad', label: 'New grad', line: 'Feel free to draw on internships, projects, or school.' },
+  { id: 'experienced', label: 'Experienced', line: "I'll be looking for examples from your professional experience." },
+]
+
+// " for the Data Analyst Intern position" — spoken in the interviewer's intro.
+export function describeRole(c) {
+  if (c.role?.trim()) return ` for the ${c.role.trim()} position`
+  const t = TRACKS.find((x) => x.id === c.track)
+  return t?.role ? ` for a ${t.role} role` : ''
+}
 
 const q = (id, track, text, resultHint) => ({ id, track, text, resultHint })
 
@@ -152,6 +175,207 @@ export const QUESTIONS = [
     'Tell me about a conflict within a team you led and how you resolved it.',
     'we finished the project two days early',
   ),
+
+  q(
+    'd1',
+    'data',
+    'Tell me about a time your analysis changed a decision someone was about to make.',
+    'the team redirected 20 percent of its budget to the better option',
+  ),
+  q(
+    'd2',
+    'data',
+    'Describe a time you worked with messy or incomplete data. How did you handle it?',
+    'the report error rate dropped to under 1 percent',
+  ),
+  q(
+    'd3',
+    'data',
+    'Tell me about a time you had to explain a technical finding to a non-technical audience.',
+    'leadership approved the proposal in a single meeting',
+  ),
+  q(
+    'd4',
+    'data',
+    'Describe a model or analysis that turned out to be wrong. What did you do?',
+    'forecast accuracy improved by 15 percent',
+  ),
+  q('d5', 'data', 'Tell me about a time you automated a repetitive data task.', 'the team saved about eight hours every week'),
+
+  q(
+    'c1',
+    'cyber',
+    'Tell me about a time you identified a security risk others had missed.',
+    'we closed the vulnerability within 48 hours with zero incidents',
+  ),
+  q('c2', 'cyber', 'Describe how you handled a stressful outage or incident.', 'we restored service in under an hour'),
+  q(
+    'c3',
+    'cyber',
+    'Tell me about a time you had to convince people to follow a security practice they found inconvenient.',
+    'adoption went from 40 to 95 percent',
+  ),
+  q(
+    'c4',
+    'cyber',
+    'Describe a time you had to learn a new tool or system under pressure.',
+    'I resolved the ticket backlog in two days',
+  ),
+
+  q(
+    'h1',
+    'hardware',
+    'Tell me about a design that failed testing. What did you do next?',
+    'the second prototype passed every test',
+  ),
+  q(
+    'h2',
+    'hardware',
+    'Describe a time you had to balance cost, quality, and schedule.',
+    'we cut unit cost by 18 percent without missing the deadline',
+  ),
+  q('h3', 'hardware', 'Tell me about a hands-on project you are proud of.', 'it placed second out of 30 teams'),
+  q(
+    'h4',
+    'hardware',
+    'Describe a time you worked with people from another discipline to solve a problem.',
+    'we eliminated the defect in the next production run',
+  ),
+
+  q(
+    'f1',
+    'finance',
+    'Tell me about a time you caught an error in numbers or a financial model.',
+    'we avoided a 50,000 dollar reporting mistake',
+  ),
+  q(
+    'f2',
+    'finance',
+    'Describe a time you worked under a very tight deadline.',
+    'the deliverable went out on time with zero revisions',
+  ),
+  q(
+    'f3',
+    'finance',
+    'Tell me about a time you had to make a decision with incomplete information.',
+    'the investment returned 12 percent that year',
+  ),
+  q(
+    'f4',
+    'finance',
+    'Why finance? Tell me about an experience that sparked your interest.',
+    'I grew my student investment club portfolio by 9 percent',
+  ),
+
+  q(
+    'k1',
+    'consulting',
+    'Tell me about a time you solved an ambiguous problem with no clear answer.',
+    'the client adopted two of our three recommendations',
+  ),
+  q(
+    'k2',
+    'consulting',
+    'Describe a time you had to influence a stakeholder who disagreed with you.',
+    'they signed off on the plan the following week',
+  ),
+  q(
+    'k3',
+    'consulting',
+    'Tell me about a time you worked on a team with very different personalities.',
+    'we delivered the final presentation a day early',
+  ),
+  q(
+    'k4',
+    'consulting',
+    'Describe a time you had to quickly become an expert in an unfamiliar industry.',
+    'my recommendation became the centerpiece of the pitch',
+  ),
+
+  q(
+    'm1',
+    'marketing',
+    'Tell me about a campaign or project you launched. How did you measure success?',
+    'engagement grew by 35 percent in a month',
+  ),
+  q(
+    'm2',
+    'marketing',
+    'Describe a time a marketing idea did not work. What did you learn?',
+    'the revised version doubled our click-through rate',
+  ),
+  q('m3', 'marketing', 'Tell me about a time you used customer insights to change your approach.', 'sign-ups rose 22 percent'),
+  q(
+    'm4',
+    'marketing',
+    'Describe a time you had to work with a very small budget.',
+    'we reached 10,000 people for under 200 dollars',
+  ),
+
+  q('a1', 'sales', 'Tell me about a time you turned a "no" into a "yes".', 'we closed a 15,000 dollar deal'),
+  q('a2', 'sales', 'Describe how you handled losing an important deal or customer.', 'I won the account back the next quarter'),
+  q('a3', 'sales', 'Tell me about a time you exceeded a target.', 'I finished the quarter at 130 percent of quota'),
+  q('a4', 'sales', 'Describe a time you built a relationship with a difficult client.', 'they renewed for two more years'),
+
+  q(
+    'n1',
+    'healthcare',
+    'Tell me about a time you cared for a patient or person in a difficult situation.',
+    'the patient and family left with a clear care plan',
+  ),
+  q(
+    'n2',
+    'healthcare',
+    'Describe a time you noticed something was wrong and spoke up.',
+    'the error was caught before it reached the patient',
+  ),
+  q(
+    'n3',
+    'healthcare',
+    'Tell me about a time you worked as part of a care team under pressure.',
+    'we handled a record number of patients with no safety incidents',
+  ),
+  q(
+    'n4',
+    'healthcare',
+    'Describe how you handled a conflict with a coworker or supervisor.',
+    'our unit’s handoff errors dropped noticeably',
+  ),
+
+  q('t1', 'teaching', 'Tell me about a time you helped a struggling student or learner.', 'their grade improved from a D to a B'),
+  q(
+    't2',
+    'teaching',
+    'Describe a lesson or activity that did not go as planned. What did you change?',
+    'participation doubled the next time',
+  ),
+  q(
+    't3',
+    'teaching',
+    'Tell me about a time you managed a disruptive situation in a group.',
+    'the group finished the activity on time',
+  ),
+  q(
+    't4',
+    'teaching',
+    'Describe how you adapted your teaching for people with different needs.',
+    'every student passed the final assessment',
+  ),
+
+  q('r1', 'service', 'Tell me about a time you dealt with an upset customer.', 'they left a five-star review'),
+  q('r2', 'service', 'Describe a time you went out of your way to help a customer.', 'they became a regular customer'),
+  q(
+    'r3',
+    'service',
+    'Tell me about a time the store or team was short-staffed. What did you do?',
+    'we kept wait times under five minutes',
+  ),
+  q(
+    'r4',
+    'service',
+    'Describe a time you had to follow a policy a customer disagreed with.',
+    'the customer still thanked me at the end',
+  ),
 ]
 
 const shuffle = (arr) => {
@@ -182,8 +406,8 @@ export const PERSONAS = {
     name: 'Alex',
     title: 'Friendly Recruiter',
     desc: 'Warm, encouraging, gives you room to think.',
-    intro: (name, fmt) =>
-      `Hi ${name}! I'm Alex, and I'll be your interviewer today. This is a ${fmt} behavioral round. Take a breath, use specific examples, and let's begin.`,
+    intro: (name, fmt, role, level) =>
+      `Hi ${name}! I'm Alex, and I'll be interviewing you today${role}. This is a ${fmt} behavioral round. ${level} Take a breath, use specific examples, and let's begin.`,
     closing: (name) => `That wraps up our session, ${name}. Thanks so much — let's look at your feedback together.`,
     preview: "Hi there! I'm Alex. Ready when you are.",
     mannerisms: { speed: 1.0, expressiveness: 0.7, acks: 'warm', backchannel: true, followUps: false, interruptSec: 0 },
@@ -193,8 +417,8 @@ export const PERSONAS = {
     name: 'Jordan',
     title: 'Hiring Manager',
     desc: 'Professional and even-toned. A realistic baseline.',
-    intro: (name, fmt) =>
-      `Hello ${name}, I'm Jordan, the hiring manager. This will be a ${fmt} behavioral interview. Let's get started.`,
+    intro: (name, fmt, role, level) =>
+      `Hello ${name}, I'm Jordan, the hiring manager. This will be a ${fmt} behavioral interview${role}. ${level} Let's get started.`,
     closing: (name) => `Thank you, ${name}. That concludes the interview. Your report is ready.`,
     preview: "Hello, I'm Jordan, the hiring manager. Let's begin.",
     mannerisms: { speed: 1.0, expressiveness: 0.45, acks: 'neutral', backchannel: false, followUps: true, interruptSec: 0 },
@@ -204,8 +428,8 @@ export const PERSONAS = {
     name: 'Morgan',
     title: 'Bar Raiser',
     desc: 'Terse and skeptical. Pushes for specifics and numbers.',
-    intro: (name, fmt) =>
-      `${name}. I'm Morgan. This is a ${fmt} round and time is limited, so be concise and give me specifics. First question.`,
+    intro: (name, fmt, role) =>
+      `${name}. I'm Morgan. This is a ${fmt} round${role}, and time is limited, so be concise and give me specifics. First question.`,
     closing: (name) => `We're done here, ${name}. Let's see how you did.`,
     preview: "I'm Morgan. Be specific, and be concise.",
     mannerisms: { speed: 1.08, expressiveness: 0.25, acks: 'curt', backchannel: false, followUps: true, interruptSec: 90 },
@@ -261,6 +485,8 @@ export const VOICES = [
 export const DEFAULT_CONFIG = {
   name: 'Candidate',
   track: 'general',
+  role: '',
+  level: 'intern',
   persona: 'friendly',
   voiceId: VOICES[0].id,
   voiceQuality: 'high',

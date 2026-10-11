@@ -30,7 +30,8 @@ body,
 }
 body {
   margin: 0;
-  background: radial-gradient(1200px 600px at 80% -10%, rgba(167, 139, 250, 0.09), transparent 60%),
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(167, 139, 250, 0.09), transparent 60%),
     radial-gradient(900px 500px at -10% 110%, rgba(34, 211, 238, 0.06), transparent 60%), var(--bg);
   color: var(--text);
   font:
@@ -1411,4 +1412,47 @@ input[type='range'] {
 }
 .fill.bad {
   background: var(--bad);
+}
+
+/* ── Answer quality ────────────────────────── */
+.issues {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  background: var(--bad-bg);
+  border: 1px solid rgba(248, 81, 73, 0.45);
+  color: #ffa198;
+  display: grid;
+  gap: 4px;
+}
+.star-guide ol {
+  margin: 8px 0;
+  padding-left: 20px;
+  font-size: 14px;
+}
+.star-guide li {
+  margin-bottom: 6px;
+}
+
+/* ── Job fields ────────────────────────────── */
+.seg.tracks {
+  grid-template-columns: repeat(3, 1fr);
+}
+.seg.tracks button {
+  font-size: 12.5px;
+  padding: 8px 10px;
+}
+.seg.three {
+  grid-template-columns: repeat(3, 1fr);
+}
+.seg.three button {
+  text-align: center;
+  padding: 10px 4px;
+  font-size: 12.5px;
+}
+@media (max-width: 640px) {
+  .seg.tracks {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

@@ -241,6 +241,13 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
             ))}
           </div>
           <h3 className="fb-q">{a.question?.text}</h3>
+          {a.quality.issues.length > 0 && (
+            <div className="issues">
+              {a.quality.issues.map((t) => (
+                <div key={t}>⚠ {t}</div>
+              ))}
+            </div>
+          )}
           <div className="legend tiny">
             <span>
               <i className="lg-flag" /> Red flag
@@ -316,7 +323,24 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
           </div>
 
           {!a.weakest ? (
-            <p className="muted">Nothing to rewrite for this answer.</p>
+            <div className="star-guide">
+              <p className="muted">There isn’t a real answer here to rewrite. Here’s how to structure one for this question:</p>
+              <ol>
+                <li>
+                  <b>Situation:</b> Where were you, and when? (“During my internship at…”)
+                </li>
+                <li>
+                  <b>Task:</b> What were you responsible for, or what was at stake?
+                </li>
+                <li>
+                  <b>Action:</b> What did <i>you</i> do? Use “I”, with two or three concrete steps.
+                </li>
+                <li>
+                  <b>Result:</b> How did it end, with a number? e.g. “As a result, {a.question?.resultHint}.”
+                </li>
+              </ol>
+              <p className="muted tiny">Aim for 60–90 seconds (about 150–250 words).</p>
+            </div>
           ) : !a.rewrite ? (
             <p className="muted">Your weakest sentence here is already clean and quantified. Nice work.</p>
           ) : (

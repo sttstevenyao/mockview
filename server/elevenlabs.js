@@ -14,14 +14,18 @@ const json = (status, obj) => ({
   body: Buffer.from(JSON.stringify(obj)),
 })
 
+// The .env.example placeholder counts as "not set".
+const hasKey = (apiKey) => Boolean(apiKey && apiKey.trim() && apiKey.trim() !== 'your_key_here')
+
 export function health(apiKey) {
-  return json(200, { configured: Boolean(apiKey) })
+  return json(200, { configured: hasKey(apiKey) })
 }
 
 const num = (v, lo, hi, dflt) => (Number.isFinite(+v) ? Math.min(hi, Math.max(lo, +v)) : dflt)
 
 export async function synthesize({ text, voiceId, quality, speed, expressiveness, apiKey }) {
-  if (!apiKey) return json(503, { error: 'ELEVENLABS_API_KEY is not set on the server' })
+  if (!hasKey(apiKey)) return json(503, { error: 'ELEVENLABS_API_KEY is not set in .env' })
+  apiKey = apiKey.trim()
   if (typeof text !== 'string' || !text.trim() || text.length > 1500) {
     return json(400, { error: 'text is required (max 1500 chars)' })
   }

@@ -239,6 +239,56 @@ function scoreConfidence({ words, fillers, hedges, flags, wpm, starCount, hasNum
   return clamp(Math.round(s), 3, 98)
 }
 
+// ───────────────────────── Answer quality ─────────────────────────
+// Catches non-answers ("blah blah blah"), answers that are far too short, and
+// answers that never touch the question, so they can't score like real ones.
+
+const STOP = new Set(
+  'the a an and or but so to of in on at for with about time you your how did what when where why tell me describe give example situation had have has was were is are be been do does that this it its from as by i we they he she them our my their more most some any one can could would should will just really very something someone thing things'.split(
+    ' ',
+  ),
+)
+const stem = (w) => w.replace(/(ing|ed|es|s|ly|ment|ion|ive|al)$/, '').slice(0, 6)
+
+export function contentQuality(text, questionText = '') {
+  const toks = text.toLowerCase().match(/[a-z']+/g) || []
+  const words = toks.length
+  const counts = {}
+  for (const t of toks) counts[t] = (counts[t] || 0) + 1
+  const unique = Object.keys(counts).length
+  const topShare = words ? Math.max(...Object.values(counts)) / words : 0
+  const repetitive = words >= 5 && (unique / words < 0.45 || topShare > 0.3)
+
+  const qStems = new Set(
+    (questionText.toLowerCase().match(/[a-z']+/g) || []).filter((w) => w.length > 3 && !STOP.has(w)).map(stem),
+  )
+  const aStems = new Set(toks.filter((w) => w.length > 3).map(stem))
+  const overlap = [...qStems].filter((x) => aStems.has(x)).length
+  const starCount = Object.values(detectStar(text)).filter(Boolean).length
+  const offTopic = !repetitive && words >= 25 && qStems.size > 0 && overlap === 0 && starCount <= 1
+
+  const issues = []
+  let cap = 100
+  if (!words) {
+    issues.push('No answer was captured.')
+    cap = 0
+  } else if (repetitive) {
+    issues.push('This doesn’t sound like a real answer: the same words repeat over and over.')
+    cap = 8
+  } else if (words < 12) {
+    issues.push(`Only ${words} words. A strong behavioral answer is usually 150–250 words (60–90 seconds).`)
+    cap = 15
+  } else if (words < 40) {
+    issues.push(`Too short (${words} words). Aim for 60–90 seconds and walk through Situation, Task, Action and Result.`)
+    cap = 30 + words
+  }
+  if (offTopic) {
+    issues.push('This may not answer the question that was asked. Tie your story back to it explicitly.')
+    cap = Math.min(cap, 35)
+  }
+  return { words, repetitive, offTopic, nonAnswer: !words || repetitive || words < 12, issues, cap }
+}
+
 export function liveMetrics(text, seconds) {
   const words = countWords(text)
   const matches = findMatches(text)
@@ -259,12 +309,29 @@ export function liveMetrics(text, seconds) {
   const hasNumber = NUMBER_RE.test(text)
   const iCount = (text.match(/\bi\b/gi) || []).length
   const weCount = (text.match(/\bwe\b/gi) || []).length
-  const confidence = scoreConfidence({ words, fillers, hedges, flags, wpm, starCount, hasNumber, iCount, weCount })
-  return { words, wpm, fillers, fillerBreakdown, hedges, flags, star, starCount, hasNumber, iCount, weCount, confidence }
+  let confidence = scoreConfidence({ words, fillers, hedges, flags, wpm, starCount, hasNumber, iCount, weCount })
+  const repetitive = contentQuality(text).repetitive
+  if (repetitive) confidence = Math.min(confidence, 12)
+  return {
+    repetitive,
+    words,
+    wpm,
+    fillers,
+    fillerBreakdown,
+    hedges,
+    flags,
+    star,
+    starCount,
+    hasNumber,
+    iCount,
+    weCount,
+    confidence,
+  }
 }
 
 export function liveTip(m, wpm = m.wpm) {
   if (m.words < 4) return 'Listening… open with the Situation: where were you, and when?'
+  if (m.repetitive) return 'That doesn’t sound like a real answer yet. Tell one specific story.'
   if (m.flags > 0) return 'Red flag detected — reframe it positively and focus on what you did.'
   if (m.words > 15 && (m.fillers / m.words) * 100 > 6) return 'Pause instead of saying “um” — silence reads as confidence.'
   if (wpm > 180) return 'You’re rushing. Slow down and let key points land.'
@@ -402,7 +469,7 @@ export function rewriteSentence(sentence, resultHint) {
     }
   }
   out = tidy(out)
-  if (!NUMBER_RE.test(out) && resultHint) {
+  if (!NUMBER_RE.test(out) && resultHint && countWords(out) >= 6) {
     out = `${out} As a result, ${resultHint}.`
     changes.push('Added a quantified result — swap in your real metric')
   }
@@ -445,12 +512,20 @@ export function diffWords(a, b) {
 
 export function analyzeAnswer(answer) {
   const text = answer.text || ''
-  const metrics = liveMetrics(text, answer.durationSec || 0)
+  // Pace uses time actually spent speaking, not the idle time before clicking Next.
+  const metrics = liveMetrics(text, answer.speakingSec || answer.durationSec || 0)
+  if (metrics.words < 15) metrics.wpm = 0 // too few words for a meaningful pace
+  const quality = contentQuality(text, answer.question?.text)
+  const confidence = Math.min(quality.cap, metrics.confidence)
+  metrics.confidence = confidence
+
   const sentences = splitSentences(answer).map((s) => ({ text: s, ...sentenceWeakness(s) }))
   const eligible = sentences.filter((s) => s.words >= 5)
-  const weakest = (eligible.length ? eligible : sentences).reduce((w, s) => (!w || s.score > w.score ? s : w), null)
+  const weakest = quality.nonAnswer
+    ? null
+    : (eligible.length ? eligible : sentences).reduce((w, s) => (!w || s.score > w.score ? s : w), null)
   const rewrite = weakest ? rewriteSentence(weakest.text, answer.question?.resultHint) : null
-  return { ...answer, text, metrics, sentences, weakest, rewrite, segments: segmentText(text), confidence: metrics.confidence }
+  return { ...answer, text, metrics, quality, sentences, weakest, rewrite, segments: segmentText(text), confidence }
 }
 
 export function grade(score) {
@@ -471,7 +546,9 @@ export function analyzeSession(answers) {
   const sum = (key) => items.reduce((s, a) => s + a.metrics[key], 0)
 
   const score = Math.round(weighted('confidence'))
-  const avgWpm = Math.round(weighted('wpm'))
+  const paced = items.filter((a) => a.metrics.wpm > 0)
+  const pacedWords = paced.reduce((s, a) => s + a.metrics.words, 0)
+  const avgWpm = pacedWords ? Math.round(paced.reduce((s, a) => s + a.metrics.wpm * a.metrics.words, 0) / pacedWords) : 0
   const fillers = sum('fillers')
   const hedges = sum('hedges')
   const flags = sum('flags')
@@ -481,9 +558,11 @@ export function analyzeSession(answers) {
   const quantified = items.filter((a) => a.metrics.hasNumber).length
   const fillerRate = words ? (fillers / words) * 100 : 0
 
+  // Weakest answer = lowest score; ties go to the one with the worst sentence.
   let weakestIndex = 0
   items.forEach((a, i) => {
-    if (a.weakest && a.rewrite && (!items[weakestIndex].rewrite || a.weakest.score > items[weakestIndex].weakest.score))
+    const w = items[weakestIndex]
+    if (a.confidence < w.confidence || (a.confidence === w.confidence && (a.weakest?.score || 0) > (w.weakest?.score || 0)))
       weakestIndex = i
   })
 
@@ -510,6 +589,12 @@ export function analyzeSession(answers) {
     (vocal >= 75 ? strengths : focus).unshift(
       vocal >= 75 ? 'Confident, expressive voice' : 'Work on vocal delivery — projection & pitch variety',
     )
+
+  if (items.length && items.every((a) => a.quality.nonAnswer)) {
+    strengths.length = 0
+    focus.length = 0
+    focus.push('Give complete answers: 60–90 seconds each, using the STAR structure')
+  }
 
   return {
     answers: items,

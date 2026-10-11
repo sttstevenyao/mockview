@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Brand from './Brand.jsx'
-import { ACK_STYLES, INTERRUPT_OPTIONS, PERSONAS, TRACKS, VOICES } from '../data/questions.js'
+import { ACK_STYLES, INTERRUPT_OPTIONS, LEVELS, PERSONAS, TRACKS, VOICES } from '../data/questions.js'
 import { initAudio } from '../lib/audio.js'
 import { checkTtsHealth, speak } from '../lib/tts.js'
 import { speechSupported } from '../lib/transcriber.js'
@@ -26,6 +26,7 @@ export default function Setup({ initial, onStart, onSample }) {
   const [cfg, setCfg] = useState(initial)
   const [health, setHealth] = useState(null)
   const [previewing, setPreviewing] = useState(false)
+  const [voiceStatus, setVoiceStatus] = useState(null) // result of the last Preview
   const set = (k, v) => setCfg((c) => ({ ...c, [k]: v }))
   const setM = (k, v) => setCfg((c) => ({ ...c, mannerisms: { ...c.mannerisms, [k]: v } }))
   // Picking a persona loads its mannerism preset; every knob stays editable.
@@ -40,7 +41,7 @@ export default function Setup({ initial, onStart, onSample }) {
   const preview = async () => {
     initAudio()
     setPreviewing(true)
-    await speak(PERSONAS[cfg.persona].preview, voiceOpts)
+    await speak(PERSONAS[cfg.persona].preview, voiceOpts, (provider, error) => setVoiceStatus({ provider, error }))
     setPreviewing(false)
   }
 
@@ -82,13 +83,35 @@ export default function Setup({ initial, onStart, onSample }) {
             </label>
 
             <div className="field">
-              <span>Focus area</span>
-              <div className="seg">
+              <span>Job field</span>
+              <div className="seg tracks">
                 {TRACKS.map((t) => (
                   <button key={t.id} className={cfg.track === t.id ? 'on' : ''} onClick={() => set('track', t.id)}>
                     {t.label}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div className="two-col">
+              <label className="field">
+                <span>Target role (optional)</span>
+                <input
+                  value={cfg.role}
+                  maxLength={60}
+                  onChange={(e) => set('role', e.target.value)}
+                  placeholder="e.g. Data Analyst Intern at Google"
+                />
+              </label>
+              <div className="field">
+                <span>Experience level</span>
+                <div className="seg three">
+                  {LEVELS.map((l) => (
+                    <button key={l.id} className={cfg.level === l.id ? 'on' : ''} onClick={() => set('level', l.id)}>
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -128,6 +151,10 @@ export default function Setup({ initial, onStart, onSample }) {
                   {previewing ? '♪ Playing…' : '▶ Preview'}
                 </button>
               </div>
+              {voiceStatus?.provider === 'elevenlabs' && <span className="tiny good">✓ Playing through ElevenLabs</span>}
+              {voiceStatus?.provider === 'browser' && (
+                <span className="tiny warn">⚠ ElevenLabs error: {voiceStatus.error}. Using the browser voice instead.</span>
+              )}
             </div>
 
             <div className="field">
