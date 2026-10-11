@@ -2513,3 +2513,11 @@ button.brand:hover span {
     grid-template-columns: 1fr;
   }
 }
+.facts-action {
+  display: flex;
+  align-items: flex-end;
+}
+.facts dd {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

@@ -85,9 +85,6 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
         <section className="panel">
           <div className="panel-head">
             <h2 className="panel-title">Your interview</h2>
-            <button className="btn ghost sm" onClick={onEdit}>
-              Change answers
-            </button>
           </div>
           <dl className="facts">
             {facts.map(([k, v]) => (
@@ -96,6 +93,12 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
                 <dd>{v}</dd>
               </div>
             ))}
+            {/* Fills the grid's last slot, under Field */}
+            <div className="facts-action">
+              <button className="btn ghost sm" onClick={onEdit}>
+                Change answers
+              </button>
+            </div>
           </dl>
         </section>
 
