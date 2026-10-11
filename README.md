@@ -4,6 +4,8 @@
 
 > Built in 24 hours at **HackRU Fall 2026** (Rutgers University) · **Education Track** · Submitted for **Best Newbie Hack** and **Use of ElevenLabs**
 
+**▶ Live demo: [mockview-ruddy.vercel.app](https://mockview-ruddy.vercel.app)** · [sample report](https://mockview-ruddy.vercel.app/#sample)
+
 ![MockView feedback report](docs/cover.png)
 
 ---
@@ -54,7 +56,7 @@ The API key stays server-side, behind a small proxy ([`server/elevenlabs.js`](se
 **Requirements:** Node 18+, a modern browser (Chrome or Edge give live word-by-word transcripts; Brave and Firefox use ElevenLabs Scribe), and an [ElevenLabs API key](https://elevenlabs.io/app/settings/api-keys).
 
 ```bash
-git clone https://github.com/YOUR-ORG/mockview.git
+git clone https://github.com/sttstevenyao/mockview.git
 cd mockview
 npm install
 cp .env.example .env        # then paste your key into ELEVENLABS_API_KEY
