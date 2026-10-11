@@ -4358,3 +4358,12 @@ body:has(.setup) {
 .grade-scale li.on b {
   color: var(--accent);
 }
+/* Room between the ring labels and the cards below */
+.user-stats {
+  margin-bottom: 38px;
+}
+@media (max-width: 640px) {
+  .user-stats {
+    margin-bottom: 28px;
+  }
+}
