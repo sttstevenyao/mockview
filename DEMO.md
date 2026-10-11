@@ -9,7 +9,7 @@ Judging is in person at your table from 1:00 PM ET. Judges score **functionality
 - In **Settings**, turn on **Skip the introduction** so the first question comes right away.
 - Make sure **Reduce motion** is off in Settings, so the animations show.
 - Click **Preview voice** once to warm up audio.
-- All three of you need to be at the table: the rules require every team member in person for judging.
+- All four of you need to be at the table: the rules require every team member in person for judging.
 - Have a second tab open on https://mockview-ruddy.vercel.app/#sample in case the hall is too loud for the mic.
 - If the room is loud, use headphones for audio, or use **Simulate answer** (press S) for one answer.
 
@@ -33,7 +33,7 @@ Judging is in person at your table from 1:00 PM ET. Judges score **functionality
 
 **4c. Accessibility (15 s, optional).** In Settings, set Interviewer language to Español and start again: the same voice asks the question in Spanish, with the English underneath. "For students interviewing in their second language."
 
-**5. Technical close (25 s).** "ElevenLabs runs both directions: Text to Speech for the interviewer, and Speech to Text with Scribe when the browser can't transcribe, like in Brave. Grading is a rules engine in the browser, so it's instant and every point is explainable. Accounts sync across devices. We're three first-time hackers, and it's live right now at mockview-ruddy.vercel.app."
+**5. Technical close (25 s).** "ElevenLabs runs both directions: Text to Speech for the interviewer, and Speech to Text with Scribe when the browser can't transcribe, like in Brave. Grading is a rules engine in the browser, so it's instant and every point is explainable. Accounts sync across devices. We're four first-time hackers, and it's live right now at mockview-ruddy.vercel.app."
 
 ## Likely questions
 

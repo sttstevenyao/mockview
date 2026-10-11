@@ -112,8 +112,9 @@ showcase/                                   files for the ElevenLabs Showcase PR
 | Zexing Yao | Project lead |
 | Kevin Wang | UI/UX design |
 | Daniel Kim | Ideation |
+| Soham Bajaj | Domain expert |
 
-First hackathon for all three of us.
+First hackathon for all four of us.
 
 ## ElevenLabs Showcase
 
@@ -127,4 +128,4 @@ showcase/apps/www/public/images/mockview.png   -> apps/www/public/images/
 
 ## License
 
-[MIT](LICENSE). © 2026 Zexing Yao, Kevin Wang, Daniel Kim
+[MIT](LICENSE). © 2026 Zexing Yao, Kevin Wang, Daniel Kim, Soham Bajaj

@@ -47,7 +47,7 @@ We're all heading into internship season. Knowing your stories is one thing; say
 
 ## Accomplishments that we're proud of
 
-- A full product from three first-time hackers: setup, a live interview, a report, accounts and settings, deployed and usable in any modern browser.
+- A full product from four first-time hackers: setup, a live interview, a report, accounts and settings, deployed and usable in any modern browser.
 - ElevenLabs on both sides of the conversation: the interviewer's voice, and real-time transcription where the browser can't do it.
 - Hearing your own weakest sentence read back the way a confident candidate would say it.
 - An interviewer that listens: reactions based on what you said, honest handling of silence, and nonsense called out instead of polished.
