@@ -16,6 +16,14 @@ function Check({ ok, warn, label, detail }) {
   )
 }
 
+// How the selected interviewer behaves, from its mannerisms.
+const traits = (m) => [
+  { warm: 'Warm reactions', neutral: 'Neutral reactions', curt: 'Curt reactions', none: 'No reactions' }[m.acks],
+  m.backchannel ? 'Says “mm-hmm”' : 'No small talk',
+  m.followUps ? 'Asks follow-ups' : 'No follow-ups',
+  m.interruptSec ? `Interrupts after ${m.interruptSec}s` : 'Never interrupts',
+]
+
 export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, onSettings }) {
   const [health, setHealth] = useState(null)
   const [previewing, setPreviewing] = useState(false)
@@ -110,6 +118,11 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
             ))}
           </div>
           <p className="muted tiny persona-desc">{PERSONAS[cfg.persona].desc}</p>
+          <ul className="persona-traits">
+            {traits(cfg.mannerisms).map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
 
           <div className="row voice-row">
             <select value={cfg.voiceId} onChange={(e) => set('voiceId', e.target.value)} aria-label="Interviewer voice">

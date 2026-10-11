@@ -124,10 +124,10 @@ mockview/
 
 | Name | Role |
 |---|---|
-| **Zexing Yao** | TODO: e.g. frontend & UI design |
-| **Soham Bajaj** | TODO: e.g. ElevenLabs integration |
-| **Kevin Wang** | TODO: e.g. grading engine |
-| **Daniel Kim** | TODO: e.g. audio analysis & pitch |
+| **Zexing Yao** | Project lead |
+| **Kevin Wang** | UI/UX designer |
+| **Soham Bajaj** | Testing, feedback and project direction |
+| **Daniel Kim** | Programmer |
 
 All four of us are first-time hackers at HackRU Fall 2026.
 

@@ -1,4 +1,9 @@
-const TEAM = ['Zexing Yao', 'Soham Bajaj', 'Kevin Wang', 'Daniel Kim']
+const TEAM = [
+  ['Zexing Yao', 'Project lead'],
+  ['Kevin Wang', 'UI/UX designer'],
+  ['Soham Bajaj', 'Testing, feedback and project direction'],
+  ['Daniel Kim', 'Programmer'],
+]
 
 const BUILT_WITH = [
   [
@@ -30,8 +35,11 @@ export default function Credits() {
       <section className="credits-block">
         <h2 className="mono tiny muted">TEAM</h2>
         <ul className="team">
-          {TEAM.map((n) => (
-            <li key={n}>{n}</li>
+          {TEAM.map(([name, role]) => (
+            <li key={name}>
+              <span className="team-name">{name}</span>
+              <span className="muted tiny">{role}</span>
+            </li>
           ))}
         </ul>
       </section>
