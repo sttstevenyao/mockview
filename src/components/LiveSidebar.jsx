@@ -63,7 +63,7 @@ function Fillers({ count, breakdown }) {
 }
 
 // children: the conversation log, which fills the rest of the column.
-export default function LiveSidebar({ metrics, stage, coaching, children }) {
+export default function LiveSidebar({ metrics, stage, coaching, star = true, children }) {
   const live = stage === 'listening'
   return (
     <aside className="sidebar">
@@ -83,19 +83,21 @@ export default function LiveSidebar({ metrics, stage, coaching, children }) {
         </div>
       )}
 
-      <div className="card">
-        <div className="card-label">
-          Answer structure <span className="muted tiny">STAR</span>
+      {star && (
+        <div className="card">
+          <div className="card-label">
+            Answer structure <span className="muted tiny">STAR</span>
+          </div>
+          <ul className="star-list">
+            {STAR_KEYS.map(([k, label]) => (
+              <li key={k} className={metrics.star[k] ? 'hit' : ''}>
+                <span className="star-box">{metrics.star[k] ? '✓' : ''}</span>
+                <span>{label}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="star-list">
-          {STAR_KEYS.map(([k, label]) => (
-            <li key={k} className={metrics.star[k] ? 'hit' : ''}>
-              <span className="star-box">{metrics.star[k] ? '✓' : ''}</span>
-              <span>{label}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      )}
 
       <Pace wpm={metrics.wpm} />
       <Fillers count={metrics.fillers} breakdown={metrics.fillerBreakdown} />

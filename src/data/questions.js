@@ -21,6 +21,7 @@ export const TRACKS = [
 ]
 
 export const LEVELS = [
+  { id: 'beginner', label: 'Beginner', line: 'These are warm-up questions. Short, clear answers are perfect.' },
   { id: 'intern', label: 'Internship', line: 'Examples from classes, clubs, and projects are completely fine.' },
   { id: 'newgrad', label: 'New grad', line: 'Feel free to draw on internships, projects, or school.' },
   { id: 'experienced', label: 'Experienced', line: "I'll be looking for examples from your professional experience." },
@@ -378,6 +379,23 @@ export const QUESTIONS = [
   ),
 ]
 
+// Beginner level: the classic first questions, answered in a few sentences (no STAR story needed).
+export const BASIC_QUESTIONS = [
+  ['b1', 'Tell me about yourself.'],
+  ['b2', 'Why do you want this job?'],
+  ['b3', 'What are your greatest strengths?'],
+  ['b4', 'What is something you’re proud of?'],
+  ['b5', 'What do you like to do in your free time?'],
+  ['b6', 'What was your favorite class or subject, and why?'],
+  ['b7', 'How would your friends describe you?'],
+  ['b8', 'Where do you see yourself in five years?'],
+  ['b9', 'Why should we hire you?'],
+  ['b10', 'Do you have any questions for me?'],
+].map(([id, text]) => ({ id, track: 'basic', text, basic: true }))
+
+// Beginner sessions draw from the basic bank regardless of field.
+export const queueTrack = (cfg) => (cfg.level === 'beginner' ? 'basic' : cfg.track)
+
 const shuffle = (arr) => {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -398,6 +416,7 @@ export function buildQueue(track, resumeQuestions = []) {
     }
     return out
   }
+  if (track === 'basic') return shuffle(BASIC_QUESTIONS)
   const general = shuffle(QUESTIONS.filter((x) => x.track === 'general'))
   if (track === 'general') return general
   return [...shuffle(QUESTIONS.filter((x) => x.track === track)), ...general]

@@ -2880,3 +2880,44 @@ button.brand:hover span {
     font-size: 26px;
   }
 }
+.nonsense-tag {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--bad);
+  border: 1px solid var(--bad);
+  border-radius: 3px;
+  padding: 0 6px;
+}
+.diff-line.del .code:has(.x-del:only-child),
+.diff:has(.nonsense-tag) .diff-line.del .code {
+  text-decoration: line-through;
+  text-decoration-color: var(--bad);
+}
+/* Persona cards: name with the description under it */
+.persona-row .persona .muted {
+  white-space: normal;
+  line-height: 1.35;
+}
+.persona-row .persona {
+  justify-content: flex-start;
+}
+/* The resume card is only as tall as its contents */
+.setup-grid > .resume-panel {
+  align-self: start;
+}
+.resume-panel .panel-title {
+  margin-bottom: 10px;
+}
+.ob-lang {
+  margin: 14px 0 0;
+}
+.ob-lang select {
+  background: var(--bg);
+  border: 1px solid var(--border-2);
+  border-radius: 4px;
+  padding: 9px 10px;
+}
+.voice-row {
+  margin-top: 12px;
+}

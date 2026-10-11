@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import { health, synthesize, transcribe } from './server/elevenlabs.js'
+import { health, scribeToken, synthesize, transcribe } from './server/elevenlabs.js'
 import { handleAuth } from './server/auth.js'
 import { createGuard } from './server/guard.js'
 
@@ -29,6 +29,7 @@ function elevenLabsApi(env) {
     let out
     try {
       if (req.method === 'GET' && tts) out = health(apiKey)
+      else if (req.method === 'GET') out = await scribeToken({ apiKey })
       else if (req.method === 'POST') {
         let raw = ''
         for await (const chunk of req) raw += chunk

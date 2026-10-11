@@ -23,11 +23,12 @@
 | 👋 **Guided onboarding + accounts** | Pop-up questions on first visit (name, experience level, field, role, session length), then an optional account (email + password, one per email) that saves your preferences on any device. Accounts are stored server-side in a private Vercel Blob store keyed by a hash of the email, passwords are hashed with scrypt, and sessions use a signed HttpOnly cookie. |
 | 💬 **Reactive interviewer** | After each answer the interviewer responds to what you actually said: praise for a quantified STAR answer, "I didn't hear how it turned out" when the result is missing, and never praise for an empty answer. |
 | 🤫 **Silence handling** | If it hears nothing, the interviewer asks "Sorry, what was that?". After repeated silence it stops and asks you to check your mic and restart. |
-| 🌐 **Works in Brave & Firefox** | Where built-in speech recognition is missing or blocked, answers are transcribed with **ElevenLabs Scribe** instead. You can also type answers. |
+| 🌐 **Works in Brave & Firefox** | Where built-in speech recognition is missing or blocked, answers stream to **ElevenLabs real-time Scribe** (`scribe_v2_realtime`), so words appear as you speak. If that connection fails it falls back to pause-to-pause clips. You can also type answers. |
 | ♿ **Accessibility** | Larger text, high contrast, reduced motion, captions for everything the interviewer says, a screen-reader live region, and full keyboard control (N next, R repeat, T translation, S simulate). |
-| 🌍 **Question translation** | Each question can be shown and read aloud in Spanish, Chinese, Hindi, Korean or Portuguese with ElevenLabs Multilingual v2, while you practice answering in English. |
+| 🌱 **Beginner level** | Very basic warm-up questions ("Tell me about yourself", "Why should we hire you?") with gentler grading: no STAR story required. |
+| 🧹 **Nonsense detection** | Sentences that have nothing to do with the question are crossed out in the report instead of being "improved". |
+| 🌍 **Question translation** | Pick your language in the first pop-up or in Settings; each question is shown and read aloud in Spanish, Chinese, Hindi, Korean or Portuguese with ElevenLabs Multilingual v2, while you practice answering in English. |
 | ⚙️ **Settings** | Light (default), dark or system theme, skip the introduction, reactions, silence prompts, live tips, live transcript, voice model and speed. Saved to your account when logged in. |
-| 🧭 **Example answer** | The Practice page shows a model answer split into Situation, Task, Action and Result, playable in the interviewer's voice. |
 | 🧾 **Recorded & transcribed** | A live conversation log of every line, a recording of each answer you can replay on the report, and a downloadable transcript. |
 | ⏱️ **Flexible sessions** | Fixed number of questions, a timed session, or **Endless Mode** that runs until you stop. |
 | 📊 **Live feedback panel** | Only what you can act on mid-answer: a coaching tip, a STAR checklist, a pace bar with the ideal range marked, and a filler-word counter. Detailed scores wait for the report. |
@@ -45,7 +46,7 @@ ElevenLabs is the voice of the whole product:
 4. **Ideal Delivery playback**: the rewritten sentence is voiced with `eleven_multilingual_v2` (the most expressive model), side by side with the original.
 5. **Zero dead air**: the next question's audio is prefetched while the current one plays, and responses are cached per sentence.
 6. **Live visualizer**: ElevenLabs audio is routed through a Web Audio `AnalyserNode` that drives the waveform.
-7. **Speech-to-Text (Scribe)**: in browsers that block the built-in recognizer (Brave) or don't have one (Firefox), the mic is recorded in pause-to-pause clips and transcribed with the ElevenLabs Speech-to-Text API (`POST /v1/speech-to-text`, `scribe_v1`). Clips with no detected speech are never sent, so silence can't turn into invented words.
+7. **Speech-to-Text (Scribe)**: in browsers that block the built-in recognizer (Brave) or don't have one (Firefox), the mic streams over a WebSocket to real-time Scribe (`scribe_v2_realtime`), opened with a single-use token from `GET /api/stt` so the API key stays on the server. Partial words appear while you talk. If real-time fails, pause-to-pause clips go to `POST /v1/speech-to-text` instead, and clips with no detected speech are never sent.
 
 The API key stays server-side, behind a small proxy ([`server/elevenlabs.js`](server/elevenlabs.js)). If ElevenLabs is unreachable, MockView falls back to the browser's best built-in voice so the demo never breaks.
 
@@ -110,7 +111,6 @@ mockview/
 │   │   ├── About.jsx          # what MockView is, who it's for, how it works
 │   │   ├── Credits.jsx        # team and acknowledgements
 │   │   ├── Settings.jsx       # appearance, accessibility, language, interview and voice options
-│   │   ├── PrepStrip.jsx      # example STAR answer on the Practice page
 │   │   ├── EditAnswers.jsx    # one-screen editor for setup answers
 │   │   ├── Interview.jsx      # interview flow, timers, follow-ups, interruptions
 │   │   ├── LiveSidebar.jsx    # real-time grading widgets

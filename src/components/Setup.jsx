@@ -4,7 +4,6 @@ import ResumePanel from './ResumePanel.jsx'
 import { initAudio } from '../lib/audio.js'
 import { checkTtsHealth, speak } from '../lib/tts.js'
 import { defaultEngine, ENGINE_LABEL } from '../lib/transcriber.js'
-import PrepStrip from './PrepStrip.jsx'
 
 function Check({ ok, warn, label, detail }) {
   const cls = ok ? 'good' : warn ? 'warn' : 'bad'
@@ -16,14 +15,6 @@ function Check({ ok, warn, label, detail }) {
     </li>
   )
 }
-
-// How the selected interviewer behaves, from its mannerisms.
-const traits = (m) => [
-  { warm: 'Warm reactions', neutral: 'Neutral reactions', curt: 'Curt reactions', none: 'No reactions' }[m.acks],
-  m.backchannel ? 'Says “mm-hmm”' : 'No small talk',
-  m.followUps ? 'Asks follow-ups' : 'No follow-ups',
-  m.interruptSec ? `Interrupts after ${m.interruptSec}s` : 'Never interrupts',
-]
 
 export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, onSettings }) {
   const [health, setHealth] = useState(null)
@@ -113,15 +104,10 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
                 onClick={() => choosePersona(p.id)}
               >
                 <b>{p.name}</b>
-                <span className="mono tiny">{p.title}</span>
+                <span className="muted tiny">{p.desc}</span>
               </button>
             ))}
           </div>
-          <ul className="persona-traits">
-            {traits(cfg.mannerisms).map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
 
           <div className="row voice-row">
             <select value={cfg.voiceId} onChange={(e) => set('voiceId', e.target.value)} aria-label="Interviewer voice">
@@ -182,8 +168,6 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
           </ul>
         </section>
       </div>
-
-      <PrepStrip voiceOpts={voiceOpts} />
     </>
   )
 }

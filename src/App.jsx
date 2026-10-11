@@ -65,8 +65,8 @@ export default function App() {
     setResult(sampleResult())
     setPhase('feedback')
   }
-  const finishOnboarding = (answers, u, mode) => {
-    const cfg = { ...config, ...answers }
+  const finishOnboarding = ({ helpLang, ...answers }, u, mode) => {
+    const cfg = { ...config, ...answers, settings: { ...config.settings, helpLang } }
     setConfig(cfg)
     if (u) signedIn(u, mode, cfg)
     else remember(cfg)

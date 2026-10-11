@@ -224,7 +224,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
           </div>
           <div className="tile">
             <span className="muted tiny">STAR coverage</span>
-            <b className="mono">{o.starCoverage}%</b>
+            <b className="mono">{o.starCoverage === null ? 'n/a' : `${o.starCoverage}%`}</b>
           </div>
         </div>
         <div className="notes">
@@ -375,7 +375,11 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
               <div className="diff">
                 <div className="diff-file mono tiny">
                   <span>answer_q{active + 1}.txt</span>
-                  <span className="muted">suggested change</span>
+                  {a.rewrite.nonsense ? (
+                    <span className="nonsense-tag">nonsense</span>
+                  ) : (
+                    <span className="muted">suggested change</span>
+                  )}
                 </div>
                 <div className="diff-line del">
                   <span className="ln mono">1</span>
@@ -392,11 +396,15 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
                   <span className="ln mono">1</span>
                   <span className="sign mono">+</span>
                   <span className="code">
-                    {diff.right.map((w, i) => (
-                      <span key={i} className={w.added ? 'x-add' : ''}>
-                        {w.text}{' '}
-                      </span>
-                    ))}
+                    {a.rewrite.nonsense ? (
+                      <span className="muted">(removed)</span>
+                    ) : (
+                      diff.right.map((w, i) => (
+                        <span key={i} className={w.added ? 'x-add' : ''}>
+                          {w.text}{' '}
+                        </span>
+                      ))
+                    )}
                   </span>
                 </div>
               </div>
@@ -407,18 +415,22 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
                 ))}
               </ul>
 
-              <div className="playback">
-                <button className={`btn primary ${playing === 'ideal' ? 'active' : ''}`} onClick={() => play('ideal')}>
-                  {playing === 'ideal' ? 'Stop' : 'Hear ideal delivery'}
-                </button>
-                <button className={`btn ghost ${playing === 'original' ? 'active' : ''}`} onClick={() => play('original')}>
-                  {playing === 'original' ? 'Stop' : 'Hear original'}
-                </button>
-              </div>
-              <div className={`viz-wrap small ${playing ? 'voice' : 'idle'}`}>
-                <Visualizer mode={playing ? 'voice' : 'idle'} synthetic={!!playing} height={70} bars={44} />
-              </div>
-              {voiceSrc === 'browser' && <p className="muted tiny">Browser voice (ElevenLabs unavailable)</p>}
+              {!a.rewrite.nonsense && (
+                <>
+                  <div className="playback">
+                    <button className={`btn primary ${playing === 'ideal' ? 'active' : ''}`} onClick={() => play('ideal')}>
+                      {playing === 'ideal' ? 'Stop' : 'Hear ideal delivery'}
+                    </button>
+                    <button className={`btn ghost ${playing === 'original' ? 'active' : ''}`} onClick={() => play('original')}>
+                      {playing === 'original' ? 'Stop' : 'Hear original'}
+                    </button>
+                  </div>
+                  <div className={`viz-wrap small ${playing ? 'voice' : 'idle'}`}>
+                    <Visualizer mode={playing ? 'voice' : 'idle'} synthetic={!!playing} height={70} bars={44} />
+                  </div>
+                  {voiceSrc === 'browser' && <p className="muted tiny">Browser voice (ElevenLabs unavailable)</p>}
+                </>
+              )}
             </>
           )}
           <VocalReport vocal={a.vocal} />

@@ -92,3 +92,16 @@ export async function transcribe({ audio, mime, apiKey }) {
   const data = await res.json()
   return json(200, { text: String(data.text || '').trim() })
 }
+
+// Single-use token for real-time Scribe (scribe_v2_realtime). The browser opens the
+// WebSocket with it, so the API key itself never leaves the server. Expires in 15 minutes.
+export async function scribeToken({ apiKey }) {
+  if (!hasKey(apiKey)) return json(503, { error: 'ELEVENLABS_API_KEY isn’t set in .env' })
+  const res = await fetch('https://api.elevenlabs.io/v1/single-use-token/realtime_scribe', {
+    method: 'POST',
+    headers: { 'xi-api-key': apiKey.trim() },
+  })
+  if (!res.ok) return json(res.status, { error: `ElevenLabs returned HTTP ${res.status}` })
+  const { token } = await res.json()
+  return json(200, { token })
+}

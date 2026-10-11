@@ -5,6 +5,7 @@ import LiveSidebar from './LiveSidebar.jsx'
 import {
   BACKCHANNELS,
   buildQueue,
+  queueTrack,
   describeFormat,
   describeRole,
   LEVELS,
@@ -120,7 +121,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
   const S = useRef(null)
   if (!S.current)
     S.current = {
-      questions: buildQueue(config.track, config.resumeQuestions),
+      questions: buildQueue(queueTrack(config), config.resumeQuestions),
       answers: [],
       stage: 'asking',
       qIndex: 0,
@@ -176,7 +177,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
   async function askQuestion(i) {
     const s = S.current
     if (s.ended) return
-    if (i + 1 >= s.questions.length) s.questions = extendQueue(s.questions, config.track)
+    if (i + 1 >= s.questions.length) s.questions = extendQueue(s.questions, queueTrack(config))
     const q = s.questions[i]
     s.qIndex = i
     s.final = ''
@@ -345,7 +346,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
     go('thinking')
     const last = await finalizeAnswer()
     if (s.ended) return
-    if (mann.followUps && !last.question.followUp && last.text) {
+    if (mann.followUps && !last.question.followUp && !last.question.basic && last.text) {
       const probe = followUpFor(liveMetrics(last.text, last.durationSec))
       if (probe) {
         const fu = { ...last.question, id: `${last.question.id}-fu`, text: probe, followUp: true }
@@ -398,7 +399,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
     e.preventDefault()
     const s = S.current
     const t = typed.trim()
-    if (!t || s.stage !== 'listening') return
+    if (!t || !s.answering) return // works while the interviewer is mid-prompt too
     s.transcriber.append(/[.!?]$/.test(t) ? t : t + '.')
     s.lastActivity = Date.now()
     s.nudges = 0
@@ -428,7 +429,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
     const m = liveMetrics(text, (Date.now() - s.answerStart) / 1000)
     // Smooth pace so the marker doesn't jump with every recognized word.
     if (m.words > 0) s.wpm = s.wpm ? s.wpm * 0.6 + m.wpm * 0.4 : m.wpm
-    setMetrics({ ...m, wpm: Math.round(s.wpm), tip: liveTip(m, s.wpm) })
+    setMetrics({ ...m, wpm: Math.round(s.wpm), tip: liveTip(m, s.wpm, s.questions[s.qIndex]?.basic) })
   }
 
   useEffect(() => {
@@ -506,6 +507,8 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
   const vizMode = speaking ? 'voice' : listening ? 'mic' : 'idle'
   const finalSegs = segmentText(transcript.final)
   const translation = translateQuestion(question, opts.helpLang)
+  // Typing stays open for the whole answer, even while the interviewer asks "what was that?".
+  const canType = listening || (stage === 'asking' && S.current.answering)
 
   return (
     <div className="interview">
@@ -625,11 +628,11 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
                 setTyped(e.target.value)
                 S.current.lastActivity = Date.now()
               }}
-              disabled={!listening || simulating}
+              disabled={!canType || simulating}
               placeholder="Or type your answer"
               aria-label="Type your answer"
             />
-            <button className="btn ghost" disabled={!listening || !typed.trim()}>
+            <button className="btn ghost" disabled={!canType || !typed.trim()}>
               Add
             </button>
           </form>
@@ -654,7 +657,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
           </div>
         </main>
 
-        <LiveSidebar metrics={metrics} stage={stage} coaching={opts.coaching}>
+        <LiveSidebar metrics={metrics} stage={stage} coaching={opts.coaching} star={!question?.basic}>
           <section className="convo">
             <button className="convo-head" onClick={() => setShowLog((v) => !v)}>
               <span className="mono tiny">CONVERSATION · {log.length}</span>

@@ -244,7 +244,34 @@ const STOP = new Set(
 )
 const stem = (w) => w.replace(/(ing|ed|es|s|ly|ment|ion|ive|al)$/, '').slice(0, 6)
 
-export function contentQuality(text, questionText = '') {
+// Words that place a sentence in an interview story (work, school, teams, outcomes).
+const CONTEXT_RE =
+  /\b(?:work|worked|job|intern|internship|team|teammates?|project|class|course|school|college|university|club|company|startup|manager|boss|supervisor|customers?|clients?|users?|deadlines?|code|data|reports?|meetings?|presentation|goals?|tasks?|role|problems?|issues?|solutions?|plans?|feedback|led|lead|built|created|learned|learn|improved?|results?|students?|patients?|products?|designs?|budget|sales|campaign|experience|skills?|strengths?|weakness|career|interview|hired|study|studied)\b/i
+
+const questionStems = (questionText) =>
+  new Set((questionText.toLowerCase().match(/[a-z']+/g) || []).filter((w) => w.length > 3 && !STOP.has(w)).map(stem))
+
+// True when a sentence has nothing tying it to an interview answer.
+function irrelevant(sentence, qStems) {
+  if (countWords(sentence) < 4) return false
+  if (CONTEXT_RE.test(sentence) || NUMBER_RE.test(sentence)) return false
+  if (Object.values(STAR).some((re) => re.test(sentence))) return false
+  const stems = (sentence.toLowerCase().match(/[a-z']+/g) || []).filter((w) => w.length > 3).map(stem)
+  return !stems.some((x) => qStems.has(x))
+}
+
+// Sentences that don't answer the question: irrelevant, and either addressed to "you"
+// or part of an answer that's mostly irrelevant.
+// Basic questions ("What do you do for fun?") invite answers with no work context, so
+// there only sentences addressed to "you" count.
+export function nonsenseSentences(sentences, questionText = '', basic = false) {
+  const qStems = questionStems(questionText)
+  const flags = sentences.map((t) => irrelevant(t, qStems))
+  const mostly = !basic && sentences.length > 0 && flags.filter(Boolean).length / sentences.length >= 0.5
+  return sentences.filter((t, i) => flags[i] && (mostly || /\byou(?:r|'re)?\b/i.test(t.replace(/\byou know\b/gi, ''))))
+}
+
+export function contentQuality(text, questionText = '', basic = false) {
   const toks = text.toLowerCase().match(/[a-z']+/g) || []
   const words = toks.length
   const counts = {}
@@ -253,9 +280,7 @@ export function contentQuality(text, questionText = '') {
   const topShare = words ? Math.max(...Object.values(counts)) / words : 0
   const repetitive = words >= 5 && (unique / words < 0.45 || topShare > 0.3)
 
-  const qStems = new Set(
-    (questionText.toLowerCase().match(/[a-z']+/g) || []).filter((w) => w.length > 3 && !STOP.has(w)).map(stem),
-  )
+  const qStems = questionStems(questionText)
   const aStems = new Set(toks.filter((w) => w.length > 3).map(stem))
   const overlap = [...qStems].filter((x) => aStems.has(x)).length
   const starCount = Object.values(detectStar(text)).filter(Boolean).length
@@ -269,6 +294,11 @@ export function contentQuality(text, questionText = '') {
   } else if (repetitive) {
     issues.push('This doesn’t sound like a real answer: the same words repeat over and over.')
     cap = 8
+  } else if (basic) {
+    if (words < 8) {
+      issues.push('Too short. Answer in two or three full sentences.')
+      cap = 25
+    }
   } else if (words < 12) {
     issues.push(`Only ${words} words. A strong behavioral answer runs 150 to 250 words (60 to 90 seconds).`)
     cap = 15
@@ -280,7 +310,7 @@ export function contentQuality(text, questionText = '') {
     issues.push('This doesn’t clearly answer the question. Tie your story back to it.')
     cap = Math.min(cap, 35)
   }
-  return { words, repetitive, offTopic, nonAnswer: !words || repetitive || words < 12, issues, cap }
+  return { words, repetitive, offTopic, nonAnswer: !words || repetitive || words < (basic ? 5 : 12), issues, cap }
 }
 
 export function liveMetrics(text, seconds) {
@@ -323,7 +353,7 @@ export function liveMetrics(text, seconds) {
   }
 }
 
-export function liveTip(m, wpm = m.wpm) {
+export function liveTip(m, wpm = m.wpm, basic = false) {
   if (m.words < 4) return 'Listening… open with the Situation: where were you, and when?'
   if (m.repetitive) return 'That doesn’t sound like a real answer yet. Tell one specific story.'
   if (m.flags > 0) return 'Red flag. Reframe it positively and focus on what you did.'
@@ -331,9 +361,9 @@ export function liveTip(m, wpm = m.wpm) {
   if (wpm > 180) return 'You’re rushing. Slow down and let key points land.'
   if (wpm && wpm < 100 && m.words > 20) return 'Pick up the pace to keep the energy up.'
   if (m.hedges > 2) return 'Drop “I think” and “maybe”. State it like you know it.'
-  if (m.words > 35 && !m.star.action) return 'Say what you did, using “I”.'
-  if (m.words > 60 && !m.star.result) return 'Land the plane: what was the measurable Result?'
-  if (m.words > 40 && !m.hasNumber) return 'Add a number: a percentage, time saved, users, or dollars.'
+  if (!basic && m.words > 35 && !m.star.action) return 'Say what you did, using “I”.'
+  if (!basic && m.words > 60 && !m.star.result) return 'Land the plane: what was the measurable Result?'
+  if (!basic && m.words > 40 && !m.hasNumber) return 'Add a number: a percentage, time saved, users, or dollars.'
   return 'Strong delivery. Keep going.'
 }
 
@@ -509,16 +539,38 @@ export function analyzeAnswer(answer) {
   // Pace uses time actually spent speaking, not the idle time before clicking Next.
   const metrics = liveMetrics(text, answer.speakingSec || answer.durationSec || 0)
   if (metrics.words < 15) metrics.wpm = 0 // too few words for a meaningful pace
-  const quality = contentQuality(text, answer.question?.text)
+  const basic = Boolean(answer.question?.basic)
+  const quality = contentQuality(text, answer.question?.text, basic)
+
+  const sentences = splitSentences(answer).map((s) => ({ text: s, ...sentenceWeakness(s) }))
+  const nonsense = nonsenseSentences(
+    sentences.map((s) => s.text),
+    answer.question?.text,
+    basic,
+  )
+  if (nonsense.length) {
+    quality.issues.push(
+      nonsense.length === 1
+        ? 'One sentence has nothing to do with the question.'
+        : `${nonsense.length} sentences have nothing to do with the question.`,
+    )
+    quality.cap = Math.min(quality.cap, nonsense.length * 2 >= sentences.length ? 10 : 45)
+  }
   const confidence = Math.min(quality.cap, metrics.confidence)
   metrics.confidence = confidence
 
-  const sentences = splitSentences(answer).map((s) => ({ text: s, ...sentenceWeakness(s) }))
+  // A nonsense sentence always takes the rewrite slot: it gets cut, never "improved".
   const eligible = sentences.filter((s) => s.words >= 5)
-  const weakest = quality.nonAnswer
+  const weakest = nonsense.length
+    ? sentences.find((s) => s.text === nonsense[0])
+    : quality.nonAnswer
+      ? null
+      : (eligible.length ? eligible : sentences).reduce((w, s) => (!w || s.score > w.score ? s : w), null)
+  const rewrite = !weakest
     ? null
-    : (eligible.length ? eligible : sentences).reduce((w, s) => (!w || s.score > w.score ? s : w), null)
-  const rewrite = weakest ? rewriteSentence(weakest.text, answer.question?.resultHint) : null
+    : nonsense.length
+      ? { text: '', nonsense: true, changes: ['Cut it: this sentence doesn’t answer the question'] }
+      : rewriteSentence(weakest.text, answer.question?.resultHint)
   return { ...answer, text, metrics, quality, sentences, weakest, rewrite, segments: segmentText(text), confidence }
 }
 
@@ -547,10 +599,12 @@ export function analyzeSession(answers) {
   const fillers = sum('fillers')
   const hedges = sum('hedges')
   const flags = sum('flags')
-  const starCoverage = items.length
-    ? Math.round((items.reduce((s, a) => s + a.metrics.starCount, 0) / (items.length * 4)) * 100)
-    : 0
-  const quantified = items.filter((a) => a.metrics.hasNumber).length
+  // STAR and numbers only apply to story questions, not the Beginner level's basic ones.
+  const stories = items.filter((a) => !a.question?.basic)
+  const starCoverage = stories.length
+    ? Math.round((stories.reduce((s, a) => s + a.metrics.starCount, 0) / (stories.length * 4)) * 100)
+    : null
+  const quantified = stories.filter((a) => a.metrics.hasNumber).length
   const fillerRate = words ? (fillers / words) * 100 : 0
 
   // Weakest answer = lowest score; ties go to the one with the worst sentence.
@@ -568,14 +622,15 @@ export function analyzeSession(answers) {
   )
   if (avgWpm >= 115 && avgWpm <= 175) strengths.push(`Pace in the sweet spot (${avgWpm} WPM)`)
   else if (avgWpm) focus.push(avgWpm > 175 ? `Slow down: ${avgWpm} WPM reads as nervous` : `Pick up the pace from ${avgWpm} WPM`)
-  ;(starCoverage >= 75 ? strengths : focus).push(
-    starCoverage >= 75 ? 'Well-structured STAR answers' : `Complete the STAR structure (${starCoverage}% coverage)`,
-  )
+  if (starCoverage !== null)
+    (starCoverage >= 75 ? strengths : focus).push(
+      starCoverage >= 75 ? 'Well-structured STAR answers' : `Complete the STAR structure (${starCoverage}% coverage)`,
+    )
   ;(flags === 0 ? strengths : focus).push(
     flags === 0 ? 'No red flags, professional framing throughout' : `Reframe ${flags} red-flag phrase${flags > 1 ? 's' : ''}`,
   )
-  if (quantified === items.length && items.length) strengths.push('You quantified your impact in every answer')
-  else focus.push('Quantify results: percentages, time saved, users, dollars')
+  if (stories.length && quantified === stories.length) strengths.push('You quantified your impact in every answer')
+  else if (stories.length) focus.push('Quantify results: percentages, time saved, users, dollars')
   if (hedges > items.length * 2) focus.push('Drop hedges like “I think” and “maybe”')
   if (skipped) focus.unshift(`Answer every question (${skipped} had no answer)`)
 

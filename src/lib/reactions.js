@@ -61,6 +61,10 @@ const LINES = {
     ],
     curt: ['Solid answer.'],
   },
+  clear: {
+    warm: ['That’s a clear answer. Nice.', 'Good, that tells me a lot about you.'],
+    curt: ['Clear enough.'],
+  },
   ok: {
     warm: ['Okay, thank you for walking me through that.', 'Got it, that makes sense.', 'Alright, thanks.'],
     curt: ['Okay.', 'Noted.'],
@@ -71,11 +75,13 @@ const LINES = {
 export function reactTo(answer, acks = 'warm') {
   const text = answer?.text || ''
   const m = liveMetrics(text, answer?.speakingSec || answer?.durationSec || 0)
-  const q = contentQuality(text, answer?.question?.text || '')
+  const basic = Boolean(answer?.question?.basic)
+  const q = contentQuality(text, answer?.question?.text || '', basic)
   let kind
   if (m.words < 3) kind = 'empty'
   else if (q.repetitive || q.offTopic) kind = 'nonAnswer'
-  else if (m.words < 25) kind = 'short'
+  else if (m.words < (basic ? 8 : 25)) kind = 'short'
+  else if (basic) kind = m.flags ? 'flag' : (m.fillers / m.words) * 100 > 7 ? 'fillers' : m.words >= 25 ? 'clear' : 'ok'
   else if (m.flags > 0) kind = 'flag'
   else if (m.starCount >= 4 && m.hasNumber) kind = 'strong'
   else if (!m.star.result && m.words > 50) kind = 'noResult'

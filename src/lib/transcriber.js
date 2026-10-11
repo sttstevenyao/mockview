@@ -4,6 +4,8 @@
 //                missing or blocked (Brave blocks it on purpose; Firefox doesn't ship it). The mic is
 //                recorded in pause-to-pause clips and each clip is transcribed as soon as you pause.
 // Typed answers and "Simulate answer" words are injected through append().
+// In Scribe mode, real-time streaming (scribe_v2_realtime) is tried first; the clip
+// approach below is the fallback.
 import { getAnalysers, getMicStream } from './audio.js'
 
 const SR = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)
@@ -90,7 +92,7 @@ export function createTranscriber({ onUpdate, onError, onEngine }) {
         engine = 'scribe'
         onEngine?.(engine)
         micOn = true
-        startClip()
+        startMic()
       }
     }
     // Chrome ends recognition after a few seconds of silence; keep it alive.
@@ -213,12 +215,111 @@ export function createTranscriber({ onUpdate, onError, onEngine }) {
     cutClip(false)
   }
 
+  // ── Real-time Scribe (scribe_v2_realtime) ──────
+  // Streams the mic over a WebSocket and returns words while you talk. Opened per answer
+  // with a single-use token from /api/stt. Falls back to pause-to-pause clips if it fails.
+  let rt = null
+  let rtFailed = false
+  const rtFallback = () => {
+    rtFailed = true
+    if (micOn && engine === 'scribe') startClip()
+  }
+  const closeRt = (entry) => {
+    entry.closed = true
+    try {
+      entry.conn?.close()
+    } catch {}
+  }
+
+  async function startRealtime() {
+    const myGen = gen
+    let conn, events
+    try {
+      const r = await fetch('/api/stt', { cache: 'no-store' })
+      const { token } = await r.json()
+      if (!token) throw new Error('no token')
+      if (!micOn || myGen !== gen || engine !== 'scribe') return
+      const sdk = await import('@elevenlabs/client')
+      if (!micOn || myGen !== gen) return
+      events = sdk.RealtimeEvents
+      conn = sdk.Scribe.connect({
+        token,
+        modelId: 'scribe_v2_realtime',
+        languageCode: 'en',
+        commitStrategy: sdk.CommitStrategy.VAD,
+        microphone: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      })
+    } catch {
+      return rtFallback()
+    }
+    const entry = { conn, gen: myGen, started: false, closed: false }
+    rt = entry
+    const fail = () => {
+      clearTimeout(timer)
+      if (entry.started || entry.closed) return
+      closeRt(entry)
+      if (rt === entry) rt = null
+      rtFallback()
+    }
+    const timer = setTimeout(fail, 5000)
+    conn.on(events.SESSION_STARTED, () => {
+      entry.started = true
+      clearTimeout(timer)
+    })
+    conn.on(events.PARTIAL_TRANSCRIPT, (d) => {
+      if (entry.gen !== gen) return
+      interim = d?.text || ''
+      emit()
+    })
+    conn.on(events.COMMITTED_TRANSCRIPT, (d) => {
+      if (entry.gen !== gen) return
+      addFinal(d?.text || '')
+      interim = ''
+      emit()
+      entry.onCommit?.()
+    })
+    for (const ev of [events.ERROR, events.AUTH_ERROR, events.CLOSE]) conn.on(ev, fail)
+  }
+
+  // Commits what's been said, waits for the final text (max 1.5 s), then closes.
+  function stopRealtime() {
+    const entry = rt
+    rt = null
+    if (!entry) return
+    if (!entry.started) return closeRt(entry)
+    pending++
+    emit()
+    let t
+    const finish = () => {
+      if (entry.finished) return
+      entry.finished = true
+      clearTimeout(t)
+      if (entry.gen === gen) {
+        if (interim.trim()) addFinal(interim)
+        interim = ''
+        pending = Math.max(0, pending - 1)
+        emit()
+      }
+      closeRt(entry)
+      settle()
+    }
+    entry.onCommit = finish
+    t = setTimeout(finish, 1500)
+    try {
+      entry.conn.commit()
+    } catch {
+      finish()
+    }
+  }
+
   // ── Shared controls ────────────────────────────
-  const startMic = () => (engine === 'webspeech' ? startRec() : engine === 'scribe' ? startClip() : null)
+  const startMic = () =>
+    engine === 'webspeech' ? startRec() : engine === 'scribe' ? (rtFailed ? startClip() : startRealtime()) : null
   const stopMic = () => {
     micOn = false
     stopRec()
     stopScribe()
+    stopRealtime()
   }
 
   return {

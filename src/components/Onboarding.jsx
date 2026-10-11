@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { LEVELS, TRACKS } from '../data/questions.js'
 import { pickPrefs } from '../lib/accounts.js'
 import AuthForm from './AuthForm.jsx'
+import { HELP_LANGUAGES } from '../data/translations.js'
 
 export const MODES = [
   { id: 'count', title: 'Fixed questions', desc: 'A set number of questions, then your report.' },
@@ -24,6 +25,7 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
     mode: initial.mode,
     count: initial.count,
     minutes: initial.minutes,
+    helpLang: initial.settings?.helpLang || 'off',
   })
   const [dir, setDir] = useState('fwd') // which way the step content slides in
   const [closing, setClosing] = useState(false)
@@ -83,6 +85,16 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
                 onChange={(e) => set('name', e.target.value)}
                 placeholder="Your name"
               />
+              <label className="field ob-lang">
+                <span>Your language</span>
+                <select value={a.helpLang} onChange={(e) => set('helpLang', e.target.value)}>
+                  {HELP_LANGUAGES.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.id === 'off' ? 'English' : `${l.label} (questions translated)`}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <div className="ob-actions">
                 {user ? (
                   <span />
