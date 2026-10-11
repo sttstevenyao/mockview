@@ -5,26 +5,31 @@ import Feedback from './components/Feedback.jsx'
 import Credits from './components/Credits.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import TopNav from './components/TopNav.jsx'
+import AuthForm from './components/AuthForm.jsx'
 import { DEFAULT_CONFIG, sampleResult } from './data/questions.js'
 import { initAudio } from './lib/audio.js'
-import { clearProfile, loadProfile, pickPrefs, saveProfile } from './lib/profile.js'
+import { currentUser, logOut, pickPrefs, savePrefs } from './lib/accounts.js'
 
 export default function App() {
   // Visiting /#sample opens the sample report directly (handy for judges and screenshots).
   const sample = window.location.hash === '#sample'
-  const [profile, setProfile] = useState(loadProfile)
+  const [user, setUser] = useState(currentUser)
   const [phase, setPhase] = useState(sample ? 'feedback' : 'setup')
-  const [config, setConfig] = useState(() => ({ ...DEFAULT_CONFIG, ...(profile?.prefs || {}) }))
+  const [config, setConfig] = useState(() => ({ ...DEFAULT_CONFIG, ...(user?.prefs || {}) }))
   const [result, setResult] = useState(sample ? sampleResult : null)
   const [runId, setRunId] = useState(0)
-  // First visit without a saved profile → the setup questions pop up.
-  const [onboarding, setOnboarding] = useState(!sample && !profile)
+  // Not logged in → the setup questions pop up when the page opens.
+  const [onboarding, setOnboarding] = useState(!sample && !user)
+  const [auth, setAuth] = useState(null) // 'login' | 'signup' dialog opened from the header
 
-  const remember = (cfg, p = profile) => {
-    if (!p) return
-    const next = { ...p, prefs: pickPrefs(cfg) }
-    saveProfile(next)
-    setProfile(next)
+  const remember = (cfg, u = user) => {
+    if (u) setUser(savePrefs(u.username, pickPrefs(cfg)) || u)
+  }
+  // Logging in restores that account's saved setup; signing up saves the current one.
+  const signedIn = (u, mode, cfg = config) => {
+    setUser(u)
+    if (mode === 'login' && u.prefs) setConfig({ ...DEFAULT_CONFIG, ...u.prefs })
+    else remember(cfg, u)
   }
 
   const start = (cfg) => {
@@ -39,16 +44,17 @@ export default function App() {
     setResult(sampleResult())
     setPhase('feedback')
   }
-  const finishOnboarding = (answers, newProfile) => {
+  const finishOnboarding = (answers, u, mode) => {
     const cfg = { ...config, ...answers }
     setConfig(cfg)
-    if (newProfile) remember(cfg, { ...newProfile, createdAt: new Date().toISOString() })
+    if (u) signedIn(u, mode, cfg)
     else remember(cfg)
     setOnboarding(false)
   }
   const signOut = () => {
-    clearProfile()
-    setProfile(null)
+    logOut()
+    setUser(null)
+    setConfig(DEFAULT_CONFIG)
   }
 
   if (phase === 'interview')
@@ -79,9 +85,9 @@ export default function App() {
       <TopNav
         tab={phase}
         onTab={setPhase}
-        profile={profile}
-        onSignIn={() => setOnboarding(true)}
-        onSignOut={signOut}
+        user={user}
+        onAuth={setAuth}
+        onLogOut={signOut}
       />
       {phase === 'credits' ? (
         <Credits />
@@ -89,7 +95,7 @@ export default function App() {
         <Setup
           cfg={config}
           setCfg={setConfig}
-          profile={profile}
+          user={user}
           onEdit={() => setOnboarding(true)}
           onStart={start}
           onSample={showSample}
@@ -99,10 +105,29 @@ export default function App() {
       {onboarding && (
         <Onboarding
           initial={config}
-          profile={profile}
+          user={user}
           onDone={finishOnboarding}
           onClose={() => setOnboarding(false)}
         />
+      )}
+      {auth && (
+        <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="ob-title">
+          <div className="dialog">
+            <AuthForm
+              initialMode={auth}
+              prefs={pickPrefs(config)}
+              onSuccess={(u, mode) => {
+                signedIn(u, mode)
+                setAuth(null)
+              }}
+              secondary={
+                <button type="button" className="btn ghost" onClick={() => setAuth(null)}>
+                  Cancel
+                </button>
+              }
+            />
+          </div>
+        </div>
       )}
     </div>
   )

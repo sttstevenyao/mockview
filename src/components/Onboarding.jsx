@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { LEVELS, TRACKS } from '../data/questions.js'
+import { pickPrefs } from '../lib/accounts.js'
+import AuthForm from './AuthForm.jsx'
 
 export const MODES = [
   { id: 'count', title: 'Fixed questions', desc: 'A set number of questions, then your report.' },
@@ -13,12 +15,13 @@ const LEVEL_HINT = {
   experienced: 'You have professional experience to draw on.',
 }
 
-const emailOk = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim())
-
 // Pop-up questions shown when the page opens. Answers become the interview setup;
-// the last step offers to save them as a profile on this device.
-export default function Onboarding({ initial, profile, onDone, onClose }) {
-  const [step, setStep] = useState(0)
+// the last step offers to save them to an account. Returning users can log in instead.
+// onDone(answers, user, mode): user is null when they skip; mode is 'signup' or 'login'.
+export default function Onboarding({ initial, user, startWithLogin, onDone, onClose }) {
+  const steps = user ? 4 : 5 // logged-in users skip the account step
+  const [step, setStep] = useState(startWithLogin ? 4 : 0)
+  const [authMode, setAuthMode] = useState(startWithLogin ? 'login' : 'signup')
   const [a, setA] = useState({
     name: initial.name === 'Candidate' ? '' : initial.name,
     level: initial.level,
@@ -28,11 +31,8 @@ export default function Onboarding({ initial, profile, onDone, onClose }) {
     count: initial.count,
     minutes: initial.minutes,
   })
-  const [email, setEmail] = useState(profile?.email || '')
-  const [touched, setTouched] = useState(false)
   const firstInput = useRef(null)
   const set = (k, v) => setA((x) => ({ ...x, [k]: v }))
-  const steps = profile ? 4 : 5 // signed-in users skip the "create a profile" step
 
   useEffect(() => {
     firstInput.current?.focus()
@@ -41,20 +41,16 @@ export default function Onboarding({ initial, profile, onDone, onClose }) {
   const answers = () => ({ ...a, name: a.name.trim() || 'Candidate' })
   const next = () => (step + 1 < steps ? setStep(step + 1) : onDone(answers(), null))
   const back = () => setStep(Math.max(0, step - 1))
-  const createProfile = (e) => {
-    e.preventDefault()
-    setTouched(true)
-    if (!a.name.trim() || !emailOk(email)) return
-    onDone(answers(), { name: a.name.trim(), email: email.trim() })
+  const goLogin = () => {
+    setAuthMode('login')
+    setStep(4)
   }
 
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="ob-title">
       <div className="dialog onboarding">
         <div className="ob-top">
-          <span className="mono tiny muted">
-            STEP {step + 1} / {steps}
-          </span>
+          <span className="mono tiny muted">{step === 4 && authMode === 'login' ? 'LOG IN' : `STEP ${step + 1} / ${steps}`}</span>
           {onClose && (
             <button className="link tiny" onClick={onClose}>
               Skip for now
@@ -83,7 +79,13 @@ export default function Onboarding({ initial, profile, onDone, onClose }) {
               placeholder="Your name"
             />
             <div className="ob-actions">
-              <span />
+              {user ? (
+                <span />
+              ) : (
+                <button type="button" className="link tiny" onClick={goLogin}>
+                  Already have an account? Log in
+                </button>
+              )}
               <button className="btn primary">Continue</button>
             </div>
           </form>
@@ -202,42 +204,17 @@ export default function Onboarding({ initial, profile, onDone, onClose }) {
         )}
 
         {step === 4 && (
-          <form onSubmit={createProfile} noValidate>
-            <h2 id="ob-title">Save these settings for next time?</h2>
-            <p className="muted">
-              Create a free MockView profile and your answers load automatically when you come back. It’s saved in this
-              browser only, with no password.
-            </p>
-            <label className="field">
-              <span>Name</span>
-              <input value={a.name} maxLength={40} onChange={(e) => set('name', e.target.value)} placeholder="Your name" />
-            </label>
-            <label className="field">
-              <span>Email</span>
-              <input
-                ref={firstInput}
-                type="email"
-                value={email}
-                maxLength={80}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@school.edu"
-              />
-            </label>
-            {touched && (!a.name.trim() || !emailOk(email)) && (
-              <p className="tiny bad">Enter your name and a valid email address.</p>
-            )}
-            <div className="ob-actions">
-              <button type="button" className="btn ghost" onClick={back}>
-                Back
+          <AuthForm
+            key={authMode}
+            initialMode={authMode}
+            prefs={pickPrefs(answers())}
+            onSuccess={(u, mode) => onDone(answers(), u, mode)}
+            secondary={
+              <button type="button" className="btn ghost" onClick={() => onDone(answers(), null)}>
+                Not now
               </button>
-              <div className="row">
-                <button type="button" className="btn ghost" onClick={() => onDone(answers(), null)}>
-                  Not now
-                </button>
-                <button className="btn primary">Create profile</button>
-              </div>
-            </div>
-          </form>
+            }
+          />
         )}
       </div>
     </div>

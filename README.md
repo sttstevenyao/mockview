@@ -14,7 +14,7 @@
 |---|---|
 | 🗣️ **ElevenLabs-voiced interviewer** | Three personas (Friendly Recruiter, Hiring Manager, Bar Raiser) and four premade ElevenLabs voices. Choose **Realistic** (`eleven_multilingual_v2`) or **Low latency** (`eleven_flash_v2_5`). |
 | 🎭 **Custom mannerisms** | Speaking pace, expressiveness, reaction style (warm / neutral / curt / silent), natural backchannel ("Mm-hmm…"), **follow-up probing** for vague answers, and **interruptions** for answers that run long. |
-| 👋 **Guided onboarding + profiles** | Pop-up questions on first visit (name, experience level, field, role, session length), then an optional MockView profile that remembers your preferences on this device. |
+| 👋 **Guided onboarding + accounts** | Pop-up questions on first visit (name, experience level, field, role, session length), then an optional account (username + password, email optional) that saves your preferences. Log in with your username or email. Accounts live in the browser, with passwords stored only as salted PBKDF2 hashes. |
 | 💬 **Reactive interviewer** | After each answer the interviewer responds to what you actually said: praise for a quantified STAR answer, "I didn't hear how it turned out" when the result is missing, and never praise for an empty answer. |
 | 🤫 **Silence handling** | If it hears nothing, the interviewer asks "Sorry, what was that?". After repeated silence it stops and asks you to check your mic and restart. |
 | 🌐 **Works in Brave & Firefox** | Where built-in speech recognition is missing or blocked, answers are transcribed with **ElevenLabs Scribe** instead. You can also type answers. |
@@ -87,7 +87,8 @@ mockview/
 ├── src/
 │   ├── App.jsx                # onboarding → setup → interview → feedback, credits tab
 │   ├── components/
-│   │   ├── Onboarding.jsx     # pop-up setup questions + profile creation
+│   │   ├── Onboarding.jsx     # pop-up setup questions + account step
+│   │   ├── AuthForm.jsx       # sign up / log in form
 │   │   ├── Setup.jsx          # interview summary, persona, voice, resume
 │   │   ├── Credits.jsx        # team and acknowledgements
 │   │   ├── Interview.jsx      # interview flow, timers, follow-ups, interruptions
@@ -100,7 +101,7 @@ mockview/
 │   │   ├── tts.js             # ElevenLabs client, cache, fallback
 │   │   ├── transcriber.js     # Web Speech API + ElevenLabs Scribe engines
 │   │   ├── reactions.js       # interviewer reactions and silence prompts
-│   │   ├── profile.js         # local profile (localStorage)
+│   │   ├── accounts.js        # username/password accounts (PBKDF2 hashes, localStorage)
 │   │   └── audio.js           # shared AudioContext + analysers
 │   └── data/questions.js      # question banks, personas, mannerisms, sample data
 └── showcase/                  # ready-to-copy files for the ElevenLabs Showcase PR

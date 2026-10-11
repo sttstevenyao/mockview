@@ -1798,3 +1798,6 @@ b.plain {
     padding: 18px;
   }
 }
+.field .hint {
+  margin-top: -2px;
+}

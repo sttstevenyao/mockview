@@ -19,7 +19,7 @@ Career centers can't sit with every student for unlimited mock interviews, and r
 
 MockView is a customizable behavioral interview simulator with an analytical feedback dashboard.
 
-**1. Set up your interview.** When you open MockView, a few quick pop-up questions ask your name, experience level, field, target role, and how long you want to practice. You can save those answers to a MockView profile so they load automatically next time. From there you can choose a focus area (General, Software Engineering, Product, Leadership), an interviewer persona (Friendly Recruiter, Hiring Manager, or Bar Raiser), and a session format: a fixed number of questions, a timed session, or **Endless Mode**, which runs until you stop. You can also customize the interviewer's **mannerisms**: speaking pace, expressiveness, how they react to your answers (warm, neutral, curt, or silent), natural backchannel ("Mm-hmm… okay, so…"), whether they **probe with follow-ups** when you're vague ("Can you put a number on that?"), and whether they **interrupt** answers that run too long.
+**1. Set up your interview.** When you open MockView, a few quick pop-up questions ask your name, experience level, field, target role, and how long you want to practice. You can create an account (username and password, with an optional email) so your answers load automatically when you log in with your username or email. From there you can choose a focus area (General, Software Engineering, Product, Leadership), an interviewer persona (Friendly Recruiter, Hiring Manager, or Bar Raiser), and a session format: a fixed number of questions, a timed session, or **Endless Mode**, which runs until you stop. You can also customize the interviewer's **mannerisms**: speaking pace, expressiveness, how they react to your answers (warm, neutral, curt, or silent), natural backchannel ("Mm-hmm… okay, so…"), whether they **probe with follow-ups** when you're vague ("Can you put a number on that?"), and whether they **interrupt** answers that run too long.
 
 **2. Interview out loud.** An **ElevenLabs** voice asks each question while an audio-wave visualizer pulses with the voice. When it's your turn, you answer into your mic and a **Live Grading Sidebar** updates in real time:
 - **Filler Word Counter** ("um", "like", "you know"…) with a per-word breakdown
@@ -73,7 +73,7 @@ The interviewer **reacts to what you actually said** after each answer. A quanti
 
 ## What's next for MockView
 
-- Real accounts with cloud sync, so a MockView profile and practice history follow you across devices.
+- Cloud-synced accounts, so your settings and practice history follow you across devices (today, accounts are stored in the browser).
 - **ElevenLabs Agents** for fully conversational interviews with adaptive, context-aware follow-ups.
 - Company- and role-specific question packs, plus progress tracking across sessions so students can watch their filler rate drop.
 - A career-center mode where advisors assign practice sets and review students' reports.

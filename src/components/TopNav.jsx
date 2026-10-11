@@ -1,7 +1,7 @@
 import Brand from './Brand.jsx'
 
-// Header for the setup and credits pages: tabs on the left, profile on the right.
-export default function TopNav({ tab, onTab, profile, onSignIn, onSignOut }) {
+// Header for the setup and credits pages: tabs on the left, account controls on the right.
+export default function TopNav({ tab, onTab, user, onAuth, onLogOut }) {
   return (
     <nav className="topnav">
       <div className="row nav-left">
@@ -18,19 +18,24 @@ export default function TopNav({ tab, onTab, profile, onSignIn, onSignOut }) {
         </div>
       </div>
       <div className="row nav-right">
-        {profile ? (
+        {user ? (
           <>
             <span className="tiny muted hide-sm">
-              Signed in as <b className="plain">{profile.name}</b>
+              Signed in as <b className="plain">{user.username}</b>
             </span>
-            <button className="btn ghost sm" onClick={onSignOut}>
-              Sign out
+            <button className="btn ghost sm" onClick={onLogOut}>
+              Log out
             </button>
           </>
         ) : (
-          <button className="btn ghost sm" onClick={onSignIn}>
-            Create profile
-          </button>
+          <>
+            <button className="btn ghost sm" onClick={() => onAuth('login')}>
+              Log in
+            </button>
+            <button className="btn primary sm" onClick={() => onAuth('signup')}>
+              Sign up
+            </button>
+          </>
         )}
       </div>
     </nav>

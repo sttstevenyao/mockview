@@ -17,7 +17,7 @@ function Check({ ok, warn, label, detail }) {
   )
 }
 
-export default function Setup({ cfg, setCfg, profile, onEdit, onStart, onSample }) {
+export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample }) {
   const [health, setHealth] = useState(null)
   const [previewing, setPreviewing] = useState(false)
   const [voiceStatus, setVoiceStatus] = useState(null) // result of the last Preview
@@ -58,7 +58,7 @@ export default function Setup({ cfg, setCfg, profile, onEdit, onStart, onSample 
   return (
     <>
       <header className="hero">
-        <h1>{profile ? `Welcome back, ${profile.name}.` : 'Practice the interview before it counts.'}</h1>
+        <h1>{user ? `Welcome, ${cfg.name && cfg.name !== 'Candidate' ? cfg.name : user.username}.` : 'Practice the interview before it counts.'}</h1>
         <p className="muted">
           An ElevenLabs-voiced interviewer asks behavioral questions out loud. MockView grades your delivery as you talk
           (filler words, pace, confidence, STAR structure) and then shows you how to say it better.
