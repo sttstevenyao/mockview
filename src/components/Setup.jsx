@@ -1,16 +1,10 @@
 import { useEffect, useState } from 'react'
-import Brand from './Brand.jsx'
 import { LEVELS, PERSONAS, TRACKS, VOICES } from '../data/questions.js'
 import ResumePanel from './ResumePanel.jsx'
+import { MODES } from './Onboarding.jsx'
 import { initAudio } from '../lib/audio.js'
 import { checkTtsHealth, speak } from '../lib/tts.js'
-import { speechSupported } from '../lib/transcriber.js'
-
-const MODES = [
-  { id: 'count', title: 'Fixed questions', desc: 'A set number of questions, then your report.' },
-  { id: 'timed', title: 'Timed session', desc: 'Answer until the clock runs out.' },
-  { id: 'endless', title: 'Endless mode', desc: 'Questions keep coming until you stop.' },
-]
+import { browserNote, defaultEngine, ENGINE_LABEL } from '../lib/transcriber.js'
 
 function Check({ ok, warn, label, detail }) {
   const cls = ok ? 'good' : warn ? 'warn' : 'bad'
@@ -23,8 +17,7 @@ function Check({ ok, warn, label, detail }) {
   )
 }
 
-export default function Setup({ initial, onStart, onSample }) {
-  const [cfg, setCfg] = useState(initial)
+export default function Setup({ cfg, setCfg, profile, onEdit, onStart, onSample }) {
   const [health, setHealth] = useState(null)
   const [previewing, setPreviewing] = useState(false)
   const [voiceStatus, setVoiceStatus] = useState(null) // result of the last Preview
@@ -52,68 +45,51 @@ export default function Setup({ initial, onStart, onSample }) {
         ? `${cfg.minutes} minutes`
         : 'Endless'
 
-  return (
-    <div className="setup">
-      <nav className="topnav">
-        <Brand />
-        <span className="muted tiny mono">behavioral interview simulator</span>
-      </nav>
+  const level = LEVELS.find((l) => l.id === cfg.level)?.label
+  const track = TRACKS.find((t) => t.id === cfg.track)?.label
+  const facts = [
+    ['Name', cfg.name || 'Candidate'],
+    ['Experience', level],
+    ['Field', track],
+    ['Role', cfg.role?.trim() || 'Not specified'],
+    ['Format', `${MODES.find((x) => x.id === cfg.mode)?.title} · ${summary}`],
+  ]
 
+  return (
+    <>
       <header className="hero">
-        <div className="eyebrow mono">● voice interviewer · live grading · instant feedback</div>
-        <h1>
-          Practice the interview <span className="grad">before it counts.</span>
-        </h1>
+        <h1>{profile ? `Welcome back, ${profile.name}.` : 'Practice the interview before it counts.'}</h1>
         <p className="muted">
-          A realistic AI-voiced interviewer asks the questions. MockView grades your delivery live — filler words, pace,
-          confidence, STAR structure — then shows you exactly how to say it better.
+          An ElevenLabs-voiced interviewer asks behavioral questions out loud. MockView grades your delivery as you talk
+          (filler words, pace, confidence, STAR structure) and then shows you how to say it better.
         </p>
       </header>
 
       <div className="setup-grid">
         <div className="col">
           <section className="panel">
-            <h2 className="panel-title">
-              <span className="step">01</span> Interview
-            </h2>
-
-            <label className="field">
-              <span>Your name</span>
-              <input value={cfg.name} maxLength={40} onChange={(e) => set('name', e.target.value)} placeholder="Candidate" />
-            </label>
-
-            <div className="field">
-              <span>Job field</span>
-              <div className="seg tracks">
-                {TRACKS.map((t) => (
-                  <button key={t.id} className={cfg.track === t.id ? 'on' : ''} onClick={() => set('track', t.id)}>
-                    {t.label}
-                  </button>
-                ))}
-              </div>
+            <div className="panel-head">
+              <h2 className="panel-title">
+                <span className="step">01</span> Your interview
+              </h2>
+              <button className="btn ghost sm" onClick={onEdit}>
+                Change answers
+              </button>
             </div>
-
-            <div className="two-col">
-              <label className="field">
-                <span>Target role (optional)</span>
-                <input
-                  value={cfg.role}
-                  maxLength={60}
-                  onChange={(e) => set('role', e.target.value)}
-                  placeholder="e.g. Data Analyst Intern at Google"
-                />
-              </label>
-              <div className="field">
-                <span>Experience level</span>
-                <div className="seg three">
-                  {LEVELS.map((l) => (
-                    <button key={l.id} className={cfg.level === l.id ? 'on' : ''} onClick={() => set('level', l.id)}>
-                      {l.label}
-                    </button>
-                  ))}
+            <dl className="facts">
+              {facts.map(([k, v]) => (
+                <div key={k}>
+                  <dt className="muted tiny">{k}</dt>
+                  <dd>{v}</dd>
                 </div>
-              </div>
-            </div>
+              ))}
+            </dl>
+          </section>
+
+          <section className="panel">
+            <h2 className="panel-title">
+              <span className="step">02</span> Interviewer
+            </h2>
 
             <div className="field">
               <span>Interviewer persona</span>
@@ -157,39 +133,12 @@ export default function Setup({ initial, onStart, onSample }) {
         </div>
         <section className="panel sticky">
           <h2 className="panel-title">
-            <span className="step">03</span> Session format
+            <span className="step">04</span> Start
           </h2>
-
-          <div className="mode-grid">
-            {MODES.map((m) => (
-              <button key={m.id} className={`mode ${cfg.mode === m.id ? 'on' : ''}`} onClick={() => set('mode', m.id)}>
-                <b>{m.title}</b>
-                <span className="muted tiny">{m.desc}</span>
-              </button>
-            ))}
-          </div>
-
-          {cfg.mode === 'count' && (
-            <label className="field">
-              <span>
-                Number of questions <b className="mono accent">{cfg.count}</b>
-              </span>
-              <input type="range" min="1" max="10" value={cfg.count} onChange={(e) => set('count', +e.target.value)} />
-            </label>
-          )}
-          {cfg.mode === 'timed' && (
-            <label className="field">
-              <span>
-                Target duration <b className="mono accent">{cfg.minutes} min</b>
-              </span>
-              <input type="range" min="2" max="30" value={cfg.minutes} onChange={(e) => set('minutes', +e.target.value)} />
-            </label>
-          )}
-          {cfg.mode === 'endless' && (
-            <p className="muted tiny endless-note">
-              Questions cycle without repeating back-to-back. Press End Interview whenever you’re done.
-            </p>
-          )}
+          <p className="muted tiny">
+            {MODES.find((x) => x.id === cfg.mode)?.desc} The interviewer reacts to each answer, and if it can’t hear you it
+            will ask again before stopping.
+          </p>
 
           <label className="toggle">
             <input type="checkbox" checked={cfg.coaching} onChange={(e) => set('coaching', e.target.checked)} />
@@ -199,9 +148,10 @@ export default function Setup({ initial, onStart, onSample }) {
 
           <ul className="checks">
             <Check
-              ok={speechSupported}
-              label="Speech recognition"
-              detail={speechSupported ? 'ready' : 'use Chrome or Edge (or Simulate answer)'}
+              ok={defaultEngine === 'webspeech'}
+              warn={defaultEngine === 'scribe'}
+              label="Voice input"
+              detail={defaultEngine === 'none' ? 'not supported, type your answers instead' : ENGINE_LABEL[defaultEngine]}
             />
             <Check
               ok={health?.configured}
@@ -218,6 +168,7 @@ export default function Setup({ initial, onStart, onSample }) {
               }
             />
           </ul>
+          {browserNote && <p className="tiny muted">{browserNote}</p>}
 
           <button
             className="btn primary big-btn"
@@ -232,11 +183,10 @@ export default function Setup({ initial, onStart, onSample }) {
             Start interview <span className="mono tiny">· {summary}</span>
           </button>
           <button className="link" onClick={onSample}>
-            or view a sample feedback report →
+            or view a sample feedback report
           </button>
         </section>
       </div>
-      <footer className="foot muted tiny mono">Built at HackRU Fall 2026 · Voice by ElevenLabs</footer>
-    </div>
+    </>
   )
 }

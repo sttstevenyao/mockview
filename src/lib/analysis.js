@@ -542,10 +542,11 @@ export function grade(score) {
 export function analyzeSession(answers) {
   const items = answers.map(analyzeAnswer)
   const words = items.reduce((s, a) => s + a.metrics.words, 0)
-  const weighted = (key) => (words ? items.reduce((s, a) => s + a.metrics[key] * a.metrics.words, 0) / words : 0)
   const sum = (key) => items.reduce((s, a) => s + a.metrics[key], 0)
 
-  const score = Math.round(weighted('confidence'))
+  // Every question counts equally, so a skipped or empty answer pulls the grade down.
+  const score = items.length ? Math.round(items.reduce((s, a) => s + a.confidence, 0) / items.length) : 0
+  const skipped = items.filter((a) => a.metrics.words < 3).length
   const paced = items.filter((a) => a.metrics.wpm > 0)
   const pacedWords = paced.reduce((s, a) => s + a.metrics.words, 0)
   const avgWpm = pacedWords ? Math.round(paced.reduce((s, a) => s + a.metrics.wpm * a.metrics.words, 0) / pacedWords) : 0
@@ -582,6 +583,7 @@ export function analyzeSession(answers) {
   if (quantified === items.length && items.length) strengths.push('You quantified your impact in every answer')
   else focus.push('Quantify results — %, time saved, users, dollars')
   if (hedges > items.length * 2) focus.push('Drop hedges like “I think” and “maybe”')
+  if (skipped) focus.unshift(`Answer every question (${skipped} had no answer)`)
 
   const voiced = items.filter((a) => a.vocal?.scores)
   const vocal = voiced.length ? Math.round(voiced.reduce((s, a) => s + a.vocal.scores.score, 0) / voiced.length) : null

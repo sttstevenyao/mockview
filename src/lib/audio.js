@@ -5,6 +5,7 @@ let ctx = null
 let player = null
 let voiceAnalyser = null
 let micAnalyser = null
+let micStream = null
 let resolvePlayback = null
 
 export function initAudio() {
@@ -30,6 +31,7 @@ export async function initMic() {
       // autoGainControl off so loudness analysis reflects how loud you really are.
       audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: false },
     })
+    micStream = stream
     micAnalyser = ctx.createAnalyser()
     micAnalyser.fftSize = 2048 // long enough window for pitch detection
     micAnalyser.smoothingTimeConstant = 0.7
@@ -41,6 +43,7 @@ export async function initMic() {
 }
 
 export const getAnalysers = () => ({ voice: voiceAnalyser, mic: micAnalyser })
+export const getMicStream = () => micStream
 
 export function playUrl(url) {
   if (!player) initAudio()

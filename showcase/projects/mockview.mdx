@@ -8,10 +8,11 @@ authorIds:
   - daniel-kim
 categories:
   - text-to-speech
+  - speech-to-text
 isFeatured: false
 date: "2026-10-11"
 image: /images/mockview.png
-demoUrl: https://YOUR-DEPLOYMENT.vercel.app # TODO: replace (or delete this line)
+demoUrl: https://mockview-ruddy.vercel.app
 repoUrl: https://github.com/YOUR-ORG/mockview # TODO: replace
 videoUrl: https://youtube.com/watch?v=YOUR_VIDEO # TODO: replace (or delete this line)
 ---
@@ -28,6 +29,8 @@ MockView is a customizable behavioral interview simulator built in 24 hours at H
 - **Live grading sidebar**: a filler-word counter, a WPM gauge, a shifting confidence score, a STAR tracker, and a vocal-delivery meter (projection, pitch variety, pauses), all updating while you talk.
 - **Feedback report**: your transcript with clickable red-flag and filler pills that reveal the "interviewer's inner monologue", plus a GitHub-style diff that rewrites your weakest sentence.
 - **Hear Ideal Delivery**: plays the rewritten sentence with ElevenLabs `eleven_multilingual_v2`, next to your original for contrast.
+- **Reactive interviewer**: responds to what you actually said after each answer, asks "Sorry, what was that?" when it hears nothing, and stops after repeated silence.
+- **Works in any modern browser**: where built-in speech recognition is blocked (Brave) or missing (Firefox), answers are transcribed with ElevenLabs Speech-to-Text (Scribe).
 - **Flexible sessions**: a fixed number of questions, a timed session, or Endless Mode.
 
 ## How It Works
@@ -36,11 +39,11 @@ MockView is a customizable behavioral interview simulator built in 24 hours at H
 - The next question's audio is **prefetched** while the current one plays, so there is no dead air between questions.
 - A tiny server proxy (a Vite middleware locally, a Vercel function in production) keeps the API key off the client.
 - The interviewer's audio runs through a Web Audio `AnalyserNode` that drives the live waveform visualizer.
-- Speech input uses the browser's Web Speech API for zero-latency transcripts. A local rules engine (regex dictionaries plus STAR heuristics) scores content instantly. A pitch and loudness analyser on the mic stream (autocorrelation pitch detection with an adaptive noise floor) scores vocal delivery.
+- Speech input uses the browser's Web Speech API for zero-latency transcripts, and falls back to **ElevenLabs Scribe** (`/v1/speech-to-text`, `scribe_v1`) with pause-to-pause clips when that API is blocked or missing. A local rules engine (regex dictionaries plus STAR heuristics) scores content instantly. A pitch and loudness analyser on the mic stream (autocorrelation pitch detection with an adaptive noise floor) scores vocal delivery.
 
 ## Technologies Used
 
-- ElevenLabs API: Text-to-Speech (Multilingual v2, Flash v2.5, voice settings, SSML break tags)
+- ElevenLabs API: Text-to-Speech (Multilingual v2, Flash v2.5, voice settings, SSML break tags) and Speech-to-Text (Scribe v1)
 - React 18 + Vite
 - Web Speech API, Web Audio API
 - Vercel serverless functions
@@ -52,7 +55,7 @@ git clone https://github.com/YOUR-ORG/mockview.git
 cd mockview
 npm install
 cp .env.example .env   # add your ELEVENLABS_API_KEY
-npm run dev            # open http://localhost:5173 in Chrome
+npm run dev            # open http://localhost:5173
 ```
 
 ## Demo
@@ -61,7 +64,6 @@ Open `/#sample` on the live demo to jump straight to a sample feedback report.
 
 ## Future Plans
 
-- ElevenLabs Speech-to-Text (Scribe) for a higher-accuracy post-interview transcript
 - ElevenLabs Agents for fully conversational, adaptive follow-up questions
 - Company-specific question packs and progress tracking across sessions
 

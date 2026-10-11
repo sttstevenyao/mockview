@@ -69,6 +69,22 @@ function VocalReport({ vocal }) {
   )
 }
 
+// Plain-text transcript of the whole session: the conversation log when we have one,
+// otherwise each question with the captured answer.
+function downloadTranscript(result, report) {
+  const stamp = (t) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.round(t % 60)).padStart(2, '0')}`
+  const lines = result.log?.length
+    ? result.log.map((l) => `[${stamp(l.at)}] ${l.who === 'you' ? 'You' : 'Interviewer'}: ${l.text}`)
+    : report.answers.flatMap((a, i) => [`Q${i + 1}: ${a.question?.text}`, `You: ${a.text || '(no answer heard)'}`, ''])
+  const text = [`MockView interview transcript · ${new Date().toLocaleString()}`, '', ...lines, ''].join('\n')
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `mockview-transcript-${new Date().toISOString().slice(0, 10)}.txt`
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
 function EmptyState({ onSample, onSetup }) {
   return (
     <div className="feedback">
@@ -78,8 +94,8 @@ function EmptyState({ onSample, onSetup }) {
       <div className="panel empty">
         <h2>We didn’t capture any answers</h2>
         <p className="muted">
-          Speech recognition needs Chrome or Edge and microphone permission. You can also use <b>Simulate answer</b> during the
-          interview, or open a sample report.
+          Allow microphone access when the browser asks, or type your answers in the box under the live transcript. You
+          can also open a sample report.
         </p>
         <div className="row center">
           <button className="btn primary" onClick={onSample}>
@@ -165,6 +181,9 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
           {result.reason === 'sample' && ' · SAMPLE DATA'}
         </div>
         <div className="row">
+          <button className="btn ghost" onClick={() => downloadTranscript(result, report)}>
+            Download transcript
+          </button>
           <button className="btn ghost" onClick={onSetup}>
             New setup
           </button>
@@ -184,7 +203,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
           <div className="tile">
             <span className="muted tiny">Avg pace</span>
             <b className="mono">
-              {o.avgWpm}
+              {o.avgWpm || '—'}
               <small> wpm</small>
             </b>
           </div>
@@ -241,6 +260,12 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
             ))}
           </div>
           <h3 className="fb-q">{a.question?.text}</h3>
+          {a.audioUrl && (
+            <div className="recording">
+              <span className="mono tiny muted">YOUR RECORDING</span>
+              <audio controls preload="metadata" src={a.audioUrl} />
+            </div>
+          )}
           {a.quality.issues.length > 0 && (
             <div className="issues">
               {a.quality.issues.map((t) => (

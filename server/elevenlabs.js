@@ -62,3 +62,33 @@ export async function synthesize({ text, voiceId, quality, speed, expressiveness
   }
   return { status: 200, contentType: 'audio/mpeg', body: Buffer.from(await res.arrayBuffer()) }
 }
+
+// Speech-to-text with ElevenLabs Scribe. `audio` is a base64 clip recorded in the browser.
+export async function transcribe({ audio, mime, apiKey }) {
+  if (!hasKey(apiKey)) return json(503, { error: 'ELEVENLABS_API_KEY is not set in .env' })
+  if (typeof audio !== 'string' || !audio || audio.length > 3_000_000) {
+    return json(400, { error: 'audio is required (max ~2 MB)' })
+  }
+  const type = /^audio\/[\w.+-]+(;[\w=.-]+)?$/.test(mime || '') ? mime : 'audio/webm'
+  const form = new FormData()
+  form.append('model_id', process.env.ELEVENLABS_STT_MODEL || 'scribe_v1')
+  form.append('language_code', 'en')
+  form.append('tag_audio_events', 'false') // no "(laughs)" / "(silence)" tags in the transcript
+  form.append('file', new Blob([Buffer.from(audio, 'base64')], { type }), 'answer.' + (type.includes('mp4') ? 'mp4' : 'webm'))
+
+  const res = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
+    method: 'POST',
+    headers: { 'xi-api-key': apiKey.trim() },
+    body: form,
+  })
+  if (!res.ok) {
+    let detail = `ElevenLabs returned HTTP ${res.status}`
+    try {
+      const err = await res.json()
+      detail = err?.detail?.message || err?.detail?.status || detail
+    } catch {}
+    return json(res.status, { error: detail })
+  }
+  const data = await res.json()
+  return json(200, { text: String(data.text || '').trim() })
+}

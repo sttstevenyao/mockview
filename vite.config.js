@@ -1,19 +1,21 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import { health, synthesize } from './server/elevenlabs.js'
+import { health, synthesize, transcribe } from './server/elevenlabs.js'
 
-// Serves /api/tts from the Vite dev/preview server so `npm run dev` is all you need locally.
+// Serves /api/tts and /api/stt from the Vite dev/preview server so `npm run dev` is all you need locally.
 function elevenLabsApi(env) {
   const handler = async (req, res, next) => {
-    if (!req.url.startsWith('/api/tts')) return next()
+    const tts = req.url.startsWith('/api/tts')
+    if (!tts && !req.url.startsWith('/api/stt')) return next()
     const apiKey = env.ELEVENLABS_API_KEY
     let out
     try {
-      if (req.method === 'GET') out = health(apiKey)
+      if (req.method === 'GET' && tts) out = health(apiKey)
       else if (req.method === 'POST') {
         let raw = ''
         for await (const chunk of req) raw += chunk
-        out = await synthesize({ ...JSON.parse(raw || '{}'), apiKey })
+        const body = { ...JSON.parse(raw || '{}'), apiKey }
+        out = tts ? await synthesize(body) : await transcribe(body)
       } else {
         res.statusCode = 405
         return res.end()

@@ -1,19 +1,69 @@
-// Wraps the Web Speech API (webkitSpeechRecognition) into a transcript buffer
-// that also accepts injected text (used by "Simulate answer" for noisy demo halls).
+// Turns the candidate's voice into a transcript buffer. Two engines:
+//  • webspeech — the browser's built-in recognizer (Chrome/Edge/Safari): zero latency, live interim words.
+//  • scribe    — ElevenLabs Scribe via /api/stt, for browsers where the built-in recognizer is
+//                missing or blocked (Brave blocks it on purpose; Firefox doesn't ship it). The mic is
+//                recorded in pause-to-pause clips and each clip is transcribed as soon as you pause.
+// Typed answers and "Simulate answer" words are injected through append().
+import { getAnalysers, getMicStream } from './audio.js'
 
 const SR = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)
-export const speechSupported = Boolean(SR)
+const isBrave = typeof navigator !== 'undefined' && Boolean(navigator.brave)
+const canRecord =
+  typeof window !== 'undefined' && typeof window.MediaRecorder !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia)
 
-export function createTranscriber({ onUpdate, onError }) {
-  let rec = null
+export const defaultEngine = SR && !isBrave ? 'webspeech' : canRecord ? 'scribe' : 'none'
+export const speechSupported = defaultEngine !== 'none'
+export const browserNote = isBrave
+  ? 'Brave blocks built-in speech recognition, so MockView transcribes with ElevenLabs Scribe instead.'
+  : !SR && canRecord
+    ? 'This browser has no built-in speech recognition, so MockView transcribes with ElevenLabs Scribe instead.'
+    : ''
+export const ENGINE_LABEL = { webspeech: 'Browser speech recognition', scribe: 'ElevenLabs Scribe', none: 'Unavailable' }
+
+// Scribe clip segmentation (mic RMS, noise-suppressed input).
+const VOICE_RMS = 0.01
+const PAUSE_MS = 700 // a pause this long ends a clip…
+const MIN_CLIP_MS = 1200 // …once the clip is at least this long
+const MAX_CLIP_MS = 14000
+const MIN_SPEECH_MS = 300 // clips with less voiced audio than this are dropped, never sent
+
+const pickMime = () =>
+  ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find((t) => window.MediaRecorder?.isTypeSupported?.(t)) || ''
+
+const toBase64 = (blob) =>
+  new Promise((resolve, reject) => {
+    const r = new FileReader()
+    r.onload = () => resolve(String(r.result).split(',')[1] || '')
+    r.onerror = reject
+    r.readAsDataURL(blob)
+  })
+
+export function createTranscriber({ onUpdate, onError, onEngine }) {
+  let engine = defaultEngine
   let micOn = false
   let finalText = ''
   let interim = ''
   let chunks = []
   let injected = ''
+  let gen = 0 // bumps on every begin() so late results from an old answer are ignored
 
-  const emit = () => onUpdate({ final: finalText.trim(), interim: interim.trim() })
+  // Scribe state
+  let pending = 0
+  let seq = 0
+  let nextSeq = 0
+  let ready = {}
+  let waiters = []
 
+  const emit = () => onUpdate({ final: finalText.trim(), interim: interim.trim(), pending: pending > 0 })
+  const addFinal = (t) => {
+    t = t.trim()
+    if (!t) return
+    finalText += t + ' '
+    chunks.push(t)
+  }
+
+  // ── Web Speech engine ──────────────────────────
+  let rec = null
   const startRec = () => {
     if (!SR || !micOn) return
     rec = new SR()
@@ -24,72 +74,201 @@ export function createTranscriber({ onUpdate, onError }) {
       let live = ''
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const r = e.results[i]
-        const t = r[0].transcript.trim()
-        if (r.isFinal) {
-          if (t) {
-            finalText += t + ' '
-            chunks.push(t)
-          }
-        } else live += r[0].transcript
+        if (r.isFinal) addFinal(r[0].transcript)
+        else live += r[0].transcript
       }
       interim = live
       emit()
     }
     rec.onerror = (e) => {
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      if (e.error === 'not-allowed') {
         micOn = false
         onError?.(e.error)
+      } else if ((e.error === 'network' || e.error === 'service-not-allowed') && canRecord && engine === 'webspeech') {
+        // The recognizer exists but its service is blocked (e.g. Brave Shields) → switch to Scribe.
+        stopRec()
+        engine = 'scribe'
+        onEngine?.(engine)
+        micOn = true
+        startClip()
       }
     }
     // Chrome ends recognition after a few seconds of silence; keep it alive.
     rec.onend = () => {
-      if (micOn) setTimeout(() => micOn && startRec(), 120)
+      if (micOn && engine === 'webspeech') setTimeout(() => micOn && engine === 'webspeech' && startRec(), 120)
     }
     try {
       rec.start()
     } catch {}
   }
-
   const stopRec = () => {
-    micOn = false
-    try {
-      rec?.stop()
-    } catch {}
+    const r = rec
     rec = null
-    if (interim.trim()) {
-      finalText += interim.trim() + ' '
-      chunks.push(interim.trim())
-    }
+    try {
+      r?.stop()
+    } catch {}
+    if (interim.trim()) addFinal(interim)
     interim = ''
   }
 
+  // ── Scribe engine ──────────────────────────────
+  let recorder = null
+  let monitor = null
+  let clip = null // { start, speechMs, lastVoice }
+  const buf = new Float32Array(2048)
+
+  const settle = () => {
+    if (pending === 0) {
+      waiters.forEach((w) => w())
+      waiters = []
+    }
+  }
+  const deliver = () => {
+    while (nextSeq in ready) {
+      addFinal(ready[nextSeq])
+      delete ready[nextSeq++]
+    }
+    emit()
+  }
+
+  async function send(blob, mime, mySeq, myGen) {
+    try {
+      const audio = await toBase64(blob)
+      const r = await fetch('/api/stt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audio, mime }),
+      })
+      const data = await r.json().catch(() => ({}))
+      if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`)
+      if (myGen === gen) ready[mySeq] = String(data.text || '').replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ')
+    } catch (e) {
+      if (myGen === gen) {
+        ready[mySeq] = ''
+        onError?.(`transcription failed: ${e.message}`)
+      }
+    } finally {
+      if (myGen === gen) {
+        pending--
+        deliver()
+      }
+      settle()
+    }
+  }
+
+  const startClip = () => {
+    if (!micOn || engine !== 'scribe') return
+    const stream = getMicStream()
+    if (!stream) return setTimeout(startClip, 300) // mic permission still pending
+    const mime = pickMime()
+    const parts = []
+    const myClip = { start: Date.now(), speechMs: 0, lastVoice: Date.now() }
+    const r = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream)
+    r.ondataavailable = (e) => e.data?.size && parts.push(e.data)
+    r.onstop = () => {
+      // Silence is never sent: a clip without real speech can't turn into invented words.
+      if (myClip.speechMs < MIN_SPEECH_MS || !parts.length) return settle()
+      pending++
+      emit()
+      send(new Blob(parts, { type: r.mimeType || mime }), r.mimeType || mime, seq++, gen)
+    }
+    recorder = r
+    clip = myClip
+    r.start()
+    if (!monitor) monitor = setInterval(watch, 100)
+  }
+
+  const cutClip = (restart) => {
+    const r = recorder
+    recorder = null
+    clip = null
+    try {
+      if (r?.state === 'recording') r.stop()
+    } catch {}
+    if (restart) startClip()
+  }
+
+  function watch() {
+    const an = getAnalysers().mic
+    if (!clip || !an) return
+    an.getFloatTimeDomainData(buf)
+    let sum = 0
+    for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i]
+    const now = Date.now()
+    if (Math.sqrt(sum / buf.length) > VOICE_RMS) {
+      clip.speechMs += 100
+      clip.lastVoice = now
+    }
+    const len = now - clip.start
+    const paused = clip.speechMs >= MIN_SPEECH_MS && now - clip.lastVoice > PAUSE_MS && len > MIN_CLIP_MS
+    if (paused || len > MAX_CLIP_MS) cutClip(true)
+  }
+
+  const stopScribe = () => {
+    clearInterval(monitor)
+    monitor = null
+    cutClip(false)
+  }
+
+  // ── Shared controls ────────────────────────────
+  const startMic = () => (engine === 'webspeech' ? startRec() : engine === 'scribe' ? startClip() : null)
+  const stopMic = () => {
+    micOn = false
+    stopRec()
+    stopScribe()
+  }
+
   return {
+    get engine() {
+      return engine
+    },
     supported: speechSupported,
     begin() {
+      gen++
       finalText = ''
       interim = ''
       chunks = []
       injected = ''
+      pending = 0
+      seq = 0
+      nextSeq = 0
+      ready = {}
       micOn = true
-      startRec()
+      startMic()
       emit()
     },
-    pauseMic: stopRec,
+    pauseMic: stopMic,
     resumeMic() {
       micOn = true
-      startRec()
+      startMic()
     },
-    append(word) {
-      finalText += word + ' '
-      injected += word + ' '
-      if (/[.!?]$/.test(word)) {
+    append(text) {
+      finalText += text + ' '
+      injected += text + ' '
+      if (/[.!?]$/.test(text)) {
         chunks.push(injected.trim())
         injected = ''
       }
       emit()
     },
+    // Resolves once in-flight Scribe clips are transcribed (max 6 s), so nothing said right
+    // before "Next" is lost. Instant for the Web Speech engine.
+    flush() {
+      stopMic()
+      return new Promise((resolve) => {
+        // onstop fires asynchronously, so give a just-stopped recorder a beat to queue its clip.
+        setTimeout(() => {
+          if (pending === 0) return resolve()
+          const t = setTimeout(resolve, 6000)
+          waiters.push(() => {
+            clearTimeout(t)
+            resolve()
+          })
+        }, 150)
+      })
+    },
     end() {
-      stopRec()
+      stopMic()
       if (injected.trim()) chunks.push(injected.trim())
       injected = ''
       emit()

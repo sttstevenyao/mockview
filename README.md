@@ -14,6 +14,11 @@
 |---|---|
 | 🗣️ **ElevenLabs-voiced interviewer** | Three personas (Friendly Recruiter, Hiring Manager, Bar Raiser) and four premade ElevenLabs voices. Choose **Realistic** (`eleven_multilingual_v2`) or **Low latency** (`eleven_flash_v2_5`). |
 | 🎭 **Custom mannerisms** | Speaking pace, expressiveness, reaction style (warm / neutral / curt / silent), natural backchannel ("Mm-hmm…"), **follow-up probing** for vague answers, and **interruptions** for answers that run long. |
+| 👋 **Guided onboarding + profiles** | Pop-up questions on first visit (name, experience level, field, role, session length), then an optional MockView profile that remembers your preferences on this device. |
+| 💬 **Reactive interviewer** | After each answer the interviewer responds to what you actually said: praise for a quantified STAR answer, "I didn't hear how it turned out" when the result is missing, and never praise for an empty answer. |
+| 🤫 **Silence handling** | If it hears nothing, the interviewer asks "Sorry, what was that?". After repeated silence it stops and asks you to check your mic and restart. |
+| 🌐 **Works in Brave & Firefox** | Where built-in speech recognition is missing or blocked, answers are transcribed with **ElevenLabs Scribe** instead. You can also type answers. |
+| 🧾 **Recorded & transcribed** | A live conversation log of every line, a recording of each answer you can replay on the report, and a downloadable transcript. |
 | ⏱️ **Flexible sessions** | Fixed number of questions, a timed session, or **Endless Mode** that runs until you stop. |
 | 📊 **Live grading sidebar** | A filler-word counter, a WPM pace gauge, a shifting confidence score with a sparkline, a STAR structure tracker, and a live coach tip. All of it updates while you speak. |
 | 🔊 **Vocal delivery analysis** | Scores how you *sound*, not just what you say: projection (loudness), pitch variety (monotone vs. expressive), volume steadiness, and pauses, computed from the raw mic signal. |
@@ -30,6 +35,7 @@ ElevenLabs is the voice of the whole product:
 4. **Ideal Delivery playback**: the rewritten sentence is voiced with `eleven_multilingual_v2` (the most expressive model), side by side with the original.
 5. **Zero dead air**: the next question's audio is prefetched while the current one plays, and responses are cached per sentence.
 6. **Live visualizer**: ElevenLabs audio is routed through a Web Audio `AnalyserNode` that drives the waveform.
+7. **Speech-to-Text (Scribe)**: in browsers that block the built-in recognizer (Brave) or don't have one (Firefox), the mic is recorded in pause-to-pause clips and transcribed with the ElevenLabs Speech-to-Text API (`POST /v1/speech-to-text`, `scribe_v1`). Clips with no detected speech are never sent, so silence can't turn into invented words.
 
 The API key stays server-side, behind a small proxy ([`server/elevenlabs.js`](server/elevenlabs.js)). If ElevenLabs is unreachable, MockView falls back to the browser's best built-in voice so the demo never breaks.
 
@@ -37,14 +43,14 @@ The API key stays server-side, behind a small proxy ([`server/elevenlabs.js`](se
 
 - **Frontend:** React 18 + Vite, hand-written CSS (dark "terminal" design system)
 - **Voice out:** ElevenLabs Text-to-Speech API
-- **Voice in:** Web Speech API (`webkitSpeechRecognition`) for zero-latency transcripts
+- **Voice in:** Web Speech API (`webkitSpeechRecognition`) for zero-latency transcripts, with ElevenLabs Speech-to-Text (Scribe) as the fallback
 - **Audio analysis:** Web Audio API, with autocorrelation pitch detection, RMS loudness and an adaptive noise floor
 - **Grading engine:** a deterministic local rules engine ([`src/lib/analysis.js`](src/lib/analysis.js)) with regex dictionaries for fillers, hedges and red flags, STAR detection, rule-based rewrites, and an LCS word diff. No LLM calls, so scoring is instant and every point can be explained.
-- **Hosting:** Vercel (static site + one serverless function, [`api/tts.js`](api/tts.js))
+- **Hosting:** Vercel (static site + two serverless functions, [`api/tts.js`](api/tts.js) and [`api/stt.js`](api/stt.js))
 
 ## 🚀 Getting started
 
-**Requirements:** Node 18+, Google Chrome or Microsoft Edge (for speech recognition), and an [ElevenLabs API key](https://elevenlabs.io/app/settings/api-keys).
+**Requirements:** Node 18+, a modern browser (Chrome or Edge give live word-by-word transcripts; Brave and Firefox use ElevenLabs Scribe), and an [ElevenLabs API key](https://elevenlabs.io/app/settings/api-keys).
 
 ```bash
 git clone https://github.com/YOUR-ORG/mockview.git
@@ -73,13 +79,17 @@ vercel --prod
 
 ```
 mockview/
-├── api/tts.js                 # Vercel serverless proxy → ElevenLabs
-├── server/elevenlabs.js       # shared ElevenLabs TTS call (dev + prod)
-├── vite.config.js             # serves /api/tts during `npm run dev`
+├── api/tts.js                 # Vercel serverless proxy → ElevenLabs Text-to-Speech
+├── api/stt.js                 # Vercel serverless proxy → ElevenLabs Speech-to-Text (Scribe)
+├── server/elevenlabs.js       # shared ElevenLabs TTS + STT calls (dev + prod)
+├── server/guard.js            # same-origin check + per-IP rate limit
+├── vite.config.js             # serves /api/tts and /api/stt during `npm run dev`
 ├── src/
-│   ├── App.jsx                # setup → interview → feedback
+│   ├── App.jsx                # onboarding → setup → interview → feedback, credits tab
 │   ├── components/
-│   │   ├── Setup.jsx          # session format, persona, voice & mannerisms
+│   │   ├── Onboarding.jsx     # pop-up setup questions + profile creation
+│   │   ├── Setup.jsx          # interview summary, persona, voice, resume
+│   │   ├── Credits.jsx        # team and acknowledgements
 │   │   ├── Interview.jsx      # interview flow, timers, follow-ups, interruptions
 │   │   ├── LiveSidebar.jsx    # real-time grading widgets
 │   │   ├── Visualizer.jsx     # Web Audio waveform
@@ -88,7 +98,9 @@ mockview/
 │   │   ├── analysis.js        # content grading + rewrite + diff
 │   │   ├── voiceAnalysis.js   # pitch / loudness / pause analysis
 │   │   ├── tts.js             # ElevenLabs client, cache, fallback
-│   │   ├── transcriber.js     # Web Speech API wrapper
+│   │   ├── transcriber.js     # Web Speech API + ElevenLabs Scribe engines
+│   │   ├── reactions.js       # interviewer reactions and silence prompts
+│   │   ├── profile.js         # local profile (localStorage)
 │   │   └── audio.js           # shared AudioContext + analysers
 │   └── data/questions.js      # question banks, personas, mannerisms, sample data
 └── showcase/                  # ready-to-copy files for the ElevenLabs Showcase PR

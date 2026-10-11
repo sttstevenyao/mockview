@@ -45,7 +45,7 @@ export default function ResumePanel({ resume, useResume, onChange }) {
   return (
     <section className="panel">
       <h2 className="panel-title">
-        <span className="step">02</span> Your resume <span className="muted tiny">(optional)</span>
+        <span className="step">03</span> Your resume <span className="muted tiny">(optional)</span>
       </h2>
 
       {!resume ? (

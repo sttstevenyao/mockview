@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react'
 import { getAnalysers } from '../lib/audio.js'
 
 const PALETTES = {
-  voice: ['#a78bfa', '#22d3ee', '#a78bfa'],
-  mic: ['#34d399', '#22d3ee', '#34d399'],
+  voice: ['#58a6ff', '#79c0ff', '#58a6ff'],
+  mic: ['#3fb950', '#56d364', '#3fb950'],
   idle: ['#30363d', '#3d444d', '#30363d'],
 }
 
@@ -64,7 +64,7 @@ export default function Visualizer({ mode = 'idle', synthetic = false, height = 
       grad.addColorStop(1, pal[2])
       g.fillStyle = grad
       g.shadowColor = pal[1]
-      g.shadowBlur = mode === 'idle' ? 0 : 14
+      g.shadowBlur = 0
 
       const gap = 3
       const bw = Math.max(2, (w - gap * (bars - 1)) / bars)
