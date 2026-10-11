@@ -78,7 +78,7 @@ export default function Interview({ config, onComplete }) {
   const S = useRef(null)
   if (!S.current)
     S.current = {
-      questions: buildQueue(config.track),
+      questions: buildQueue(config.track, config.resumeQuestions),
       answers: [],
       stage: 'asking',
       qIndex: 0,
@@ -137,7 +137,10 @@ export default function Interview({ config, onComplete }) {
             describeFormat(config),
             describeRole(config),
             LEVELS.find((l) => l.id === config.level)?.line || '',
-          )
+          ) +
+          (config.resumeQuestions?.length
+            ? " I've read through your resume, so some questions will be about your own experience."
+            : '')
         : q.followUp
           ? followUpLead()
           : (s.nextLead ?? makeLead())
@@ -402,7 +405,13 @@ export default function Interview({ config, onComplete }) {
           </div>
 
           <div className="question-card">
-            <span className="mono tiny accent">{question?.followUp ? `Q${qNumber} · FOLLOW-UP` : `Q${qNumber}`}</span>
+            <span className="mono tiny accent">
+              {question?.followUp
+                ? `Q${qNumber} · FOLLOW-UP`
+                : question?.fromResume
+                  ? `Q${qNumber} · FROM YOUR RESUME`
+                  : `Q${qNumber}`}
+            </span>
             <p key={question?.id}>{question ? question.text : 'Preparing your first question…'}</p>
           </div>
 

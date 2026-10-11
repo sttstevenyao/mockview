@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Brand from './Brand.jsx'
-import { ACK_STYLES, INTERRUPT_OPTIONS, LEVELS, PERSONAS, TRACKS, VOICES } from '../data/questions.js'
+import { LEVELS, PERSONAS, TRACKS, VOICES } from '../data/questions.js'
+import ResumePanel from './ResumePanel.jsx'
 import { initAudio } from '../lib/audio.js'
 import { checkTtsHealth, speak } from '../lib/tts.js'
 import { speechSupported } from '../lib/transcriber.js'
@@ -28,8 +29,7 @@ export default function Setup({ initial, onStart, onSample }) {
   const [previewing, setPreviewing] = useState(false)
   const [voiceStatus, setVoiceStatus] = useState(null) // result of the last Preview
   const set = (k, v) => setCfg((c) => ({ ...c, [k]: v }))
-  const setM = (k, v) => setCfg((c) => ({ ...c, mannerisms: { ...c.mannerisms, [k]: v } }))
-  // Picking a persona loads its mannerism preset; every knob stays editable.
+  // Each persona carries its own mannerisms (pace, reactions, follow-ups, interruptions).
   const choosePersona = (id) => setCfg((c) => ({ ...c, persona: id, mannerisms: { ...PERSONAS[id].mannerisms } }))
   const m = cfg.mannerisms
   const voiceOpts = { voiceId: cfg.voiceId, quality: cfg.voiceQuality, speed: m.speed, expressiveness: m.expressiveness }
@@ -131,12 +131,7 @@ export default function Setup({ initial, onStart, onSample }) {
                 ))}
               </div>
             </div>
-          </section>
 
-          <section className="panel">
-            <h2 className="panel-title">
-              <span className="step">02</span> Voice &amp; mannerisms
-            </h2>
             <div className="field">
               <span>Interviewer voice · ElevenLabs</span>
               <div className="row">
@@ -156,97 +151,9 @@ export default function Setup({ initial, onStart, onSample }) {
                 <span className="tiny warn">⚠ ElevenLabs error: {voiceStatus.error}. Using the browser voice instead.</span>
               )}
             </div>
-
-            <div className="field">
-              <span>Voice engine</span>
-              <div className="seg">
-                <button className={cfg.voiceQuality === 'high' ? 'on' : ''} onClick={() => set('voiceQuality', 'high')}>
-                  Realistic <span className="muted tiny mono">multilingual v2</span>
-                </button>
-                <button className={cfg.voiceQuality === 'fast' ? 'on' : ''} onClick={() => set('voiceQuality', 'fast')}>
-                  Low latency <span className="muted tiny mono">flash v2.5</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="two-col">
-              <label className="field">
-                <span>
-                  Speaking pace <b className="mono accent">{m.speed.toFixed(2)}×</b>
-                </span>
-                <input
-                  type="range"
-                  min="0.8"
-                  max="1.15"
-                  step="0.01"
-                  value={m.speed}
-                  onChange={(e) => setM('speed', +e.target.value)}
-                />
-                <span className="range-ends muted tiny">
-                  <i>measured</i>
-                  <i>brisk</i>
-                </span>
-              </label>
-              <label className="field">
-                <span>
-                  Expressiveness <b className="mono accent">{Math.round(m.expressiveness * 100)}%</b>
-                </span>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={m.expressiveness}
-                  onChange={(e) => setM('expressiveness', +e.target.value)}
-                />
-                <span className="range-ends muted tiny">
-                  <i>flat, stoic</i>
-                  <i>animated</i>
-                </span>
-              </label>
-            </div>
-
-            <div className="field">
-              <span>Reaction after your answers</span>
-              <div className="seg four">
-                {Object.entries(ACK_STYLES).map(([id, a]) => (
-                  <button key={id} className={m.acks === id ? 'on' : ''} onClick={() => setM('acks', id)}>
-                    {a.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="field">
-              <span>Interrupts long answers</span>
-              <div className="seg four">
-                {INTERRUPT_OPTIONS.map((o) => (
-                  <button
-                    key={o.value}
-                    className={m.interruptSec === o.value ? 'on' : ''}
-                    onClick={() => setM('interruptSec', o.value)}
-                  >
-                    {o.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <label className="toggle">
-              <input type="checkbox" checked={m.backchannel} onChange={(e) => setM('backchannel', e.target.checked)} />
-              <span className="switch" />
-              <span>
-                Natural backchannel <span className="muted tiny">(“Mm-hmm.”, “Okay, so…”)</span>
-              </span>
-            </label>
-            <label className="toggle">
-              <input type="checkbox" checked={m.followUps} onChange={(e) => setM('followUps', e.target.checked)} />
-              <span className="switch" />
-              <span>
-                Follow-up probing <span className="muted tiny">(asks for numbers &amp; specifics when you’re vague)</span>
-              </span>
-            </label>
           </section>
+
+          <ResumePanel resume={cfg.resume} useResume={cfg.useResume} onChange={(patch) => setCfg((c) => ({ ...c, ...patch }))} />
         </div>
         <section className="panel sticky">
           <h2 className="panel-title">
@@ -312,7 +219,16 @@ export default function Setup({ initial, onStart, onSample }) {
             />
           </ul>
 
-          <button className="btn primary big-btn" onClick={() => onStart({ ...cfg, name: cfg.name.trim() || 'Candidate' })}>
+          <button
+            className="btn primary big-btn"
+            onClick={() =>
+              onStart({
+                ...cfg,
+                name: cfg.name.trim() || 'Candidate',
+                resumeQuestions: cfg.useResume && cfg.resume ? cfg.resume.questions : [],
+              })
+            }
+          >
             Start interview <span className="mono tiny">· {summary}</span>
           </button>
           <button className="link" onClick={onSample}>

@@ -26,8 +26,8 @@ const num = (v, lo, hi, dflt) => (Number.isFinite(+v) ? Math.min(hi, Math.max(lo
 export async function synthesize({ text, voiceId, quality, speed, expressiveness, apiKey }) {
   if (!hasKey(apiKey)) return json(503, { error: 'ELEVENLABS_API_KEY is not set in .env' })
   apiKey = apiKey.trim()
-  if (typeof text !== 'string' || !text.trim() || text.length > 1500) {
-    return json(400, { error: 'text is required (max 1500 chars)' })
+  if (typeof text !== 'string' || !text.trim() || text.length > 900) {
+    return json(400, { error: 'text is required (max 900 chars)' })
   }
   const voice = /^[A-Za-z0-9]{10,40}$/.test(voiceId || '') ? voiceId : DEFAULT_VOICE
   const high = quality !== 'fast'

@@ -1456,3 +1456,63 @@ input[type='range'] {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ── Resume upload ─────────────────────────── */
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  cursor: pointer;
+  padding: 26px 16px;
+  border: 1.5px dashed var(--border-2);
+  border-radius: 10px;
+  background: var(--bg);
+  transition: 0.15s;
+}
+.drop:hover,
+.drop.over {
+  border-color: var(--accent);
+  background: rgba(167, 139, 250, 0.06);
+}
+.resume-foot {
+  justify-content: space-between;
+  margin: 8px 0 4px;
+}
+.resume-foot .link {
+  margin: 0;
+}
+.field textarea {
+  background: var(--bg);
+  border: 1px solid var(--border-2);
+  border-radius: 9px;
+  padding: 10px 12px;
+  resize: vertical;
+  font: 13px/1.5 var(--mono);
+  color: var(--text);
+  outline: none;
+}
+.field textarea:focus {
+  border-color: var(--accent);
+}
+.resume-file {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.resume-file .link {
+  margin: 0;
+}
+.resume-toggle {
+  margin: 14px 0 8px;
+}
+.resume-qs {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: var(--muted);
+  display: grid;
+  gap: 6px;
+}

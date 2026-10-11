@@ -387,7 +387,17 @@ const shuffle = (arr) => {
   return a
 }
 
-export function buildQueue(track) {
+export function buildQueue(track, resumeQuestions = []) {
+  if (resumeQuestions.length) {
+    // Alternate resume-based and job-field questions, starting with the resume.
+    const base = buildQueue(track)
+    const out = []
+    for (let i = 0; i < Math.max(resumeQuestions.length, base.length); i++) {
+      if (resumeQuestions[i]) out.push(resumeQuestions[i])
+      if (base[i]) out.push(base[i])
+    }
+    return out
+  }
   const general = shuffle(QUESTIONS.filter((x) => x.track === 'general'))
   if (track === 'general') return general
   return [...shuffle(QUESTIONS.filter((x) => x.track === track)), ...general]
@@ -405,7 +415,7 @@ export const PERSONAS = {
     id: 'friendly',
     name: 'Alex',
     title: 'Friendly Recruiter',
-    desc: 'Warm, encouraging, gives you room to think.',
+    desc: 'Warm and encouraging. Says “mm-hmm”, never interrupts.',
     intro: (name, fmt, role, level) =>
       `Hi ${name}! I'm Alex, and I'll be interviewing you today${role}. This is a ${fmt} behavioral round. ${level} Take a breath, use specific examples, and let's begin.`,
     closing: (name) => `That wraps up our session, ${name}. Thanks so much — let's look at your feedback together.`,
@@ -416,7 +426,7 @@ export const PERSONAS = {
     id: 'neutral',
     name: 'Jordan',
     title: 'Hiring Manager',
-    desc: 'Professional and even-toned. A realistic baseline.',
+    desc: 'Professional and even. Asks follow-ups when you’re vague.',
     intro: (name, fmt, role, level) =>
       `Hello ${name}, I'm Jordan, the hiring manager. This will be a ${fmt} behavioral interview${role}. ${level} Let's get started.`,
     closing: (name) => `Thank you, ${name}. That concludes the interview. Your report is ready.`,
@@ -427,7 +437,7 @@ export const PERSONAS = {
     id: 'tough',
     name: 'Morgan',
     title: 'Bar Raiser',
-    desc: 'Terse and skeptical. Pushes for specifics and numbers.',
+    desc: 'Terse and skeptical. Probes for numbers, cuts off long answers.',
     intro: (name, fmt, role) =>
       `${name}. I'm Morgan. This is a ${fmt} round${role}, and time is limited, so be concise and give me specifics. First question.`,
     closing: (name) => `We're done here, ${name}. Let's see how you did.`,
@@ -487,6 +497,9 @@ export const DEFAULT_CONFIG = {
   track: 'general',
   role: '',
   level: 'intern',
+  resume: null, // { fileName, questions, stats } — parsed locally, never uploaded
+  useResume: true,
+  resumeQuestions: [],
   persona: 'friendly',
   voiceId: VOICES[0].id,
   voiceQuality: 'high',
