@@ -16,7 +16,9 @@ Practice behavioral interviews out loud with an ElevenLabs-voiced interviewer, g
 **Superlatives:** Best Newbie Hack, Use of ElevenLabs
 **Built with:** `javascript` `react` `vite` `css` `node.js` `elevenlabs` `web-speech-api` `web-audio-api` `vercel` `vercel-blob`
 
-**Gallery** (upload in this order, from `docs/screenshots/`): `interview.png`, `report.png`, `report-monologue.png`, `settings.png`, `practice.png`, `onboarding-levels.png`, `onboarding.png`
+**Gallery** (upload in this order, from `docs/screenshots/`): `interview.png`, `report-monologue.png`, `progress.png`, `practice.png`, `settings.png`, `onboarding-levels.png`, `onboarding.png`
+
+**Video demo link:** paste the YouTube link after uploading `mockview-demo.mp4`
 
 ---
 
@@ -30,7 +32,7 @@ We're all heading into internship season. Knowing your stories is one thing; say
 
 **Interview.** The interviewer asks each question out loud with an ElevenLabs voice. You answer into the mic and your words show up as you talk. The side panel tracks four things: a coaching tip, a STAR checklist, your pace (115 to 175 wpm is the target) and filler words. After each answer the interviewer reacts to what you actually said: credit for a quantified result, a callout when the result is missing, never praise for an empty answer. If it hears nothing it asks "Sorry, what was that?".
 
-**Report.** Your transcript with red flags and fillers highlighted. Click one to read what the interviewer was thinking ("'Honestly'? Were the other answers dishonest?"). A diff rewrites your weakest sentence: fillers and hedges out, blame turned into ownership, a measurable result added. Sentences that have nothing to do with the question get crossed out instead. **Hear ideal delivery** plays the rewrite in the same voice, next to your original. You also get a grade, vocal analysis, your recording, a transcript download, and how you did compared with your last session. The Progress tab charts your score, filler rate and pace across every session.
+**Report.** Your transcript with red flags and fillers highlighted. Click one to read what the interviewer was thinking ("'Honestly'? Were the other answers dishonest?"). A diff rewrites your weakest sentence: fillers and hedges out, blame turned into ownership, a measurable result added. Sentences that have nothing to do with the question get crossed out instead. **Hear ideal delivery** plays the rewrite in the same voice, next to your original. You also get a percentage score with an A to F grade, vocal analysis, your recording, a transcript download, and how you did compared with your last session. The practice page shows your latest, best and average score as rings, the Progress tab charts score, filler rate and pace across every session, and any recent report can be reopened in full.
 
 **Accessibility.** Larger text, high contrast, reduced motion, captions for everything the interviewer says, screen-reader announcements and keyboard shortcuts. The interviewer can run the whole interview in 12 languages (English, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Chinese, Japanese, Korean and Vietnamese). The answer language is a separate choice, so you can hear questions in your first language and answer in English, or the other way around. Speech recognition follows your answer language.
 
@@ -55,7 +57,7 @@ We're all heading into internship season. Knowing your stories is one thing; say
 
 - How stability, style and speed change the way a synthetic voice comes across, and how much a half-second pause matters.
 - How the Web Speech and Web Audio APIs work underneath: analyser nodes, time-domain data, autocorrelation.
-- Specific feedback beats a score. A diff with a reason for each change teaches more than "72/100".
+- Specific feedback beats a score. A diff with a reason for each change teaches more than "72%".
 
 ## What's next for MockView
 
@@ -74,5 +76,6 @@ We're all heading into internship season. Knowing your stories is one thing; say
 - [ ] Repo link: https://github.com/sttstevenyao/mockview
 - [ ] Gallery images uploaded
 - [ ] Submitted before 10:00 AM ET, Sunday Oct 11
-- [ ] At the table for judging at 1:00 PM (script in `DEMO.md`)
+- [ ] Video demo link added
+- [ ] Every teammate at the table for judging at 1:00 PM (the rules require all members in person; script in `DEMO.md`)
 - [ ] Back for prizes at 3:30 PM

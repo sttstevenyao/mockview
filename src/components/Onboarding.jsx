@@ -89,12 +89,7 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
               <div className="ob-langs">
                 <label className="field ob-lang">
                   <span>Output language</span>
-                  <select
-                    value={a.outLang}
-                    onChange={(e) =>
-                      setA((x) => ({ ...x, outLang: e.target.value, inLang: x.inLang === x.outLang ? e.target.value : x.inLang }))
-                    }
-                  >
+                  <select value={a.outLang} onChange={(e) => set('outLang', e.target.value)}>
                     {LANG_IDS.map((id) => (
                       <option key={id} value={id}>
                         {LANGS[id].label}

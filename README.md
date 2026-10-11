@@ -10,8 +10,10 @@ Built at HackRU Fall 2026 (Rutgers). Education track. Entered for Best Newbie Ha
 
 | Interview | Practice page |
 |---|---|
-| ![Interview with the live feedback panel](docs/screenshots/interview.png) | ![Practice page](docs/screenshots/practice.png) |
-| **Accessibility and language settings** | **Levels, including Beginner** |
+| ![Interview with a Spanish question and the live feedback panel](docs/screenshots/interview.png) | ![Practice page with your stats](docs/screenshots/practice.png) |
+| **Report** | **Progress** |
+| ![Report with the interviewer's inner monologue](docs/screenshots/report-monologue.png) | ![Progress charts and past sessions](docs/screenshots/progress.png) |
+| **Accessibility and language settings** | **What the interview is for** |
 | ![Settings with high contrast and language options](docs/screenshots/settings.png) | ![Experience level picker](docs/screenshots/onboarding-levels.png) |
 
 ## What it does
@@ -26,7 +28,7 @@ Built at HackRU Fall 2026 (Rutgers). Education track. Entered for Best Newbie Ha
 - **12 interview languages:** English, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Chinese, Japanese, Korean and Vietnamese. Pick the output language and the interviewer asks every question, reacts and wraps up in that language, with the English shown small underneath. Answer in any of the 12, separately from the interviewer's language; speech recognition switches to match. Answers in other languages are graded on length, pace, that language's filler words and your voice (STAR, red flags and rewrites are English-only).
 - **Accounts:** email + password, settings sync across devices. Optional.
 - **Typing:** if the mic isn't an option, type the answer instead.
-- **Progress:** every finished session is saved. The Progress tab charts score, filler rate and pace over time, and each report shows the change since your last session. Synced to your account when logged in.
+- **Progress:** every finished session is saved. The practice page shows your latest, best and average score as rings, the Progress tab charts score, filler rate and pace over time, and any of your last 15 reports can be reopened in full. Scores are percentages with a grade from A to F. Synced to your account when logged in.
 
 ## How ElevenLabs is used
 

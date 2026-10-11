@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Brand from './Brand.jsx'
 
 const TABS = [
@@ -32,24 +33,28 @@ export default function TopNav({ tab, onTab, user, onAuth, onLogOut }) {
       <div className="row nav-left">
         <Brand onClick={() => onTab('setup')} />
       </div>
-      {/* Tabs float in a small dock above the bottom of the page */}
-      <div className="dock">
-        <div className="tabs" role="tablist">
-          {TABS.map(([id, label]) => (
-            <button
-              key={id}
-              ref={(el) => (refs.current[id] = el)}
-              role="tab"
-              aria-selected={tab === id}
-              className={tab === id ? 'on' : ''}
-              onClick={() => onTab(id)}
-            >
-              {label}
-            </button>
-          ))}
-          {bar && <i className="tab-bar" style={{ transform: `translateX(${bar.left}px)`, width: bar.width }} />}
-        </div>
-      </div>
+      {/* Tabs float in a small dock above the bottom of the page. Rendered on <body> so the
+          large-screen zoom on .setup doesn't shift a fixed element off screen. */}
+      {createPortal(
+        <div className="dock">
+          <div className="tabs" role="tablist">
+            {TABS.map(([id, label]) => (
+              <button
+                key={id}
+                ref={(el) => (refs.current[id] = el)}
+                role="tab"
+                aria-selected={tab === id}
+                className={tab === id ? 'on' : ''}
+                onClick={() => onTab(id)}
+              >
+                {label}
+              </button>
+            ))}
+            {bar && <i className="tab-bar" style={{ transform: `translateX(${bar.left}px)`, width: bar.width }} />}
+          </div>
+        </div>,
+        document.body,
+      )}
       <div className="row nav-right">
         {/* Keyed on the account so logging in or out swaps the controls with an animation */}
         <div key={user?.email || 'guest'} className="row acct-swap">

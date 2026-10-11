@@ -85,13 +85,7 @@ export default function Settings({ settings, onChange }) {
           <select
             className="set-select"
             value={settings.outLang}
-            onChange={(e) =>
-              onChange({
-                ...settings,
-                outLang: e.target.value,
-                inLang: settings.inLang === settings.outLang ? e.target.value : settings.inLang,
-              })
-            }
+            onChange={(e) => set('outLang')(e.target.value)}
             aria-label="Interviewer language"
           >
             {LANG_IDS.map((id) => (
