@@ -6,7 +6,7 @@ import Credits from './components/Credits.jsx'
 import About from './components/About.jsx'
 import Settings from './components/Settings.jsx'
 import Progress from './components/Progress.jsx'
-import { addSession, loadHistory, mergeHistory, saveHistory, summarize } from './lib/history.js'
+import { addSession, loadHistory, mergeHistory, saveHistory, summarize, pastResult } from './lib/history.js'
 import { analyzeSession } from './lib/analysis.js'
 import Onboarding from './components/Onboarding.jsx'
 import EditAnswers from './components/EditAnswers.jsx'
@@ -146,6 +146,7 @@ export default function App() {
         config={config}
         onRestart={() => start(config)}
         onSetup={() => setPhase('setup')}
+        onBack={result?.past ? () => setPhase('progress') : null}
         onSample={showSample}
       />
     )
@@ -161,7 +162,17 @@ export default function App() {
           // Keyed on the account too: logging in or out replays the page's entrance with the new setup.
           <div key={`${phase}:${user?.email || ''}`} className={`tab-view ${slide.current}`}>
             {phase === 'progress' ? (
-              <Progress history={config.history} onStart={() => setPhase('setup')} />
+              <Progress
+                history={config.history}
+                onStart={() => setPhase('setup')}
+                onOpen={(at) => {
+                  const past = pastResult(config.history, at)
+                  if (!past) return
+                  initAudio()
+                  setResult(past)
+                  setPhase('feedback')
+                }}
+              />
             ) : phase === 'credits' ? (
               <Credits />
             ) : phase === 'settings' ? (

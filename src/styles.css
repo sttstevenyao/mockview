@@ -3979,12 +3979,12 @@ body:has(.setup) {
   margin: 14px 0 22px;
   flex-wrap: wrap;
 }
-.rings {
+.ustat-rings {
   display: flex;
   gap: 26px;
   flex-wrap: wrap;
 }
-.ring {
+.ustat {
   position: relative;
   margin: 0;
   display: grid;
@@ -3992,32 +3992,32 @@ body:has(.setup) {
   gap: 6px;
   animation: rise-blur 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-.ring:nth-child(2) {
+.ustat:nth-child(2) {
   animation-delay: 0.08s;
 }
-.ring:nth-child(3) {
+.ustat:nth-child(3) {
   animation-delay: 0.16s;
 }
-.ring:nth-child(4) {
+.ustat:nth-child(4) {
   animation-delay: 0.24s;
 }
-.ring svg {
+.ustat svg {
   width: 92px;
   height: 92px;
   display: block;
 }
-.ring-track {
+.ustat-track {
   fill: none;
   stroke: color-mix(in srgb, var(--text) 10%, transparent);
   stroke-width: 7;
 }
-.ring-fill {
+.ustat-fill {
   fill: none;
   stroke: var(--chart);
   stroke-width: 7;
   stroke-linecap: round;
 }
-.ring-num {
+.ustat-num {
   position: absolute;
   top: 0;
   height: 92px;
@@ -4028,12 +4028,12 @@ body:has(.setup) {
   padding-top: 32px;
   box-sizing: border-box;
 }
-.ring-num b {
+.ustat-num b {
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.02em;
 }
-.ring-num small {
+.ustat-num small {
   font-size: 11px;
 }
 .counts {
@@ -4054,18 +4054,18 @@ body:has(.setup) {
   line-height: 1.1;
 }
 @media (max-width: 860px) {
-  .rings {
+  .ustat-rings {
     gap: 14px;
   }
-  .ring svg {
+  .ustat svg {
     width: 76px;
     height: 76px;
   }
-  .ring-num {
+  .ustat-num {
     height: 76px;
     padding-top: 25px;
   }
-  .ring-num b {
+  .ustat-num b {
     font-size: 18px;
   }
 }
@@ -4164,7 +4164,7 @@ body:has(.setup) {
 .tiles > .tile,
 .chart,
 .history-table,
-.ring,
+.ustat,
 .count {
   animation-fill-mode: backwards;
 }
@@ -4173,24 +4173,24 @@ body:has(.setup) {
   background: color-mix(in srgb, var(--panel) 80%, transparent);
 }
 @media (max-width: 640px) {
-  .rings {
+  .ustat-rings {
     flex-wrap: nowrap;
     gap: 6px;
     width: 100%;
     justify-content: space-between;
   }
-  .ring svg {
+  .ustat svg {
     width: 66px;
     height: 66px;
   }
-  .ring-num {
+  .ustat-num {
     height: 66px;
     padding-top: 22px;
   }
-  .ring-num b {
+  .ustat-num b {
     font-size: 16px;
   }
-  .ring figcaption {
+  .ustat figcaption {
     font-size: 11px;
     text-align: center;
   }
@@ -4202,14 +4202,14 @@ body:has(.setup) {
   }
 }
 @media (max-width: 640px) {
-  .rings {
+  .ustat-rings {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-  .ring {
+  .ustat {
     min-width: 0;
   }
-  .ring figcaption {
+  .ustat figcaption {
     line-height: 1.25;
   }
 }
@@ -4293,4 +4293,16 @@ body:has(.setup) {
   .user-stats {
     margin-bottom: 28px;
   }
+}
+
+/* Past sessions open their report */
+.history-table tr.openable {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.history-table tr.openable:hover {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+.history-table td .btn.sm {
+  padding: 4px 10px;
 }

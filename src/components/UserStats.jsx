@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { grade } from '../lib/analysis.js'
 
-const reducedMotion = () =>
-  document.documentElement.dataset.motion === 'reduce'
+const reducedMotion = () => document.documentElement.dataset.motion === 'reduce'
 const ease = (x) => 1 - Math.pow(1 - x, 3)
 
 // Counts from 0 up to `target` once, after `delay` ms.
@@ -30,11 +29,11 @@ function Ring({ value, max = 100, label, sub, delay = 0, decimals = 0 }) {
   const C = 2 * Math.PI * R
   const share = value == null ? 0 : Math.min(1, n / max)
   return (
-    <figure className="ring">
+    <figure className="ustat">
       <svg viewBox="0 0 88 88" role="img" aria-label={`${label}: ${value ?? 'no data yet'}`}>
-        <circle className="ring-track" cx="44" cy="44" r={R} />
+        <circle className="ustat-track" cx="44" cy="44" r={R} />
         <circle
-          className="ring-fill"
+          className="ustat-fill"
           cx="44"
           cy="44"
           r={R}
@@ -43,9 +42,9 @@ function Ring({ value, max = 100, label, sub, delay = 0, decimals = 0 }) {
           transform="rotate(-90 44 44)"
         />
       </svg>
-      <div className="ring-num">
+      <div className="ustat-num">
         <b className="mono">{value == null ? '–' : n.toFixed(decimals)}</b>
-        {sub && <small className="muted">{sub}</small>}
+        {sub && value != null && <small className="muted">{sub}</small>}
       </div>
       <figcaption className="muted tiny">{label}</figcaption>
     </figure>
@@ -73,11 +72,11 @@ export default function UserStats({ history = [], onProgress }) {
 
   return (
     <section className="user-stats" aria-label="Your practice">
-      <div className="rings">
-        <Ring value={last?.score ?? null} label="Latest score" sub={last ? grade(last.score) : null} />
-        <Ring value={best} label="Best score" delay={120} />
-        <Ring value={avg} label="Average score" delay={240} />
-        <Ring value={star} label="STAR coverage" sub={star != null ? '%' : null} delay={360} />
+      <div className="ustat-rings">
+        <Ring value={last?.score ?? null} label={last ? `Latest score · ${grade(last.score)}` : 'Latest score'} sub="%" />
+        <Ring value={best} label="Best score" sub="%" delay={120} />
+        <Ring value={avg} label="Average score" sub="%" delay={240} />
+        <Ring value={star} label="STAR coverage" sub="%" delay={360} />
       </div>
       <div className="counts">
         <Count value={history.length} label={history.length === 1 ? 'session' : 'sessions'} delay={200} />

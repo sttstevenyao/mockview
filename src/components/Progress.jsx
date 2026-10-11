@@ -102,7 +102,7 @@ function LineChart({ title, points, domain, unit, band, lowerIsBetter }) {
   )
 }
 
-export default function Progress({ history, onStart }) {
+export default function Progress({ history, onStart, onOpen }) {
   if (!history.length)
     return (
       <div className="progress">
@@ -135,24 +135,24 @@ export default function Progress({ history, onStart }) {
         <div className="tile">
           <span className="muted tiny">Latest</span>
           <b className="mono">
-            {last.score} <small>{grade(last.score)}</small>
+            {last.score}% <small>{grade(last.score)}</small>
           </b>
         </div>
         <div className="tile">
           <span className="muted tiny">Best</span>
-          <b className="mono">{best}</b>
+          <b className="mono">{best}%</b>
         </div>
         <div className="tile">
           <span className="muted tiny">Since first</span>
           <b className={`mono ${last.score >= first.score ? 'good' : 'bad'}`}>
             {last.score - first.score >= 0 ? '+' : ''}
-            {last.score - first.score}
+            {last.score - first.score}%
           </b>
         </div>
       </div>
 
       <div className="chart-grid-3">
-        <LineChart title="Score" points={history.map((s) => ({ at: s.at, v: s.score }))} domain={[0, 100]} unit="" />
+        <LineChart title="Score" points={history.map((s) => ({ at: s.at, v: s.score }))} domain={[0, 100]} unit="%" />
         <LineChart
           title="Filler words per 100 words"
           points={history.map((s) => ({ at: s.at, v: s.fillers }))}
@@ -179,11 +179,19 @@ export default function Progress({ history, onStart }) {
             <th className="num">Score</th>
             <th className="num">Fillers / 100</th>
             <th className="num">Pace</th>
+            <th>
+              <span className="sr-only">Report</span>
+            </th>
           </tr>
         </thead>
         <tbody>
           {[...history].reverse().map((s) => (
-            <tr key={s.at}>
+            <tr
+              key={s.at}
+              className={s.detail ? 'openable' : ''}
+              onClick={s.detail ? () => onOpen(s.at) : undefined}
+              title={s.detail ? 'Open this report' : undefined}
+            >
               <td>
                 {fmtDate(s.at)} <span className="muted tiny">{fmtTime(s.at)}</span>
               </td>
@@ -194,10 +202,25 @@ export default function Progress({ history, onStart }) {
                 {s.planned ? <span className="muted"> of {s.planned}</span> : null}
               </td>
               <td className="num mono">
-                {s.score} <span className="muted">{grade(s.score)}</span>
+                {s.score}% <span className="muted">{grade(s.score)}</span>
               </td>
               <td className="num mono">{s.fillers}</td>
               <td className="num mono">{s.wpm ?? 'n/a'}</td>
+              <td className="num">
+                {s.detail ? (
+                  <button
+                    className="btn ghost sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onOpen(s.at)
+                    }}
+                  >
+                    View
+                  </button>
+                ) : (
+                  <span className="muted tiny">Summary only</span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

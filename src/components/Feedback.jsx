@@ -13,15 +13,15 @@ const fmtDur = (s) => `${Math.floor(s / 60)}m ${String(Math.round(s % 60)).padSt
 
 // Where this grade sits on the scale, so it's clear A is the top and F the bottom.
 const SCALE = [
-  ['A', '88+'],
-  ['B', '64+'],
-  ['C', '50+'],
-  ['D', '35+'],
-  ['F', '<35'],
+  ['A', '88%+'],
+  ['B', '64%+'],
+  ['C', '50%+'],
+  ['D', '35%+'],
+  ['F', '<35%'],
 ]
 function GradeScale({ grade }) {
   return (
-    <ol className="grade-scale mono tiny" aria-label="Grade scale, out of 100">
+    <ol className="grade-scale mono tiny" aria-label="Grade scale">
       {SCALE.map(([g, range]) => (
         <li key={g} className={grade[0] === g ? 'on' : ''}>
           <b>{g}</b>
@@ -51,7 +51,7 @@ function ScoreRing({ value, grade }) {
         {grade}
       </text>
       <text x="62" y="84" textAnchor="middle" className="ring-sub">
-        {value}/100
+        {value}%
       </text>
     </svg>
   )
@@ -76,7 +76,7 @@ function VocalReport({ vocal }) {
     <div className="vocal-report">
       <div className="right-head">
         <h3>How you sounded</h3>
-        <span className={`mono ${tone(sc.score)}`}>{sc.score}/100</span>
+        <span className={`mono ${tone(sc.score)}`}>{sc.score}%</span>
       </div>
       {bars.map(([k, v, d]) => (
         <div key={k} className="vbar">
@@ -125,7 +125,7 @@ function SinceLast({ prev, now }) {
       <span className="muted">Since last time</span>
       <span className={`mono ${dScore >= 0 ? 'good' : 'bad'}`}>
         {sign(dScore)}
-        {dScore} score
+        {dScore}% score
       </span>
       <span className={`mono ${dFill <= 0 ? 'good' : 'bad'}`}>
         {sign(dFill)}
@@ -157,7 +157,7 @@ function EmptyState({ onSample, onSetup }) {
   )
 }
 
-export default function Feedback({ result, config, onRestart, onSetup, onSample }) {
+export default function Feedback({ result, config, onRestart, onSetup, onSample, onBack }) {
   const report = useMemo(() => analyzeSession(result.answers, result.lang), [result])
   const [active, setActive] = useState(report.weakestIndex)
   const [pop, setPop] = useState(null)
@@ -190,7 +190,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
   const answered = report.answers.filter((x) => !x.question?.followUp).length
   const early =
     (result.reason === 'manual' || result.reason === 'silence') &&
-    config.mode !== 'endless' &&
+    (result.mode || config.mode) !== 'endless' &&
     (!result.planned || answered < result.planned)
   // The question as the interviewer asked it, when that was another language.
   const asked = result.outLang && result.outLang !== 'en' ? translateQuestion(a.question, result.outLang) : null
@@ -234,7 +234,8 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
       <header className="fb-top">
         <Brand onClick={onSetup} />
         <div className="muted tiny mono hide-sm">
-          INTERVIEW REPORT · {new Date().toLocaleDateString()} · {fmtDur(result.totalSec)}
+          {result.past ? 'PAST INTERVIEW' : 'INTERVIEW REPORT'} · {new Date(result.past || Date.now()).toLocaleDateString()} ·{' '}
+          {fmtDur(result.totalSec)}
           {result.reason === 'sample' && ' · SAMPLE DATA'}
           {early && ` · ENDED EARLY${result.planned ? ` · ${answered} OF ${result.planned} QUESTIONS` : ''}`}
         </div>
@@ -242,9 +243,15 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
           <button className="btn ghost" onClick={() => downloadTranscript(result, report)}>
             Download transcript
           </button>
-          <button className="btn ghost" onClick={onSetup}>
-            New setup
-          </button>
+          {onBack ? (
+            <button className="btn ghost" onClick={onBack}>
+              Back to progress
+            </button>
+          ) : (
+            <button className="btn ghost" onClick={onSetup}>
+              New setup
+            </button>
+          )}
           <button className="btn primary" onClick={onRestart}>
             Practice again
           </button>
@@ -402,7 +409,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
           </div>
 
           <div className="answer-stats">
-            <span className={`chip ${tone(a.confidence)}`}>Confidence {a.confidence}</span>
+            <span className={`chip ${tone(a.confidence)}`}>Score {a.confidence}%</span>
             <span className="chip">{Math.round(m.wpm)} wpm</span>
             <span className="chip amber">{m.fillers} fillers</span>
             {!foreign && (
