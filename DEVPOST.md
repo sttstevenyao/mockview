@@ -35,7 +35,7 @@ Career centers can't sit with every student for unlimited mock interviews, and r
 
 MockView is a behavioral interview simulator with live feedback and an analytical report.
 
-**1. Set up in 30 seconds.** On your first visit, a few quick pop-up questions ask your name, experience level, field (14 to choose from, from software engineering to nursing to teaching), target role, and session length: a fixed number of questions, a timed session, or **Endless Mode**. Upload a resume and some questions are generated from your own projects and jobs. Pick an interviewer: a warm Friendly Recruiter, an even Hiring Manager who asks follow-ups, or a terse Bar Raiser who interrupts long answers. Create an account to keep your setup across devices.
+**1. Set up in 30 seconds.** On your first visit, a few quick pop-up questions ask your name, experience level, field (14 to choose from, from software engineering to nursing to teaching), target role, and session length: a fixed number of questions, a timed session, or **Endless Mode**. Upload a resume and some questions are generated from your own projects and jobs. Pick an interviewer: a warm Friendly Recruiter, an even Hiring Manager who asks follow-ups, or a terse Bar Raiser who interrupts long answers. Sign up with your email to keep your setup across devices.
 
 **2. Interview out loud.** An **ElevenLabs** voice asks each question while a waveform pulses with it. You answer into your mic, your words appear as you speak, and a live feedback panel shows only what you can act on mid-sentence:
 - a **coaching tip** ("Land the plane: what was the measurable Result?")

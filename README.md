@@ -20,7 +20,7 @@
 |---|---|
 | 🗣️ **ElevenLabs-voiced interviewer** | Three personas and four premade ElevenLabs voices. Choose **Realistic** (`eleven_multilingual_v2`) or **Fast** (`eleven_flash_v2_5`) in Settings. |
 | 🎭 **Persona mannerisms** | Each persona has its own pace, expressiveness and reaction style. The Friendly Recruiter says "mm-hmm", the Hiring Manager **asks follow-ups** on vague answers, and the Bar Raiser **interrupts** answers that run past 90 seconds. |
-| 👋 **Guided onboarding + accounts** | Pop-up questions on first visit (name, experience level, field, role, session length), then an optional account (username + password, email optional) that saves your preferences. Log in with your username or email. Accounts are stored server-side in a private Vercel Blob store, passwords are hashed with scrypt, and sessions use a signed HttpOnly cookie, so you can log in from any device. |
+| 👋 **Guided onboarding + accounts** | Pop-up questions on first visit (name, experience level, field, role, session length), then an optional account (email + password, one per email) that saves your preferences on any device. Accounts are stored server-side in a private Vercel Blob store keyed by a hash of the email, passwords are hashed with scrypt, and sessions use a signed HttpOnly cookie. |
 | 💬 **Reactive interviewer** | After each answer the interviewer responds to what you actually said: praise for a quantified STAR answer, "I didn't hear how it turned out" when the result is missing, and never praise for an empty answer. |
 | 🤫 **Silence handling** | If it hears nothing, the interviewer asks "Sorry, what was that?". After repeated silence it stops and asks you to check your mic and restart. |
 | 🌐 **Works in Brave & Firefox** | Where built-in speech recognition is missing or blocked, answers are transcribed with **ElevenLabs Scribe** instead. You can also type answers. |
@@ -105,7 +105,7 @@ mockview/
 │   ├── App.jsx                # onboarding → setup → interview → feedback, credits tab
 │   ├── components/
 │   │   ├── Onboarding.jsx     # pop-up setup questions + account step
-│   │   ├── AuthForm.jsx       # sign up / log in form
+│   │   ├── AuthForm.jsx       # email + password sign up / log in
 │   │   ├── Setup.jsx          # interview summary, persona, voice, resume
 │   │   ├── About.jsx          # what MockView is, who it's for, how it works
 │   │   ├── Credits.jsx        # team and acknowledgements

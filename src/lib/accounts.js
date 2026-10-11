@@ -6,9 +6,6 @@
 const PREF_KEYS = ['name', 'track', 'role', 'level', 'mode', 'count', 'minutes', 'persona', 'mannerisms', 'voiceId', 'settings']
 export const pickPrefs = (cfg) => Object.fromEntries(PREF_KEYS.filter((k) => k in cfg).map((k) => [k, cfg[k]]))
 
-export const USERNAME_RULE = '3 to 24 letters, numbers, dots, dashes or underscores'
-export const PASSWORD_RULE = 'at least 6 characters'
-
 // Returns { user } or { error }.
 async function call(method, body) {
   try {
@@ -26,11 +23,9 @@ async function call(method, body) {
   }
 }
 
-export const signUp = ({ username, password, email, prefs }) =>
-  call('POST', { action: 'signup', username, password, email, prefs })
+export const signUp = ({ email, password, prefs }) => call('POST', { action: 'signup', email, password, prefs })
 
-// `login` is a username or the email attached to the account.
-export const logIn = (login, password) => call('POST', { action: 'login', login, password })
+export const logIn = ({ email, password }) => call('POST', { action: 'login', email, password })
 
 export async function currentUser() {
   const res = await call('GET')

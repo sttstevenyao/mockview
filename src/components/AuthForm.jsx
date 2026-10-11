@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { logIn, signUp } from '../lib/accounts.js'
 
-// Sign up (username + password, optional email) or log in (username or email + password).
+// Email + password, for both signing up and logging in.
 // onSuccess(user, mode) fires after the account is created or the password checks out.
 export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, onModeChange, secondary }) {
   const [mode, setModeState] = useState(initialMode)
@@ -9,10 +9,8 @@ export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, onM
     setModeState(m)
     onModeChange?.(m)
   }
-  const [username, setUsername] = useState('')
-  const [login, setLogin] = useState('')
-  const [password, setPassword] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const first = useRef(null)
@@ -26,7 +24,7 @@ export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, onM
   const submit = async (e) => {
     e.preventDefault()
     setBusy(true)
-    const res = mode === 'signup' ? await signUp({ username, password, email, prefs }) : await logIn(login, password)
+    const res = mode === 'signup' ? await signUp({ email, password, prefs }) : await logIn({ email, password })
     setBusy(false)
     if (res.error) return setError(res.error)
     onSuccess(res.user, mode)
@@ -36,54 +34,28 @@ export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, onM
     <form onSubmit={submit} noValidate>
       <h2 id="ob-title">{mode === 'signup' ? 'Create an account' : 'Log in'}</h2>
 
-      {mode === 'signup' ? (
-        <>
-          <label className="field">
-            <span>Username</span>
-            <input
-              ref={first}
-              value={username}
-              maxLength={24}
-              autoComplete="username"
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. alex_k"
-            />
-          </label>
-          <label className="field">
-            <span>Password</span>
-            <input type="password" value={password} autoComplete="new-password" onChange={(e) => setPassword(e.target.value)} />
-          </label>
-          <label className="field">
-            <span>
-              Email <span className="muted">(optional)</span>
-            </span>
-            <input
-              type="email"
-              value={email}
-              maxLength={80}
-              autoComplete="email"
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
-          </label>
-        </>
-      ) : (
-        <>
-          <label className="field">
-            <span>Username or email</span>
-            <input ref={first} value={login} autoComplete="username" onChange={(e) => setLogin(e.target.value)} />
-          </label>
-          <label className="field">
-            <span>Password</span>
-            <input
-              type="password"
-              value={password}
-              autoComplete="current-password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </label>
-        </>
-      )}
+      <label className="field">
+        <span>Email</span>
+        <input
+          ref={first}
+          type="email"
+          value={email}
+          maxLength={120}
+          autoComplete="email"
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+        />
+      </label>
+      <label className="field">
+        <span>Password</span>
+        <input
+          type="password"
+          value={password}
+          autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder={mode === 'signup' ? 'At least 6 characters' : ''}
+        />
+      </label>
 
       {error && (
         <p className="tiny bad" role="alert">

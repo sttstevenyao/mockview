@@ -42,7 +42,7 @@ export default function TopNav({ tab, onTab, user, onAuth, onLogOut }) {
         {user ? (
           <>
             <span className="tiny muted hide-sm">
-              Signed in as <b className="plain">{user.username}</b>
+              <b className="plain">{user.email}</b>
             </span>
             <button className="btn ghost sm" onClick={onLogOut}>
               Log out

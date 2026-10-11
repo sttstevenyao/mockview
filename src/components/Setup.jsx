@@ -73,7 +73,7 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
       <header className="hero">
         <h1>
           {user
-            ? `Welcome, ${cfg.name && cfg.name !== 'Candidate' ? cfg.name : user.username}.`
+            ? `Welcome, ${cfg.name && cfg.name !== 'Candidate' ? cfg.name : user.email.split('@')[0]}.`
             : 'Practice the interview before it counts.'}
         </h1>
       </header>
