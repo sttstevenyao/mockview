@@ -13,7 +13,7 @@ export default function WaveOrb({ className = '', ambient = false }) {
     const canvas = ref.current
     const g = canvas.getContext('2d')
     const reduced =
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduce'
+      document.documentElement.dataset.motion === 'reduce'
     let raf = 0
     let spin = 0 // extra rotation from scrolling, eased toward its target
     let spinTarget = 0

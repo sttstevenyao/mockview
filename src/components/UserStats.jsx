@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { grade } from '../lib/analysis.js'
 
 const reducedMotion = () =>
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduce'
+  document.documentElement.dataset.motion === 'reduce'
 const ease = (x) => 1 - Math.pow(1 - x, 3)
 
 // Counts from 0 up to `target` once, after `delay` ms.

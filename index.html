@@ -160,7 +160,7 @@
       // Reduced motion gets a still logo that fades out; the sample report link skips it.
       try {
         var boot = document.getElementById('boot')
-        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduce'
+        var reduce = document.documentElement.dataset.motion === 'reduce'
         if (location.hash === '#sample') boot.remove()
         else if (reduce) boot.className = 'calm'
       } catch (e) {}

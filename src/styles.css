@@ -1964,21 +1964,6 @@ b.plain {
     transform: translateY(6px);
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .overlay,
-  .overlay .dialog,
-  .overlay.closing,
-  .overlay.closing .dialog,
-  .ob-step,
-  .ob-step .ob-option,
-  .ob-step .ob-tracks button {
-    animation: none !important;
-  }
-  .ob-progress i {
-    transition: none;
-  }
-}
-
 /* ── Simplified live sidebar ───────────────── */
 .coach p {
   font-size: 15px;
@@ -2300,16 +2285,6 @@ button.brand:hover span {
     transform: translateX(-48px);
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .tab-view,
-  .tab-view.from-right,
-  .tab-view.from-left {
-    animation: none;
-  }
-  .tab-bar {
-    transition: none;
-  }
-}
 @media (max-width: 860px) {
   .setup-grid {
     grid-template-columns: 1fr;
@@ -2413,7 +2388,7 @@ button.brand:hover span {
   }
 }
 
-/* Reduce motion (Settings) */
+/* Reduce motion: only the Settings toggle, off by default */
 :root[data-motion='reduce'] *:not(#boot, #boot *),
 :root[data-motion='reduce'] *:not(#boot, #boot *)::before,
 :root[data-motion='reduce'] *:not(#boot, #boot *)::after {
@@ -2832,16 +2807,6 @@ button.brand:hover span {
     width: 0;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-delay: 0s !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
 /* ── Phone layout ──────────────────────────── */
 @media (max-width: 860px) {
   .setup-grid > :nth-child(1) {
@@ -3633,16 +3598,6 @@ body {
     filter: blur(6px);
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .hero h1 .line > span,
-  .setup-grid > *,
-  .col > .panel,
-  .chart,
-  .history-table {
-    animation: none;
-  }
-}
-
 .ob-langs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -3725,15 +3680,6 @@ body {
     transform: translate(-50%, -16px);
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .acct-swap,
-  .acct-badge,
-  .toast,
-  .toast.out {
-    animation: none;
-  }
-}
-
 /* ── Practice stats row ────────────────────── */
 .practice-stats {
   display: flex;
@@ -3851,13 +3797,6 @@ body {
   }
   .pstat-link {
     padding: 12px 22px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .practice-stats,
-  .trend-line,
-  .pstat b {
-    animation: none;
   }
 }
 .pstat.pstat-trend {
@@ -4207,18 +4146,6 @@ body:has(.setup) {
     transform: scale(1.03);
     box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent), 0 0 0 0 transparent;
     filter: brightness(1.15);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ripple,
-  .persona.on,
-  .persona.on .avatar-sm,
-  .btn.launching,
-  .dock,
-  .bg-wave,
-  .ring,
-  .count {
-    animation: none;
   }
 }
 .persona-row .persona:active {
