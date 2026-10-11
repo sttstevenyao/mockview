@@ -6,6 +6,7 @@ import Credits from './components/Credits.jsx'
 import About from './components/About.jsx'
 import Settings from './components/Settings.jsx'
 import Onboarding from './components/Onboarding.jsx'
+import EditAnswers from './components/EditAnswers.jsx'
 import TopNav from './components/TopNav.jsx'
 import AuthForm from './components/AuthForm.jsx'
 import { DEFAULT_CONFIG, sampleResult } from './data/questions.js'
@@ -23,6 +24,7 @@ export default function App() {
   const [result, setResult] = useState(sample ? sampleResult : null)
   const [runId, setRunId] = useState(0)
   const [onboarding, setOnboarding] = useState(false)
+  const [editing, setEditing] = useState(false) // one-screen editor for setup answers
   const [auth, setAuth] = useState(null) // 'login' | 'signup' dialog opened from the header
 
   // Restore the session cookie's account; if nobody is logged in, the setup questions pop up.
@@ -127,7 +129,7 @@ export default function App() {
             cfg={config}
             setCfg={setConfig}
             user={user}
-            onEdit={() => setOnboarding(true)}
+            onEdit={() => setEditing(true)}
             onStart={start}
             onSample={showSample}
             onSettings={() => setPhase('settings')}
@@ -136,6 +138,18 @@ export default function App() {
       </div>
       <footer className="foot muted tiny mono">Built at HackRU Fall 2026 · Voice by ElevenLabs</footer>
       {onboarding && <Onboarding initial={config} user={user} onDone={finishOnboarding} onClose={() => setOnboarding(false)} />}
+      {editing && (
+        <EditAnswers
+          initial={config}
+          onSave={(answers) => {
+            const cfg = { ...config, ...answers }
+            setConfig(cfg)
+            remember(cfg)
+            setEditing(false)
+          }}
+          onClose={() => setEditing(false)}
+        />
+      )}
       {auth && (
         <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="ob-title">
           <div className="dialog">
