@@ -4315,3 +4315,18 @@ body:has(.setup) {
 .dock .tabs {
   background: color-mix(in srgb, var(--panel) 66%, transparent);
 }
+/* Sections on About, Credits and Settings are cards too, with the same glass as the Practice cards */
+.setup .about-block,
+.setup .credits-block,
+.setup .set-group {
+  background: color-mix(in srgb, var(--panel) 26%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border-2) 55%, transparent);
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+.setup .set-group {
+  padding-bottom: 10px;
+}
