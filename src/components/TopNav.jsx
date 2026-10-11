@@ -5,6 +5,7 @@ const TABS = [
   ['setup', 'Practice'],
   ['about', 'About'],
   ['credits', 'Credits'],
+  ['settings', 'Settings'],
 ]
 
 // Header for the setup and credits pages: tabs on the left, account controls on the right.

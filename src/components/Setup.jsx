@@ -16,7 +16,7 @@ function Check({ ok, warn, label, detail }) {
   )
 }
 
-export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample }) {
+export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, onSettings }) {
   const [health, setHealth] = useState(null)
   const [previewing, setPreviewing] = useState(false)
   const [voiceStatus, setVoiceStatus] = useState(null) // result of the last Preview
@@ -24,7 +24,12 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample }) 
   // Each persona carries its own mannerisms (pace, reactions, follow-ups, interruptions).
   const choosePersona = (id) => setCfg((c) => ({ ...c, persona: id, mannerisms: { ...PERSONAS[id].mannerisms } }))
   const m = cfg.mannerisms
-  const voiceOpts = { voiceId: cfg.voiceId, quality: cfg.voiceQuality, speed: m.speed, expressiveness: m.expressiveness }
+  const voiceOpts = {
+    voiceId: cfg.voiceId,
+    quality: cfg.settings.voiceQuality,
+    speed: Math.min(1.2, Math.max(0.7, m.speed * cfg.settings.voiceSpeed)),
+    expressiveness: m.expressiveness,
+  }
 
   useEffect(() => {
     checkTtsHealth().then(setHealth)
@@ -84,8 +89,12 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample }) 
               </div>
             ))}
           </dl>
+        </section>
 
-          <h2 className="panel-title sub">Interviewer</h2>
+        <ResumePanel resume={cfg.resume} useResume={cfg.useResume} onChange={(patch) => setCfg((c) => ({ ...c, ...patch }))} />
+
+        <section className="panel">
+          <h2 className="panel-title">Interviewer</h2>
           <div className="persona-row" role="radiogroup" aria-label="Interviewer persona">
             {Object.values(PERSONAS).map((p) => (
               <button
@@ -120,57 +129,55 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample }) 
           )}
         </section>
 
-        <div className="col">
-          <section className="panel start-panel">
-            <button
-              className="btn primary big-btn"
-              onClick={() =>
-                onStart({
-                  ...cfg,
-                  name: cfg.name.trim() || 'Candidate',
-                  resumeQuestions: cfg.useResume && cfg.resume ? cfg.resume.questions : [],
-                })
+        <section className="panel start-panel">
+          <button
+            className="btn primary big-btn"
+            onClick={() =>
+              onStart({
+                ...cfg,
+                name: cfg.name.trim() || 'Candidate',
+                resumeQuestions: cfg.useResume && cfg.resume ? cfg.resume.questions : [],
+              })
+            }
+          >
+            Start interview <span className="mono tiny">· {summary}</span>
+          </button>
+          <button className="link" onClick={onSample}>
+            or view a sample feedback report
+          </button>
+
+          <ul className="checks">
+            <Check
+              ok={defaultEngine === 'webspeech'}
+              warn={defaultEngine === 'scribe'}
+              label="Voice input"
+              detail={defaultEngine === 'none' ? 'not supported, type your answers instead' : ENGINE_LABEL[defaultEngine]}
+            />
+            <Check
+              ok={health?.configured}
+              warn={!health || health.reachable}
+              label="ElevenLabs voice"
+              detail={
+                !health
+                  ? 'checking…'
+                  : health.configured
+                    ? 'connected'
+                    : health.reachable
+                      ? 'no API key, using the browser voice'
+                      : 'unreachable, using the browser voice'
               }
-            >
-              Start interview <span className="mono tiny">· {summary}</span>
+            />
+          </ul>
+          {browserNote && <p className="tiny muted">{browserNote}</p>}
+          <p className="tiny muted start-opts">
+            {cfg.settings.skipIntro ? 'Intro skipped' : 'With introduction'} ·{' '}
+            {cfg.settings.reactions ? 'reactions on' : 'reactions off'} ·{' '}
+            {cfg.settings.coaching ? 'live tips on' : 'live tips off'}.{' '}
+            <button className="link tiny" onClick={onSettings}>
+              Change in Settings
             </button>
-            <button className="link" onClick={onSample}>
-              or view a sample feedback report
-            </button>
-
-            <label className="toggle">
-              <input type="checkbox" checked={cfg.coaching} onChange={(e) => set('coaching', e.target.checked)} />
-              <span className="switch" />
-              <span>Live coaching tips during answers</span>
-            </label>
-
-            <ul className="checks">
-              <Check
-                ok={defaultEngine === 'webspeech'}
-                warn={defaultEngine === 'scribe'}
-                label="Voice input"
-                detail={defaultEngine === 'none' ? 'not supported, type your answers instead' : ENGINE_LABEL[defaultEngine]}
-              />
-              <Check
-                ok={health?.configured}
-                warn={!health || health.reachable}
-                label="ElevenLabs voice"
-                detail={
-                  !health
-                    ? 'checking…'
-                    : health.configured
-                      ? 'connected'
-                      : health.reachable
-                        ? 'no API key, using the browser voice'
-                        : 'unreachable, using the browser voice'
-                }
-              />
-            </ul>
-            {browserNote && <p className="tiny muted">{browserNote}</p>}
-          </section>
-
-          <ResumePanel resume={cfg.resume} useResume={cfg.useResume} onChange={(patch) => setCfg((c) => ({ ...c, ...patch }))} />
-        </div>
+          </p>
+        </section>
       </div>
     </>
   )

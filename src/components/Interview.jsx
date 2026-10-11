@@ -28,12 +28,13 @@ const fmt = (s) => {
 }
 const pick = (a) => a[Math.floor(Math.random() * a.length)]
 const BREAK = '<break time="0.6s" />' // ElevenLabs pause tag: a natural beat before the question
+// Lead-in and question as one utterance, with a short ElevenLabs pause between them.
+const line = (lead, text) => (lead ? `${lead} ${BREAK} ${text}` : text)
 const plain = (t) =>
   t
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-const NUDGE_AFTER_MS = 9000 // silence before the interviewer asks "what?"
 const MAX_NUDGES = 2 // after this many unanswered nudges, the interview stops
 
 // Records one answer's mic audio so it can be replayed on the report.
@@ -85,10 +86,11 @@ const STAGE_LABEL = {
 export default function Interview({ config, onComplete, onRestart, onExit }) {
   const persona = PERSONAS[config.persona]
   const mann = config.mannerisms
+  const opts = config.settings // Settings tab
   const voiceOpts = {
     voiceId: config.voiceId,
-    quality: config.voiceQuality,
-    speed: mann.speed,
+    quality: opts.voiceQuality,
+    speed: Math.min(1.2, Math.max(0.7, mann.speed * opts.voiceSpeed)),
     expressiveness: mann.expressiveness,
   }
   const [stage, setStage] = useState('asking')
@@ -182,24 +184,26 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
 
     const lead =
       i === 0
-        ? persona.intro(
-            config.name,
-            describeFormat(config),
-            describeRole(config),
-            LEVELS.find((l) => l.id === config.level)?.line || '',
-          ) +
-          (config.resumeQuestions?.length
-            ? " I've read through your resume, so some questions will be about your own experience."
-            : '')
+        ? opts.skipIntro
+          ? ''
+          : persona.intro(
+              config.name,
+              describeFormat(config),
+              describeRole(config),
+              LEVELS.find((l) => l.id === config.level)?.line || '',
+            ) +
+            (config.resumeQuestions?.length
+              ? " I've read through your resume, so some questions will be about your own experience."
+              : '')
         : q.followUp
           ? followUpLead()
           : (s.nextLead ?? makeLead())
     const next = s.questions[i + 1]
     s.nextLead = makeLead()
     s.nudges = 0
-    await say(`${lead} ${BREAK} ${q.text}`, () => {
+    await say(line(lead, q.text), () => {
       // Prefetch the next question's audio while this one plays → no gap later.
-      if (next) fetchSpeech(`${s.nextLead} ${BREAK} ${next.text}`, voiceOpts).catch(() => {})
+      if (next) fetchSpeech(line(s.nextLead, next.text), voiceOpts).catch(() => {})
     })
     if (s.ended || s.qIndex !== i) return
 
@@ -347,7 +351,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
       (config.mode === 'timed' && (Date.now() - s.startTime) / 1000 >= config.minutes * 60)
     if (done) return endInterview('complete')
     // React to what was actually said (never praise an empty answer).
-    let reaction = reactTo(last, mann.acks)
+    let reaction = opts.reactions ? reactTo(last, mann.acks) : ''
     if (reaction && mann.backchannel && last.text) reaction = `${pick(BACKCHANNELS)} ${reaction}`
     if (reaction) {
       go('reacting')
@@ -433,7 +437,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
         // Your voice counts as activity even before the transcript catches up.
         if (s.meter.level() > 0.12 || s.pending) s.lastActivity = Date.now()
         const heard = `${s.final} ${s.interim}`.trim()
-        if (!heard && Date.now() - s.lastActivity > NUDGE_AFTER_MS) nudge()
+        if (opts.silenceSec && !heard && Date.now() - s.lastActivity > opts.silenceSec * 1000) nudge()
       }
     }, 250)
     const meter = setInterval(updateMetrics, 400)
@@ -553,7 +557,13 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
           </div>
 
           <div className="transcript" ref={transcriptRef}>
-            {!transcript.final && !transcript.interim ? (
+            {!opts.showTranscript ? (
+              <span className="muted">
+                {listening
+                  ? 'Live transcript is off. Your answer is still recorded and appears in the report.'
+                  : 'Listen to the question…'}
+              </span>
+            ) : !transcript.final && !transcript.interim ? (
               <span className="muted">
                 {pending
                   ? 'Transcribing…'
@@ -646,7 +656,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
           </section>
         </main>
 
-        <LiveSidebar metrics={metrics} stage={stage} coaching={config.coaching} />
+        <LiveSidebar metrics={metrics} stage={stage} coaching={opts.coaching} />
       </div>
 
       {silentExit && (

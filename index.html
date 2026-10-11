@@ -3,12 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="MockView is a customizable behavioral interview simulator with live grading and ElevenLabs-voiced feedback." />
+    <meta
+      name="description"
+      content="MockView is a customizable behavioral interview simulator with live grading and ElevenLabs-voiced feedback."
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <title>MockView</title>
+    <script>
+      // Apply the saved theme before the first paint so light mode doesn't flash dark.
+      try {
+        var s = JSON.parse(localStorage.getItem('mockview.settings.v1') || '{}')
+        if (s.theme === 'light' || s.theme === 'dark') document.documentElement.dataset.theme = s.theme
+        if (s.reduceMotion) document.documentElement.dataset.motion = 'reduce'
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -4,19 +4,22 @@ import Interview from './components/Interview.jsx'
 import Feedback from './components/Feedback.jsx'
 import Credits from './components/Credits.jsx'
 import About from './components/About.jsx'
+import Settings from './components/Settings.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import TopNav from './components/TopNav.jsx'
 import AuthForm from './components/AuthForm.jsx'
 import { DEFAULT_CONFIG, sampleResult } from './data/questions.js'
 import { initAudio } from './lib/audio.js'
 import { currentUser, logOut, pickPrefs, savePrefs } from './lib/accounts.js'
+import { applyAppearance, loadSettings, saveSettings, withDefaults } from './lib/settings.js'
 
 export default function App() {
   // Visiting /#sample opens the sample report directly (handy for judges and screenshots).
   const sample = window.location.hash === '#sample'
   const [user, setUser] = useState(null)
   const [phase, setPhase] = useState(sample ? 'feedback' : 'setup')
-  const [config, setConfig] = useState(DEFAULT_CONFIG)
+  // config.settings holds the Settings tab values; they travel with the rest of your saved setup.
+  const [config, setConfig] = useState(() => ({ ...DEFAULT_CONFIG, settings: loadSettings() }))
   const [result, setResult] = useState(sample ? sampleResult : null)
   const [runId, setRunId] = useState(0)
   const [onboarding, setOnboarding] = useState(false)
@@ -27,10 +30,15 @@ export default function App() {
     currentUser().then((u) => {
       if (u) {
         setUser(u)
-        if (u.prefs) setConfig((c) => ({ ...c, ...u.prefs }))
+        if (u.prefs) setConfig((c) => ({ ...c, ...u.prefs, settings: withDefaults(u.prefs.settings || c.settings) }))
       } else if (!sample) setOnboarding(true)
     })
   }, [])
+
+  useEffect(() => {
+    applyAppearance(config.settings)
+    saveSettings(config.settings)
+  }, [config.settings])
 
   const remember = (cfg, u = user) => {
     if (u) savePrefs(pickPrefs(cfg)).then((saved) => saved && setUser(saved))
@@ -38,7 +46,8 @@ export default function App() {
   // Logging in restores that account's saved setup; signing up saves the current one.
   const signedIn = (u, mode, cfg = config) => {
     setUser(u)
-    if (mode === 'login' && u.prefs) setConfig({ ...DEFAULT_CONFIG, ...u.prefs })
+    if (mode === 'login' && u.prefs)
+      setConfig({ ...DEFAULT_CONFIG, ...u.prefs, settings: withDefaults(u.prefs.settings || cfg.settings) })
     else remember(cfg, u)
   }
 
@@ -64,7 +73,7 @@ export default function App() {
   const signOut = async () => {
     await logOut()
     setUser(null)
-    setConfig(DEFAULT_CONFIG)
+    setConfig((c) => ({ ...DEFAULT_CONFIG, settings: c.settings })) // appearance stays with the device
   }
 
   if (phase === 'interview')
@@ -96,6 +105,16 @@ export default function App() {
       <div key={phase} className="tab-view">
         {phase === 'credits' ? (
           <Credits />
+        ) : phase === 'settings' ? (
+          <Settings
+            settings={config.settings}
+            user={user}
+            onChange={(settings) => {
+              const cfg = { ...config, settings }
+              setConfig(cfg)
+              remember(cfg)
+            }}
+          />
         ) : phase === 'about' ? (
           <About
             onStart={() => {
@@ -111,6 +130,7 @@ export default function App() {
             onEdit={() => setOnboarding(true)}
             onStart={start}
             onSample={showSample}
+            onSettings={() => setPhase('settings')}
           />
         )}
       </div>

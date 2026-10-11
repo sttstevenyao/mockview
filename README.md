@@ -20,6 +20,7 @@
 | 💬 **Reactive interviewer** | After each answer the interviewer responds to what you actually said: praise for a quantified STAR answer, "I didn't hear how it turned out" when the result is missing, and never praise for an empty answer. |
 | 🤫 **Silence handling** | If it hears nothing, the interviewer asks "Sorry, what was that?". After repeated silence it stops and asks you to check your mic and restart. |
 | 🌐 **Works in Brave & Firefox** | Where built-in speech recognition is missing or blocked, answers are transcribed with **ElevenLabs Scribe** instead. You can also type answers. |
+| ⚙️ **Settings** | Light, dark or system theme, reduced motion, skip the interviewer's introduction, turn reactions, silence prompts, live tips or the live transcript on or off, and pick the voice model and speaking speed. Saved to your account when logged in. |
 | 🧾 **Recorded & transcribed** | A live conversation log of every line, a recording of each answer you can replay on the report, and a downloadable transcript. |
 | ⏱️ **Flexible sessions** | Fixed number of questions, a timed session, or **Endless Mode** that runs until you stop. |
 | 📊 **Live feedback panel** | Only what you can act on mid-answer: a coaching tip, a STAR checklist, a pace bar with the ideal range marked, and a filler-word counter. Detailed scores wait for the report. |
@@ -101,6 +102,7 @@ mockview/
 │   │   ├── Setup.jsx          # interview summary, persona, voice, resume
 │   │   ├── About.jsx          # what MockView is, who it's for, how it works
 │   │   ├── Credits.jsx        # team and acknowledgements
+│   │   ├── Settings.jsx       # theme, motion, interview and voice options
 │   │   ├── Interview.jsx      # interview flow, timers, follow-ups, interruptions
 │   │   ├── LiveSidebar.jsx    # real-time grading widgets
 │   │   ├── Visualizer.jsx     # Web Audio waveform
@@ -111,6 +113,7 @@ mockview/
 │   │   ├── tts.js             # ElevenLabs client, cache, fallback
 │   │   ├── transcriber.js     # Web Speech API + ElevenLabs Scribe engines
 │   │   ├── reactions.js       # interviewer reactions and silence prompts
+│   │   ├── settings.js        # settings defaults, storage, theme switching
 │   │   ├── accounts.js        # account client (calls /api/auth)
 │   │   └── audio.js           # shared AudioContext + analysers
 │   └── data/questions.js      # question banks, personas, mannerisms, sample data
