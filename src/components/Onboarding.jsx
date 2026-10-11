@@ -92,7 +92,7 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
                   <select
                     value={a.outLang}
                     onChange={(e) =>
-                      setA((x) => ({ ...x, outLang: e.target.value, inLang: x.inLang === 'en' ? 'en' : e.target.value }))
+                      setA((x) => ({ ...x, outLang: e.target.value, inLang: x.inLang === x.outLang ? e.target.value : x.inLang }))
                     }
                   >
                     {LANG_IDS.map((id) => (
@@ -104,9 +104,12 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
                 </label>
                 <label className="field ob-lang">
                   <span>Answer language</span>
-                  <select value={a.inLang} onChange={(e) => set('inLang', e.target.value)} disabled={a.outLang === 'en'}>
-                    <option value="en">English</option>
-                    {a.outLang !== 'en' && <option value={a.outLang}>{LANGS[a.outLang].label}</option>}
+                  <select value={a.inLang} onChange={(e) => set('inLang', e.target.value)}>
+                    {LANG_IDS.map((id) => (
+                      <option key={id} value={id}>
+                        {LANGS[id].label}
+                      </option>
+                    ))}
                   </select>
                 </label>
               </div>

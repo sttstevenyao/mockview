@@ -90,9 +90,9 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
   const persona = PERSONAS[config.persona]
   const mann = config.mannerisms
   const opts = config.settings // Settings tab
-  // Interviewer language (OUT) and answer language (IN). LOCAL holds the non-English lines.
+  // Interviewer language (OUT) and answer language (IN), chosen separately. LOCAL holds the non-English lines.
   const OUT = langInfo(opts.outLang) === langInfo('en') ? 'en' : opts.outLang
-  const IN = OUT !== 'en' && opts.inLang === OUT ? OUT : 'en'
+  const IN = langInfo(opts.inLang) === langInfo('en') ? 'en' : opts.inLang
   const LOCAL = LINES[OUT]
   // The question as the interviewer asks it. Resume questions are written on the fly, so they stay English.
   const ask = (q) => (q && LOCAL ? translateQuestion(q, OUT) || q.text : q?.text || '')

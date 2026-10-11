@@ -8,7 +8,7 @@ export const DEFAULT_SETTINGS = {
   highContrast: false,
   captions: true, // show what the interviewer is saying
   outLang: 'en', // the interviewer speaks this language (see data/i18n.js)
-  inLang: 'en', // you answer in this language: English or the interviewer's
+  inLang: 'en', // you answer in this language (any of them, independent of the interviewer's)
   skipIntro: false, // interviewer goes straight to the first question
   reactions: true, // interviewer responds to each answer
   silenceSec: 9, // seconds of silence before "Sorry, what was that?"; 0 turns prompts off

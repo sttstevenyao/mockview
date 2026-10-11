@@ -86,7 +86,11 @@ export default function Settings({ settings, onChange }) {
             className="set-select"
             value={settings.outLang}
             onChange={(e) =>
-              onChange({ ...settings, outLang: e.target.value, inLang: settings.inLang === 'en' ? 'en' : e.target.value })
+              onChange({
+                ...settings,
+                outLang: e.target.value,
+                inLang: settings.inLang === settings.outLang ? e.target.value : settings.inLang,
+              })
             }
             aria-label="Interviewer language"
           >
@@ -102,11 +106,13 @@ export default function Settings({ settings, onChange }) {
             className="set-select"
             value={settings.inLang}
             onChange={(e) => set('inLang')(e.target.value)}
-            disabled={settings.outLang === 'en'}
             aria-label="Answer language"
           >
-            <option value="en">English</option>
-            {settings.outLang !== 'en' && <option value={settings.outLang}>{LANGS[settings.outLang].label}</option>}
+            {LANG_IDS.map((id) => (
+              <option key={id} value={id}>
+                {LANGS[id].label}
+              </option>
+            ))}
           </select>
         </Row>
         <Row title="Interviewer captions">

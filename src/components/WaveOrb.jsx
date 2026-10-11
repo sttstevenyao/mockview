@@ -52,8 +52,8 @@ export default function WaveOrb({ className = '', ambient = false }) {
       const accent = css.getPropertyValue('--accent').trim() || '#0969da'
       const cx = w / 2
       const cy = h / 2
-      const R = ambient ? Math.min(w * 0.4, h * 0.75) : Math.min(w * 0.42, h * 1.05)
-      const colH = h * (ambient ? 0.2 : 0.36)
+      const R = ambient ? Math.min(w * 0.6, h * 1.15) : Math.min(w * 0.42, h * 1.05)
+      const colH = h * (ambient ? 0.3 : 0.36)
       const fade = ambient ? (w < 700 ? 0.28 : 0.5) : 1 // keeps the ambient ring behind the content
       const f = R * 3.2 // camera distance for perspective
 

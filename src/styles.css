@@ -4297,3 +4297,20 @@ body:has(.setup) {
   backdrop-filter: blur(10px) saturate(1.2);
   -webkit-backdrop-filter: blur(10px) saturate(1.2);
 }
+/* The footer line always clears the floating dock */
+.setup {
+  box-sizing: border-box;
+  padding-bottom: 0;
+}
+.setup > .foot {
+  margin-top: 28px;
+  padding-bottom: 92px; /* dock height + its gap from the bottom + breathing room */
+}
+@media (max-width: 640px) {
+  .setup {
+    padding-bottom: 0;
+  }
+  .setup > .foot {
+    padding-bottom: 80px;
+  }
+}
