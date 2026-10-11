@@ -14,7 +14,7 @@ export const DEFAULT_SETTINGS = {
   silenceSec: 9, // seconds of silence before "Sorry, what was that?"; 0 turns prompts off
   coaching: true, // live tip in the feedback panel
   showTranscript: true, // live transcript while you answer
-  voiceQuality: 'high', // 'high' (eleven_multilingual_v2) | 'fast' (eleven_flash_v2_5)
+  voiceQuality: 'high', // 'high' (eleven_v4) | 'fast' (eleven_flash_v2_5)
   voiceSpeed: 1, // multiplier on the persona's speaking pace
 }
 

@@ -5,7 +5,7 @@
 const DEFAULT_VOICE = 'JBFqnCBsd6RMkjVDRZzb' // George
 const MODELS = {
   fast: process.env.ELEVENLABS_FAST_MODEL || 'eleven_flash_v2_5', // lowest latency
-  high: process.env.ELEVENLABS_HQ_MODEL || 'eleven_multilingual_v2', // most natural, human-sounding
+  high: process.env.ELEVENLABS_HQ_MODEL || 'eleven_v4', // most natural, human-sounding
 }
 
 const json = (status, obj) => ({

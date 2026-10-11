@@ -34,7 +34,7 @@ Judging is in person at your table from 1:00 PM ET. Judges score **functionality
 ## Likely questions
 
 - **Why rule-based grading?** Instant feedback while you talk, no network latency, and every score traces back to a specific phrase, so you know exactly which word cost you points.
-- **How does it use ElevenLabs?** TTS for every interviewer line with persona-specific voice settings and pause tags; Multilingual v2 for the ideal-delivery playback; Scribe speech-to-text as the fallback transcriber; next-question audio prefetched to avoid gaps.
+- **How does it use ElevenLabs?** TTS for every interviewer line with persona-specific voice settings and pause tags; Eleven v4 for the ideal-delivery playback; Scribe speech-to-text as the fallback transcriber; next-question audio prefetched to avoid gaps.
 - **How do you detect STAR?** Phrase patterns for each part, like "my task was", "I led", "as a result", plus a check for numbers in the result.
 - **How do you analyze the voice?** Web Audio API: autocorrelation pitch detection for pitch variety, loudness in dB for projection, and talk-time ratio for pauses.
 - **What happens if the mic fails?** You can type answers; in Brave or Firefox it switches to ElevenLabs Scribe automatically.

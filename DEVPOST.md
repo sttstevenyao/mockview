@@ -36,7 +36,7 @@ We're all heading into internship season. Knowing your stories is one thing; say
 
 ## How we built it
 
-- **ElevenLabs Text to Speech** for every interviewer line. Persona pace and expressiveness map to `speed`, `stability` and `style`, and `<break>` tags add pauses. `eleven_multilingual_v2` by default, `eleven_flash_v2_5` as a faster option. The same voice reads question translations from a hand-translated bank of 81 questions and follow-ups.
+- **ElevenLabs Text to Speech** for every interviewer line. Persona pace and expressiveness map to `speed`, `stability` and `style`, and `<break>` tags add pauses. `eleven_v4` by default, `eleven_flash_v2_5` as a faster option. The same voice reads question translations from a hand-translated bank of 81 questions and follow-ups.
 - **ElevenLabs Speech to Text.** Chrome, Edge and Safari use the browser's own recognizer. Brave and Firefox stream the mic to real-time Scribe (`scribe_v2_realtime`) over a WebSocket, using a single-use token from our server, so words appear while you speak. If that fails it falls back to sending pause-to-pause clips to the batch API.
 - **Grading** is a rules engine in the browser: regex dictionaries for fillers, hedges and 13 kinds of red flags, STAR detection, a relevance check for off-topic sentences, rule-based rewrites and a word diff. It scores instantly and every point traces back to a phrase.
 - **Voice analysis** with the Web Audio API: our own autocorrelation pitch detector, loudness meter and adaptive noise floor.

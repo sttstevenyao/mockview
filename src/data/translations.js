@@ -1,5 +1,5 @@
 // Interview questions in other languages, keyed by question id (fu1–fu4 are follow-ups).
-// Shown under each English question and read aloud with ElevenLabs Multilingual v2.
+// Shown under each English question and read aloud with ElevenLabs Eleven v4.
 import { FOLLOW_UPS } from './questions.js'
 
 export const HELP_LANGUAGES = [

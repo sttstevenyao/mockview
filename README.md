@@ -30,7 +30,7 @@ Built at HackRU Fall 2026 (Rutgers). Education track. Entered for Best Newbie Ha
 ## How ElevenLabs is used
 
 1. **Text to Speech** for every interviewer line (`POST /v1/text-to-speech/{voice_id}`). Each persona's pace and expressiveness map to `speed`, `stability` and `style`, so they actually sound different. `<break time="0.6s"/>` tags add pauses before questions.
-2. **Models:** `eleven_multilingual_v2` by default, `eleven_flash_v2_5` as the fast option in Settings. Ideal-delivery playback always uses Multilingual v2. The same voice reads question translations in five languages.
+2. **Models:** `eleven_v4` by default, `eleven_flash_v2_5` as the fast option in Settings. Ideal-delivery playback always uses Eleven v4. The same voice reads question translations in five languages.
 3. **Prefetching:** the next question's audio is fetched while the current one plays, and clips are cached per sentence.
 4. **Real-time Speech to Text:** browsers without working built-in recognition (Brave, Firefox) stream the mic to Scribe (`scribe_v2_realtime`) over a WebSocket, opened with a single-use token from `GET /api/stt`. Words show up as you speak. If that connection fails, it falls back to pause-to-pause clips sent to `POST /v1/speech-to-text`; clips with no detected speech are never sent.
 5. The API key never reaches the browser. All calls go through [`server/elevenlabs.js`](server/elevenlabs.js), with a same-origin check and per-IP rate limit. If ElevenLabs is down, the browser's own voice takes over.
