@@ -1,0 +1,70 @@
+---
+title: MockView
+description: A behavioral interview simulator with an ElevenLabs-voiced interviewer, live delivery grading, and an "ideal delivery" playback of your best rewrite.
+authorIds:
+  - zexing-yao
+  - soham-bajaj
+  - kevin-wang
+  - daniel-kim
+categories:
+  - text-to-speech
+isFeatured: false
+date: "2026-10-11"
+image: /images/mockview.png
+demoUrl: https://YOUR-DEPLOYMENT.vercel.app # TODO: replace (or delete this line)
+repoUrl: https://github.com/YOUR-ORG/mockview # TODO: replace
+videoUrl: https://youtube.com/watch?v=YOUR_VIDEO # TODO: replace (or delete this line)
+---
+
+# MockView
+
+## Overview
+
+MockView is a customizable behavioral interview simulator built in 24 hours at HackRU Fall 2026 by four first-time hackers. A realistic interviewer, voiced by **ElevenLabs Text-to-Speech**, asks you questions out loud. While you answer, a live grading sidebar tracks your filler words, speaking pace, confidence, STAR structure, and how your voice actually sounds. When you finish, MockView rewrites your weakest sentence and uses ElevenLabs to play back the **ideal delivery**, so you hear how a strong answer sounds, not just read it.
+
+## Key Features
+
+- **Voiced interviewer with customizable mannerisms**: three personas (Friendly Recruiter, Hiring Manager, Bar Raiser) with adjustable pace, expressiveness, acknowledgement style, natural backchannel ("Mm-hmm…"), follow-up probing, and interruptions for long answers.
+- **Live grading sidebar**: a filler-word counter, a WPM gauge, a shifting confidence score, a STAR tracker, and a vocal-delivery meter (projection, pitch variety, pauses), all updating while you talk.
+- **Feedback report**: your transcript with clickable red-flag and filler pills that reveal the "interviewer's inner monologue", plus a GitHub-style diff that rewrites your weakest sentence.
+- **Hear Ideal Delivery**: plays the rewritten sentence with ElevenLabs `eleven_multilingual_v2`, next to your original for contrast.
+- **Flexible sessions**: a fixed number of questions, a timed session, or Endless Mode.
+
+## How It Works
+
+- **ElevenLabs TTS** (`/v1/text-to-speech/{voice_id}`) voices every interviewer line. Setup mannerisms map straight onto ElevenLabs voice settings: pace → `speed`, expressiveness → lower `stability` plus higher `style`. `<break time="0.6s"/>` tags add natural beats before each question. Users choose between `eleven_multilingual_v2` (most realistic) and `eleven_flash_v2_5` (lowest latency).
+- The next question's audio is **prefetched** while the current one plays, so there is no dead air between questions.
+- A tiny server proxy (a Vite middleware locally, a Vercel function in production) keeps the API key off the client.
+- The interviewer's audio runs through a Web Audio `AnalyserNode` that drives the live waveform visualizer.
+- Speech input uses the browser's Web Speech API for zero-latency transcripts. A local rules engine (regex dictionaries plus STAR heuristics) scores content instantly. A pitch and loudness analyser on the mic stream (autocorrelation pitch detection with an adaptive noise floor) scores vocal delivery.
+
+## Technologies Used
+
+- ElevenLabs API: Text-to-Speech (Multilingual v2, Flash v2.5, voice settings, SSML break tags)
+- React 18 + Vite
+- Web Speech API, Web Audio API
+- Vercel serverless functions
+
+## Getting Started
+
+```bash
+git clone https://github.com/YOUR-ORG/mockview.git
+cd mockview
+npm install
+cp .env.example .env   # add your ELEVENLABS_API_KEY
+npm run dev            # open http://localhost:5173 in Chrome
+```
+
+## Demo
+
+Open `/#sample` on the live demo to jump straight to a sample feedback report.
+
+## Future Plans
+
+- ElevenLabs Speech-to-Text (Scribe) for a higher-accuracy post-interview transcript
+- ElevenLabs Agents for fully conversational, adaptive follow-up questions
+- Company-specific question packs and progress tracking across sessions
+
+## Acknowledgments
+
+Built by Zexing Yao, Soham Bajaj, Kevin Wang, and Daniel Kim at HackRU Fall 2026 (Rutgers University). Thanks to the HackRU organizers and ElevenLabs for the hackathon credits and support.
