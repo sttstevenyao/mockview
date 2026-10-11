@@ -4288,10 +4288,7 @@ body:has(.setup) {
 }
 .setup .tile,
 .setup .chart,
-.setup .history-table,
-.setup .set-group,
-.setup .about-block,
-.setup .credits-block {
+.setup .history-table {
   background: color-mix(in srgb, var(--panel) 26%, transparent);
   border-color: color-mix(in srgb, var(--border-2) 55%, transparent);
   backdrop-filter: blur(10px) saturate(1.2);
