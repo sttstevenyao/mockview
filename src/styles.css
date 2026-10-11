@@ -3170,3 +3170,46 @@ button.brand:hover span {
 .tabs button {
   transition: color 0.2s;
 }
+
+/* ── Practice: two stacked columns ─────────── */
+.setup-grid {
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: auto;
+  align-items: stretch;
+}
+.setup-grid > .col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+/* the last card in each column absorbs any height difference so the bottoms line up */
+.setup-grid > .col > :last-child {
+  flex: 1;
+}
+.setup-grid > .col > .panel {
+  display: flex;
+  flex-direction: column;
+}
+.setup-grid > .col > .resume-panel {
+  align-self: stretch;
+}
+@media (max-width: 860px) {
+  .setup-grid {
+    grid-template-columns: 1fr;
+  }
+  .setup-grid > .col {
+    display: contents;
+  }
+  .setup-grid > .col > .panel:not(.start-panel):not(.resume-panel):first-child {
+    order: 1;
+  }
+  .setup-grid > .col > .start-panel {
+    order: 2;
+  }
+  .setup-grid > .col > .panel:not(.start-panel):not(.resume-panel):last-child {
+    order: 3;
+  }
+  .setup-grid > .col > .resume-panel {
+    order: 4;
+  }
+}

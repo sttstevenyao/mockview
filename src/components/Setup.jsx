@@ -76,120 +76,124 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
       </header>
 
       <div className="setup-grid">
-        <section className="panel">
-          <div className="panel-head">
-            <h2 className="panel-title">Your interview</h2>
-          </div>
-          <dl className="facts">
-            {facts.map(([k, v]) => (
-              <div key={k}>
-                <dt className="muted tiny">{k}</dt>
-                <dd>{v}</dd>
+        <div className="col">
+          <section className="panel">
+            <div className="panel-head">
+              <h2 className="panel-title">Your interview</h2>
+            </div>
+            <dl className="facts">
+              {facts.map(([k, v]) => (
+                <div key={k}>
+                  <dt className="muted tiny">{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))}
+              {/* Fills the grid's last slot, under Field */}
+              <div className="facts-action">
+                <button className="btn ghost sm" onClick={onEdit}>
+                  Change answers
+                </button>
               </div>
-            ))}
-            {/* Fills the grid's last slot, under Field */}
-            <div className="facts-action">
-              <button className="btn ghost sm" onClick={onEdit}>
-                Change answers
+            </dl>
+          </section>
+
+          <section className="panel">
+            <h2 className="panel-title">Interviewer</h2>
+            <div className="persona-row" role="radiogroup" aria-label="Interviewer persona">
+              {Object.values(PERSONAS).map((p) => (
+                <button
+                  key={p.id}
+                  role="radio"
+                  aria-checked={cfg.persona === p.id}
+                  className={`persona ${cfg.persona === p.id ? 'on' : ''}`}
+                  onClick={() => choosePersona(p.id)}
+                >
+                  <span className={`avatar-sm av-${p.id}`} aria-hidden="true">
+                    {p.name[0]}
+                  </span>
+                  <b>{p.name}</b>
+                  <span className="muted tiny">{p.desc.split('.')[0]}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="row voice-row">
+              <select value={cfg.voiceId} onChange={(e) => set('voiceId', e.target.value)} aria-label="Interviewer voice">
+                {VOICES.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
+              <button className="btn ghost" onClick={preview} disabled={previewing}>
+                {previewing ? 'Playing…' : 'Preview voice'}
               </button>
             </div>
-          </dl>
-        </section>
+            {voiceStatus?.provider === 'elevenlabs' && <span className="tiny good">Playing through ElevenLabs</span>}
+            {voiceStatus?.provider === 'browser' && (
+              <span className="tiny warn">ElevenLabs error: {voiceStatus.error}. Using the browser voice instead.</span>
+            )}
+          </section>
+        </div>
 
-        <ResumePanel resume={cfg.resume} useResume={cfg.useResume} onChange={(patch) => setCfg((c) => ({ ...c, ...patch }))} />
-
-        <section className="panel">
-          <h2 className="panel-title">Interviewer</h2>
-          <div className="persona-row" role="radiogroup" aria-label="Interviewer persona">
-            {Object.values(PERSONAS).map((p) => (
-              <button
-                key={p.id}
-                role="radio"
-                aria-checked={cfg.persona === p.id}
-                className={`persona ${cfg.persona === p.id ? 'on' : ''}`}
-                onClick={() => choosePersona(p.id)}
-              >
-                <span className={`avatar-sm av-${p.id}`} aria-hidden="true">
-                  {p.name[0]}
-                </span>
-                <b>{p.name}</b>
-                <span className="muted tiny">{p.desc}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="row voice-row">
-            <select value={cfg.voiceId} onChange={(e) => set('voiceId', e.target.value)} aria-label="Interviewer voice">
-              {VOICES.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.label}
-                </option>
-              ))}
-            </select>
-            <button className="btn ghost" onClick={preview} disabled={previewing}>
-              {previewing ? 'Playing…' : 'Preview voice'}
-            </button>
-          </div>
-          {voiceStatus?.provider === 'elevenlabs' && <span className="tiny good">Playing through ElevenLabs</span>}
-          {voiceStatus?.provider === 'browser' && (
-            <span className="tiny warn">ElevenLabs error: {voiceStatus.error}. Using the browser voice instead.</span>
-          )}
-        </section>
-
-        <section className="panel start-panel">
-          <div className="host">
-            <span className={`avatar-sm lg av-${cfg.persona}`} aria-hidden="true">
-              {PERSONAS[cfg.persona].name[0]}
-            </span>
-            <div className="host-who">
-              <b>{PERSONAS[cfg.persona].name}</b>
-              <span className="muted tiny">{PERSONAS[cfg.persona].title}</span>
+        <div className="col">
+          <section className="panel start-panel">
+            <div className="host">
+              <span className={`avatar-sm lg av-${cfg.persona}`} aria-hidden="true">
+                {PERSONAS[cfg.persona].name[0]}
+              </span>
+              <div className="host-who">
+                <b>{PERSONAS[cfg.persona].name}</b>
+                <span className="muted tiny">{PERSONAS[cfg.persona].title}</span>
+              </div>
+              <span className="mini-wave" aria-hidden="true">
+                {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                  <i key={i} style={{ '--i': i }} />
+                ))}
+              </span>
             </div>
-            <span className="mini-wave" aria-hidden="true">
-              {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-                <i key={i} style={{ '--i': i }} />
-              ))}
-            </span>
-          </div>
-          <button
-            className="btn primary big-btn"
-            onClick={() =>
-              onStart({
-                ...cfg,
-                name: cfg.name.trim() || 'Candidate',
-                resumeQuestions: cfg.useResume && cfg.resume ? cfg.resume.questions : [],
-              })
-            }
-          >
-            Start interview <span className="mono tiny">· {summary}</span>
-          </button>
-          <button className="link" onClick={onSample}>
-            or view a sample feedback report
-          </button>
-
-          <ul className="checks">
-            <Check
-              ok={defaultEngine === 'webspeech'}
-              warn={defaultEngine === 'scribe'}
-              label="Voice input"
-              detail={defaultEngine === 'none' ? 'not supported, type your answers instead' : ENGINE_LABEL[defaultEngine]}
-            />
-            <Check
-              ok={health?.configured}
-              warn={!health || health.reachable}
-              label="ElevenLabs voice"
-              detail={
-                !health
-                  ? 'checking…'
-                  : health.configured
-                    ? 'connected'
-                    : health.reachable
-                      ? 'no API key, using the browser voice'
-                      : 'unreachable, using the browser voice'
+            <button
+              className="btn primary big-btn"
+              onClick={() =>
+                onStart({
+                  ...cfg,
+                  name: cfg.name.trim() || 'Candidate',
+                  resumeQuestions: cfg.useResume && cfg.resume ? cfg.resume.questions : [],
+                })
               }
-            />
-          </ul>
-        </section>
+            >
+              Start interview <span className="mono tiny">· {summary}</span>
+            </button>
+            <button className="link" onClick={onSample}>
+              or view a sample feedback report
+            </button>
+
+            <ul className="checks">
+              <Check
+                ok={defaultEngine === 'webspeech'}
+                warn={defaultEngine === 'scribe'}
+                label="Voice input"
+                detail={defaultEngine === 'none' ? 'not supported, type your answers instead' : ENGINE_LABEL[defaultEngine]}
+              />
+              <Check
+                ok={health?.configured}
+                warn={!health || health.reachable}
+                label="ElevenLabs voice"
+                detail={
+                  !health
+                    ? 'checking…'
+                    : health.configured
+                      ? 'connected'
+                      : health.reachable
+                        ? 'no API key, using the browser voice'
+                        : 'unreachable, using the browser voice'
+                }
+              />
+            </ul>
+          </section>
+
+          <ResumePanel resume={cfg.resume} useResume={cfg.useResume} onChange={(patch) => setCfg((c) => ({ ...c, ...patch }))} />
+        </div>
       </div>
     </>
   )
