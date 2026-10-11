@@ -13,6 +13,7 @@ import EditAnswers from './components/EditAnswers.jsx'
 import Intro from './components/Intro.jsx'
 import TopNav from './components/TopNav.jsx'
 import Toast from './components/Toast.jsx'
+import WaveOrb from './components/WaveOrb.jsx'
 import AuthForm from './components/AuthForm.jsx'
 import { DEFAULT_CONFIG, sampleResult } from './data/questions.js'
 import { initAudio } from './lib/audio.js'
@@ -149,84 +150,88 @@ export default function App() {
       />
     )
   return (
-    <div className="setup">
-      {intro && <Intro onReveal={revealPage} onDone={endIntro} />}
-      <TopNav tab={phase} onTab={setPhase} user={user} onAuth={setAuth} onLogOut={signOut} />
-      {/* Mounted as the opening animation fades, so the page's entrance cascade plays underneath */}
-      {intro !== 'playing' && (
-        // Keyed on the account too: logging in or out replays the page's entrance with the new setup.
-        <div key={`${phase}:${user?.email || ''}`} className={`tab-view ${slide.current}`}>
-          {phase === 'progress' ? (
-            <Progress history={config.history} onStart={() => setPhase('setup')} />
-          ) : phase === 'credits' ? (
-            <Credits />
-          ) : phase === 'settings' ? (
-            <Settings
-              settings={config.settings}
-              user={user}
-              onChange={(settings) => {
-                const cfg = { ...config, settings }
-                setConfig(cfg)
-                remember(cfg)
-              }}
-            />
-          ) : phase === 'about' ? (
-            <About
-              onStart={() => {
-                setPhase('setup')
-                window.scrollTo(0, 0)
-              }}
-            />
-          ) : (
-            <Setup
-              cfg={config}
-              setCfg={setConfig}
-              user={user}
-              onEdit={() => setEditing(true)}
-              onStart={start}
-              onSample={showSample}
-              onSettings={() => setPhase('settings')}
-              onProgress={() => setPhase('progress')}
-            />
-          )}
-        </div>
-      )}
-      {toast && <Toast key={toast.id} text={toast.text} onDone={() => setToast(null)} />}
-      <footer className="foot muted tiny mono">Built at HackRU Fall 2026 · Voice by ElevenLabs</footer>
-      {onboarding && !intro && (
-        <Onboarding initial={config} user={user} onDone={finishOnboarding} onClose={() => setOnboarding(false)} />
-      )}
-      {editing && (
-        <EditAnswers
-          initial={config}
-          onSave={(answers) => {
-            const cfg = { ...config, ...answers }
-            setConfig(cfg)
-            remember(cfg)
-            setEditing(false)
-          }}
-          onClose={() => setEditing(false)}
-        />
-      )}
-      {auth && (
-        <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="ob-title">
-          <div className="dialog">
-            <AuthForm
-              initialMode={auth}
-              prefs={pickPrefs(config)}
-              onSuccess={(u, mode) => {
-                signedIn(u, mode)
-                setAuth(null)
-              }}
-              secondary={
-                <button type="button" className="btn ghost" onClick={() => setAuth(null)}>
-                  Cancel
-                </button>
-              }
-            />
+    <>
+      {/* Behind everything, outside .setup so the large-screen zoom doesn't scale it */}
+      <WaveOrb className="bg-wave" ambient />
+      <div className="setup">
+        {intro && <Intro onReveal={revealPage} onDone={endIntro} />}
+        <TopNav tab={phase} onTab={setPhase} user={user} onAuth={setAuth} onLogOut={signOut} />
+        {/* Mounted as the opening animation fades, so the page's entrance cascade plays underneath */}
+        {intro !== 'playing' && (
+          // Keyed on the account too: logging in or out replays the page's entrance with the new setup.
+          <div key={`${phase}:${user?.email || ''}`} className={`tab-view ${slide.current}`}>
+            {phase === 'progress' ? (
+              <Progress history={config.history} onStart={() => setPhase('setup')} />
+            ) : phase === 'credits' ? (
+              <Credits />
+            ) : phase === 'settings' ? (
+              <Settings
+                settings={config.settings}
+                user={user}
+                onChange={(settings) => {
+                  const cfg = { ...config, settings }
+                  setConfig(cfg)
+                  remember(cfg)
+                }}
+              />
+            ) : phase === 'about' ? (
+              <About
+                onStart={() => {
+                  setPhase('setup')
+                  window.scrollTo(0, 0)
+                }}
+              />
+            ) : (
+              <Setup
+                cfg={config}
+                setCfg={setConfig}
+                user={user}
+                onEdit={() => setEditing(true)}
+                onStart={start}
+                onSample={showSample}
+                onSettings={() => setPhase('settings')}
+                onProgress={() => setPhase('progress')}
+              />
+            )}
           </div>
-        </div>
-      )}
-    </div>
+        )}
+        {toast && <Toast key={toast.id} text={toast.text} onDone={() => setToast(null)} />}
+        <footer className="foot muted tiny mono">Built at HackRU Fall 2026 · Voice by ElevenLabs</footer>
+        {onboarding && !intro && (
+          <Onboarding initial={config} user={user} onDone={finishOnboarding} onClose={() => setOnboarding(false)} />
+        )}
+        {editing && (
+          <EditAnswers
+            initial={config}
+            onSave={(answers) => {
+              const cfg = { ...config, ...answers }
+              setConfig(cfg)
+              remember(cfg)
+              setEditing(false)
+            }}
+            onClose={() => setEditing(false)}
+          />
+        )}
+        {auth && (
+          <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="ob-title">
+            <div className="dialog">
+              <AuthForm
+                initialMode={auth}
+                prefs={pickPrefs(config)}
+                onSuccess={(u, mode) => {
+                  signedIn(u, mode)
+                  setAuth(null)
+                }}
+                secondary={
+                  <button type="button" className="btn ghost" onClick={() => setAuth(null)}>
+                    Cancel
+                  </button>
+                }
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   )
 }

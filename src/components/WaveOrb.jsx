@@ -2,10 +2,11 @@ import { useEffect, useRef } from 'react'
 
 // A ring of dotted sound-wave columns wrapped in 3D. It drifts on its own and turns
 // further as you scroll (or wheel, when the page doesn't scroll). Transparent canvas.
+// ambient: the slow, faint version that sits behind the whole page.
 const COLS = 96
 const DOTS = 15
 
-export default function WaveOrb({ className = '' }) {
+export default function WaveOrb({ className = '', ambient = false }) {
   const ref = useRef(null)
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function WaveOrb({ className = '' }) {
     ro.observe(canvas)
 
     const draw = (time) => {
-      const t = reduced ? 1.2 : time / 1000
+      const t = reduced ? 1.2 : (time / 1000) * (ambient ? 0.35 : 1)
       spin += (spinTarget - spin) * 0.08
       const rot = t * 0.22 + spin
       const { width: w, height: h } = box
@@ -51,8 +52,9 @@ export default function WaveOrb({ className = '' }) {
       const accent = css.getPropertyValue('--accent').trim() || '#0969da'
       const cx = w / 2
       const cy = h / 2
-      const R = Math.min(w * 0.42, h * 1.05)
-      const colH = h * 0.36
+      const R = ambient ? Math.min(w * 0.4, h * 0.75) : Math.min(w * 0.42, h * 1.05)
+      const colH = h * (ambient ? 0.2 : 0.36)
+      const fade = ambient ? (w < 700 ? 0.28 : 0.5) : 1 // keeps the ambient ring behind the content
       const f = R * 3.2 // camera distance for perspective
 
       for (let i = 0; i < COLS; i++) {
@@ -74,7 +76,7 @@ export default function WaveOrb({ className = '' }) {
           const alpha = (0.08 + 0.85 * near * near) * (0.25 + 0.75 * depth)
           if (alpha < 0.04) continue
           const r = (0.8 + 1.6 * near) * scale * (0.6 + 0.4 * depth)
-          g.globalAlpha = alpha
+          g.globalAlpha = alpha * fade
           g.fillStyle = near > 0.75 && depth > 0.55 ? accent : ink
           g.beginPath()
           g.arc(x, y, r, 0, Math.PI * 2)

@@ -31,6 +31,10 @@
       #boot { --b: #f6f8fa; --t: #1f2328; --a: #0969da; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: var(--t); }
       html[data-theme='dark'] #boot { --b: #07090d; --t: #e6edf3; --a: #58a6ff; }
       @media (prefers-color-scheme: dark) { html:not([data-theme]) #boot { --b: #07090d; --t: #e6edf3; --a: #58a6ff; } }
+      #boot.calm, #boot.calm * { animation: none !important; }
+      #boot.calm .intro-count, #boot.calm .intro-tag { display: none; }
+      #boot.calm { animation: calm-out 0.3s ease 0.6s forwards !important; }
+      @keyframes calm-out { to { opacity: 0; visibility: hidden; } }
       #boot.skip { animation: intro-out 0.35s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
       /* Loading counter in the corner, rolls 0 to 100 */
       @property --n { syntax: '<integer>'; inherits: false; initial-value: 0; }
@@ -153,10 +157,12 @@
       </div>
     </div>
     <script>
-      // No intro for reduced motion or the sample report link.
+      // Reduced motion gets a still logo that fades out; the sample report link skips it.
       try {
+        var boot = document.getElementById('boot')
         var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduce'
-        if (reduce || location.hash === '#sample') document.getElementById('boot').remove()
+        if (location.hash === '#sample') boot.remove()
+        else if (reduce) boot.className = 'calm'
       } catch (e) {}
     </script>
     <div id="root"></div>

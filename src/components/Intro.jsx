@@ -13,12 +13,14 @@ export default function Intro({ onReveal, onDone }) {
       return
     }
     const spent = performance.now()
+    // Reduced motion: a still logo that fades out sooner (see #boot.calm in index.html).
+    const [revealAt, doneAt] = el.classList.contains('calm') ? [600, 900] : [1250, 1750]
     const finish = () => {
       el.remove()
       onDone()
     }
-    const a = setTimeout(onReveal, Math.max(0, 1250 - spent))
-    const b = setTimeout(finish, Math.max(0, 1750 - spent))
+    const a = setTimeout(onReveal, Math.max(0, revealAt - spent))
+    const b = setTimeout(finish, Math.max(0, doneAt - spent))
     let c
     const skip = () => {
       clearTimeout(a)

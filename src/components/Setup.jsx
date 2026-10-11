@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { LEVELS, PERSONAS, TRACKS, VOICES } from '../data/questions.js'
 import ResumePanel from './ResumePanel.jsx'
-import PracticeStats from './PracticeStats.jsx'
-import WaveOrb from './WaveOrb.jsx'
+import UserStats from './UserStats.jsx'
 import { initAudio } from '../lib/audio.js'
 import { checkTtsHealth, speak } from '../lib/tts.js'
 import { defaultEngine, ENGINE_LABEL } from '../lib/transcriber.js'
@@ -21,6 +20,7 @@ function Check({ ok, warn, label, detail }) {
 export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, onSettings, onProgress }) {
   const [health, setHealth] = useState(null)
   const [previewing, setPreviewing] = useState(false)
+  const [launching, setLaunching] = useState(false)
   const [voiceStatus, setVoiceStatus] = useState(null) // result of the last Preview
   const set = (k, v) => setCfg((c) => ({ ...c, [k]: v }))
   // Each persona carries its own mannerisms (pace, reactions, follow-ups, interruptions).
@@ -89,8 +89,8 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
             </>
           )}
         </h1>
-        <WaveOrb />
       </header>
+      <UserStats history={cfg.history} onProgress={onProgress} />
 
       <div className="setup-grid">
         <div className="col">
@@ -170,14 +170,21 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
               </span>
             </div>
             <button
-              className="btn primary big-btn"
-              onClick={() =>
-                onStart({
-                  ...cfg,
-                  name: cfg.name.trim() || 'Candidate',
-                  resumeQuestions: cfg.useResume && cfg.resume ? cfg.resume.questions : [],
-                })
-              }
+              className={`btn primary big-btn ${launching ? 'launching' : ''}`}
+              disabled={launching}
+              onClick={() => {
+                initAudio() // inside the click, before the launch animation delays the start
+                setLaunching(true)
+                setTimeout(
+                  () =>
+                    onStart({
+                      ...cfg,
+                      name: cfg.name.trim() || 'Candidate',
+                      resumeQuestions: cfg.useResume && cfg.resume ? cfg.resume.questions : [],
+                    }),
+                  280,
+                )
+              }}
             >
               Start interview <span className="mono tiny">· {summary}</span>
             </button>
@@ -212,7 +219,6 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
           <ResumePanel resume={cfg.resume} useResume={cfg.useResume} onChange={(patch) => setCfg((c) => ({ ...c, ...patch }))} />
         </div>
       </div>
-      <PracticeStats history={cfg.history} onProgress={onProgress} />
     </>
   )
 }

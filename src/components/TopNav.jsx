@@ -9,20 +9,31 @@ const TABS = [
   ['settings', 'Settings'],
 ]
 
-// Header for the setup and credits pages: tabs on the left, account controls on the right.
+// Header for the tab pages: logo on the left, account controls on the right, tabs in a dock at the bottom.
 export default function TopNav({ tab, onTab, user, onAuth, onLogOut }) {
   // The active-tab underline is one element that slides to the selected tab.
   const refs = useRef({})
   const [bar, setBar] = useState(null)
   useLayoutEffect(() => {
-    const el = refs.current[tab]
-    if (el) setBar({ left: el.offsetLeft, width: el.offsetWidth })
+    const measure = () => {
+      const el = refs.current[tab]
+      if (el) setBar({ left: el.offsetLeft, width: el.offsetWidth })
+    }
+    measure()
+    // Re-measure when the dock changes size (window resize, fonts loading).
+    const ro = new ResizeObserver(measure)
+    const dock = refs.current[tab]?.parentElement
+    if (dock) ro.observe(dock)
+    return () => ro.disconnect()
   }, [tab])
 
   return (
     <nav className="topnav">
       <div className="row nav-left">
         <Brand onClick={() => onTab('setup')} />
+      </div>
+      {/* Tabs float in a small dock above the bottom of the page */}
+      <div className="dock">
         <div className="tabs" role="tablist">
           {TABS.map(([id, label]) => (
             <button
