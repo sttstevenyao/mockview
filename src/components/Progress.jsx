@@ -44,7 +44,8 @@ function LineChart({ title, points, domain, unit, band, lowerIsBetter }) {
                 <span className={`tiny mono ${better ? 'good' : 'bad'}`}>
                   {' '}
                   {delta > 0 ? '+' : ''}
-                  {delta} since first
+                  {delta}
+                  {unit} since first
                 </span>
               )
             )}
