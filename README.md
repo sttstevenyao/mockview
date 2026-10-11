@@ -8,14 +8,18 @@
 
 ![MockView feedback report](docs/cover.png)
 
+| Live interview | Practice page |
+|---|---|
+| ![Live interview with the feedback panel](docs/screenshots/interview.png) | ![Practice page](docs/screenshots/practice.png) |
+
 ---
 
 ## ✨ Features
 
 | | |
 |---|---|
-| 🗣️ **ElevenLabs-voiced interviewer** | Three personas (Friendly Recruiter, Hiring Manager, Bar Raiser) and four premade ElevenLabs voices. Choose **Realistic** (`eleven_multilingual_v2`) or **Low latency** (`eleven_flash_v2_5`). |
-| 🎭 **Custom mannerisms** | Speaking pace, expressiveness, reaction style (warm / neutral / curt / silent), natural backchannel ("Mm-hmm…"), **follow-up probing** for vague answers, and **interruptions** for answers that run long. |
+| 🗣️ **ElevenLabs-voiced interviewer** | Three personas and four premade ElevenLabs voices. Choose **Realistic** (`eleven_multilingual_v2`) or **Fast** (`eleven_flash_v2_5`) in Settings. |
+| 🎭 **Persona mannerisms** | Each persona has its own pace, expressiveness and reaction style. The Friendly Recruiter says "mm-hmm", the Hiring Manager **asks follow-ups** on vague answers, and the Bar Raiser **interrupts** answers that run past 90 seconds. |
 | 👋 **Guided onboarding + accounts** | Pop-up questions on first visit (name, experience level, field, role, session length), then an optional account (username + password, email optional) that saves your preferences. Log in with your username or email. Accounts are stored server-side in a private Vercel Blob store, passwords are hashed with scrypt, and sessions use a signed HttpOnly cookie, so you can log in from any device. |
 | 💬 **Reactive interviewer** | After each answer the interviewer responds to what you actually said: praise for a quantified STAR answer, "I didn't hear how it turned out" when the result is missing, and never praise for an empty answer. |
 | 🤫 **Silence handling** | If it hears nothing, the interviewer asks "Sorry, what was that?". After repeated silence it stops and asks you to check your mic and restart. |
@@ -64,7 +68,7 @@ cp .env.example .env        # then paste your key into ELEVENLABS_API_KEY
 npm run dev                 # → http://localhost:5173
 ```
 
-Allow microphone access when Chrome asks. Tips:
+Allow microphone access when the browser asks. Tips:
 
 - Open **`/#sample`** to jump straight to a sample feedback report.
 - During an interview, press **S** (*Simulate answer*) to stream a scripted answer. This is useful in a noisy room or for a quick demo.
@@ -133,19 +137,19 @@ All four of us are first-time hackers at HackRU Fall 2026.
 
 ## 🏆 Hackathon submission
 
-- **Event:** HackRU Fall 2026, Rutgers University (Oct 10–11, 2026)
+- **Event:** HackRU Fall 2026, Rutgers University (Oct 10 to 11, 2026)
 - **Track:** Education
 - **Superlatives:** Best Newbie Hack · Use of ElevenLabs
-- Built from scratch during the hacking period (12:00 PM Oct 10 – 10:00 AM Oct 11). See the commit history.
+- Built from scratch during the hacking period (12:00 PM Oct 10 to 10:00 AM Oct 11). See the commit history.
 
 ## 🌟 ElevenLabs Showcase
 
 This repository is open source (MIT) and ready to submit to the [ElevenLabs Showcase](https://showcase.elevenlabs.io/). The [`showcase/`](showcase) folder mirrors their repo layout:
 
 ```
-showcase/authors/<name>.yml        → copy to  elevenlabs/showcase/authors/
-showcase/projects/mockview.mdx     → copy to  elevenlabs/showcase/projects/
-showcase/projects/images/mockview.png → copy to elevenlabs/showcase/projects/images/
+showcase/authors/<name>.yml                    → elevenlabs/showcase/authors/
+showcase/projects/mockview.mdx                 → elevenlabs/showcase/projects/
+showcase/apps/www/public/images/mockview.png   → elevenlabs/showcase/apps/www/public/images/
 ```
 
 See [CONTRIBUTING.md](https://github.com/elevenlabs/showcase/blob/main/.github/CONTRIBUTING.md) for their PR process.

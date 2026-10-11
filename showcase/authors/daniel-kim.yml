@@ -1,10 +1,8 @@
 name: Daniel Kim
 avatar: "https://github.com/GITHUB_USERNAME.png" # TODO: replace GITHUB_USERNAME
-bio: "Rutgers student and first-time hacker. Co-built MockView, a voice interview simulator, at HackRU Fall 2026."
+bio: "Rutgers student and first-time hacker. Programmer on MockView, a voice interview simulator built at HackRU Fall 2026."
 location: "New Brunswick, NJ, USA"
 isElevenLabs: false
 socials:
   - label: GitHub
     url: "https://github.com/GITHUB_USERNAME" # TODO: replace
-  - label: LinkedIn
-    url: "https://linkedin.com/in/LINKEDIN_HANDLE" # Optional: replace or delete these two lines

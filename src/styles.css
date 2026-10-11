@@ -1311,10 +1311,13 @@ input[type='range'] {
   border-radius: 3px;
 }
 .changes {
-  list-style: none;
-  padding: 0;
+  list-style: disc;
+  padding-left: 18px;
   margin: 14px 0;
   font-size: 13px;
+}
+.changes li::marker {
+  color: var(--muted);
 }
 .changes li {
   padding: 3px 0;

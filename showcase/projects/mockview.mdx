@@ -14,28 +14,28 @@ date: "2026-10-11"
 image: /images/mockview.png
 demoUrl: https://mockview-ruddy.vercel.app
 repoUrl: https://github.com/sttstevenyao/mockview
-videoUrl: https://youtube.com/watch?v=YOUR_VIDEO # TODO: replace (or delete this line)
 ---
 
 # MockView
 
 ## Overview
 
-MockView is a customizable behavioral interview simulator built in 24 hours at HackRU Fall 2026 by four first-time hackers. A realistic interviewer, voiced by **ElevenLabs Text-to-Speech**, asks you questions out loud. While you answer, a live grading sidebar tracks your filler words, speaking pace, confidence, STAR structure, and how your voice actually sounds. When you finish, MockView rewrites your weakest sentence and uses ElevenLabs to play back the **ideal delivery**, so you hear how a strong answer sounds, not just read it.
+MockView is a customizable behavioral interview simulator built in 24 hours at HackRU Fall 2026 by four first-time hackers. A realistic interviewer, voiced by **ElevenLabs Text-to-Speech**, asks you questions out loud. While you answer, a live feedback panel tracks your STAR structure, speaking pace and filler words, and the interviewer reacts to what you actually said. When you finish, MockView rewrites your weakest sentence and uses ElevenLabs to play back the **ideal delivery**, so you hear how a strong answer sounds, not just read it.
 
 ## Key Features
 
-- **Voiced interviewer with customizable mannerisms**: three personas (Friendly Recruiter, Hiring Manager, Bar Raiser) with adjustable pace, expressiveness, acknowledgement style, natural backchannel ("Mm-hmm…"), follow-up probing, and interruptions for long answers.
-- **Live grading sidebar**: a filler-word counter, a WPM gauge, a shifting confidence score, a STAR tracker, and a vocal-delivery meter (projection, pitch variety, pauses), all updating while you talk.
+- **Three voiced interviewers**: a Friendly Recruiter, a Hiring Manager who asks follow-ups, and a Bar Raiser who interrupts long answers. Each persona's mannerisms map to ElevenLabs voice settings.
+- **Live feedback panel**: a coaching tip, a STAR checklist, a pace bar and a filler-word counter, updating while you talk.
 - **Feedback report**: your transcript with clickable red-flag and filler pills that reveal the "interviewer's inner monologue", plus a GitHub-style diff that rewrites your weakest sentence.
 - **Hear Ideal Delivery**: plays the rewritten sentence with ElevenLabs `eleven_multilingual_v2`, next to your original for contrast.
 - **Reactive interviewer**: responds to what you actually said after each answer, asks "Sorry, what was that?" when it hears nothing, and stops after repeated silence.
 - **Works in any modern browser**: where built-in speech recognition is blocked (Brave) or missing (Firefox), answers are transcribed with ElevenLabs Speech-to-Text (Scribe).
-- **Flexible sessions**: a fixed number of questions, a timed session, or Endless Mode.
+- **Flexible sessions**: a fixed number of questions, a timed session, or Endless Mode, with optional questions generated from your resume.
+- **Accounts and settings**: log in from any device; light or dark theme, skip the introduction, voice model and speed.
 
 ## How It Works
 
-- **ElevenLabs TTS** (`/v1/text-to-speech/{voice_id}`) voices every interviewer line. Setup mannerisms map straight onto ElevenLabs voice settings: pace → `speed`, expressiveness → lower `stability` plus higher `style`. `<break time="0.6s"/>` tags add natural beats before each question. Users choose between `eleven_multilingual_v2` (most realistic) and `eleven_flash_v2_5` (lowest latency).
+- **ElevenLabs TTS** (`/v1/text-to-speech/{voice_id}`) voices every interviewer line. Each persona's mannerisms map straight onto ElevenLabs voice settings: pace → `speed`, expressiveness → lower `stability` plus higher `style`. `<break time="0.6s"/>` tags add natural beats before each question. Users choose between `eleven_multilingual_v2` (most realistic) and `eleven_flash_v2_5` (lowest latency).
 - The next question's audio is **prefetched** while the current one plays, so there is no dead air between questions.
 - A tiny server proxy (a Vite middleware locally, a Vercel function in production) keeps the API key off the client.
 - The interviewer's audio runs through a Web Audio `AnalyserNode` that drives the live waveform visualizer.
