@@ -73,7 +73,7 @@ The interviewer **reacts to what you actually said** after each answer. A quanti
 
 ## What's next for MockView
 
-- Cloud-synced accounts, so your settings and practice history follow you across devices (today, accounts are stored in the browser).
+- Practice history saved to your account, so you can watch your filler-word rate and scores improve across sessions.
 - **ElevenLabs Agents** for fully conversational interviews with adaptive, context-aware follow-ups.
 - Company- and role-specific question packs, plus progress tracking across sessions so students can watch their filler rate drop.
 - A career-center mode where advisors assign practice sets and review students' reports.

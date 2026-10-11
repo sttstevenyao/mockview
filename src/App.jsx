@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Setup from './components/Setup.jsx'
 import Interview from './components/Interview.jsx'
 import Feedback from './components/Feedback.jsx'
@@ -13,17 +13,26 @@ import { currentUser, logOut, pickPrefs, savePrefs } from './lib/accounts.js'
 export default function App() {
   // Visiting /#sample opens the sample report directly (handy for judges and screenshots).
   const sample = window.location.hash === '#sample'
-  const [user, setUser] = useState(currentUser)
+  const [user, setUser] = useState(null)
   const [phase, setPhase] = useState(sample ? 'feedback' : 'setup')
-  const [config, setConfig] = useState(() => ({ ...DEFAULT_CONFIG, ...(user?.prefs || {}) }))
+  const [config, setConfig] = useState(DEFAULT_CONFIG)
   const [result, setResult] = useState(sample ? sampleResult : null)
   const [runId, setRunId] = useState(0)
-  // Not logged in → the setup questions pop up when the page opens.
-  const [onboarding, setOnboarding] = useState(!sample && !user)
+  const [onboarding, setOnboarding] = useState(false)
   const [auth, setAuth] = useState(null) // 'login' | 'signup' dialog opened from the header
 
+  // Restore the session cookie's account; if nobody is logged in, the setup questions pop up.
+  useEffect(() => {
+    currentUser().then((u) => {
+      if (u) {
+        setUser(u)
+        if (u.prefs) setConfig((c) => ({ ...c, ...u.prefs }))
+      } else if (!sample) setOnboarding(true)
+    })
+  }, [])
+
   const remember = (cfg, u = user) => {
-    if (u) setUser(savePrefs(u.username, pickPrefs(cfg)) || u)
+    if (u) savePrefs(pickPrefs(cfg)).then((saved) => saved && setUser(saved))
   }
   // Logging in restores that account's saved setup; signing up saves the current one.
   const signedIn = (u, mode, cfg = config) => {
@@ -51,8 +60,8 @@ export default function App() {
     else remember(cfg)
     setOnboarding(false)
   }
-  const signOut = () => {
-    logOut()
+  const signOut = async () => {
+    await logOut()
     setUser(null)
     setConfig(DEFAULT_CONFIG)
   }
@@ -82,13 +91,7 @@ export default function App() {
     )
   return (
     <div className="setup">
-      <TopNav
-        tab={phase}
-        onTab={setPhase}
-        user={user}
-        onAuth={setAuth}
-        onLogOut={signOut}
-      />
+      <TopNav tab={phase} onTab={setPhase} user={user} onAuth={setAuth} onLogOut={signOut} />
       {phase === 'credits' ? (
         <Credits />
       ) : (
@@ -102,14 +105,7 @@ export default function App() {
         />
       )}
       <footer className="foot muted tiny mono">Built at HackRU Fall 2026 · Voice by ElevenLabs</footer>
-      {onboarding && (
-        <Onboarding
-          initial={config}
-          user={user}
-          onDone={finishOnboarding}
-          onClose={() => setOnboarding(false)}
-        />
-      )}
+      {onboarding && <Onboarding initial={config} user={user} onDone={finishOnboarding} onClose={() => setOnboarding(false)} />}
       {auth && (
         <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="ob-title">
           <div className="dialog">

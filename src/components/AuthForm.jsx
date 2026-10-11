@@ -3,8 +3,12 @@ import { logIn, PASSWORD_RULE, signUp, USERNAME_RULE } from '../lib/accounts.js'
 
 // Sign up (username + password, optional email) or log in (username or email + password).
 // onSuccess(user, mode) fires after the account is created or the password checks out.
-export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, secondary }) {
-  const [mode, setMode] = useState(initialMode)
+export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, onModeChange, secondary }) {
+  const [mode, setModeState] = useState(initialMode)
+  const setMode = (m) => {
+    setModeState(m)
+    onModeChange?.(m)
+  }
   const [username, setUsername] = useState('')
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
@@ -33,7 +37,7 @@ export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, sec
       <h2 id="ob-title">{mode === 'signup' ? 'Create an account' : 'Log in'}</h2>
       <p className="muted">
         {mode === 'signup'
-          ? 'Save your settings so they load automatically when you log in. Accounts are stored in this browser.'
+          ? 'Save your settings so they load automatically whenever you log in, on any device.'
           : 'Use your username, or the email attached to your account.'}
       </p>
 
@@ -53,12 +57,7 @@ export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, sec
           </label>
           <label className="field">
             <span>Password</span>
-            <input
-              type="password"
-              value={password}
-              autoComplete="new-password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <input type="password" value={password} autoComplete="new-password" onChange={(e) => setPassword(e.target.value)} />
             <span className="tiny muted hint">{PASSWORD_RULE}</span>
           </label>
           <label className="field">

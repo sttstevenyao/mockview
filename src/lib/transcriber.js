@@ -141,7 +141,10 @@ export function createTranscriber({ onUpdate, onError, onEngine }) {
       })
       const data = await r.json().catch(() => ({}))
       if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`)
-      if (myGen === gen) ready[mySeq] = String(data.text || '').replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ')
+      if (myGen === gen)
+        ready[mySeq] = String(data.text || '')
+          .replace(/\([^)]*\)|\[[^\]]*\]/g, ' ')
+          .replace(/\s+/g, ' ')
     } catch (e) {
       if (myGen === gen) {
         ready[mySeq] = ''

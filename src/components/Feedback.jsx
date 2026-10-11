@@ -94,8 +94,8 @@ function EmptyState({ onSample, onSetup }) {
       <div className="panel empty">
         <h2>We didn’t capture any answers</h2>
         <p className="muted">
-          Allow microphone access when the browser asks, or type your answers in the box under the live transcript. You
-          can also open a sample report.
+          Allow microphone access when the browser asks, or type your answers in the box under the live transcript. You can also
+          open a sample report.
         </p>
         <div className="row center">
           <button className="btn primary" onClick={onSample}>

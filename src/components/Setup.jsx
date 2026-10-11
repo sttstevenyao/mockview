@@ -58,10 +58,14 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample }) 
   return (
     <>
       <header className="hero">
-        <h1>{user ? `Welcome, ${cfg.name && cfg.name !== 'Candidate' ? cfg.name : user.username}.` : 'Practice the interview before it counts.'}</h1>
+        <h1>
+          {user
+            ? `Welcome, ${cfg.name && cfg.name !== 'Candidate' ? cfg.name : user.username}.`
+            : 'Practice the interview before it counts.'}
+        </h1>
         <p className="muted">
-          An ElevenLabs-voiced interviewer asks behavioral questions out loud. MockView grades your delivery as you talk
-          (filler words, pace, confidence, STAR structure) and then shows you how to say it better.
+          An ElevenLabs-voiced interviewer asks behavioral questions out loud. MockView grades your delivery as you talk (filler
+          words, pace, confidence, STAR structure) and then shows you how to say it better.
         </p>
       </header>
 
@@ -136,8 +140,8 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample }) 
             <span className="step">04</span> Start
           </h2>
           <p className="muted tiny">
-            {MODES.find((x) => x.id === cfg.mode)?.desc} The interviewer reacts to each answer, and if it can’t hear you it
-            will ask again before stopping.
+            {MODES.find((x) => x.id === cfg.mode)?.desc} The interviewer reacts to each answer, and if it can’t hear you it will
+            ask again before stopping.
           </p>
 
           <label className="toggle">

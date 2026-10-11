@@ -14,7 +14,7 @@
 |---|---|
 | 🗣️ **ElevenLabs-voiced interviewer** | Three personas (Friendly Recruiter, Hiring Manager, Bar Raiser) and four premade ElevenLabs voices. Choose **Realistic** (`eleven_multilingual_v2`) or **Low latency** (`eleven_flash_v2_5`). |
 | 🎭 **Custom mannerisms** | Speaking pace, expressiveness, reaction style (warm / neutral / curt / silent), natural backchannel ("Mm-hmm…"), **follow-up probing** for vague answers, and **interruptions** for answers that run long. |
-| 👋 **Guided onboarding + accounts** | Pop-up questions on first visit (name, experience level, field, role, session length), then an optional account (username + password, email optional) that saves your preferences. Log in with your username or email. Accounts live in the browser, with passwords stored only as salted PBKDF2 hashes. |
+| 👋 **Guided onboarding + accounts** | Pop-up questions on first visit (name, experience level, field, role, session length), then an optional account (username + password, email optional) that saves your preferences. Log in with your username or email. Accounts are stored server-side in a private Vercel Blob store, passwords are hashed with scrypt, and sessions use a signed HttpOnly cookie, so you can log in from any device. |
 | 💬 **Reactive interviewer** | After each answer the interviewer responds to what you actually said: praise for a quantified STAR answer, "I didn't hear how it turned out" when the result is missing, and never praise for an empty answer. |
 | 🤫 **Silence handling** | If it hears nothing, the interviewer asks "Sorry, what was that?". After repeated silence it stops and asks you to check your mic and restart. |
 | 🌐 **Works in Brave & Firefox** | Where built-in speech recognition is missing or blocked, answers are transcribed with **ElevenLabs Scribe** instead. You can also type answers. |
@@ -46,7 +46,8 @@ The API key stays server-side, behind a small proxy ([`server/elevenlabs.js`](se
 - **Voice in:** Web Speech API (`webkitSpeechRecognition`) for zero-latency transcripts, with ElevenLabs Speech-to-Text (Scribe) as the fallback
 - **Audio analysis:** Web Audio API, with autocorrelation pitch detection, RMS loudness and an adaptive noise floor
 - **Grading engine:** a deterministic local rules engine ([`src/lib/analysis.js`](src/lib/analysis.js)) with regex dictionaries for fillers, hedges and red flags, STAR detection, rule-based rewrites, and an LCS word diff. No LLM calls, so scoring is instant and every point can be explained.
-- **Hosting:** Vercel (static site + two serverless functions, [`api/tts.js`](api/tts.js) and [`api/stt.js`](api/stt.js))
+- **Hosting:** Vercel (static site + serverless functions [`api/tts.js`](api/tts.js), [`api/stt.js`](api/stt.js) and [`api/auth.js`](api/auth.js))
+- **Accounts:** private Vercel Blob store, scrypt password hashes, HMAC-signed HttpOnly session cookie
 
 ## 🚀 Getting started
 
@@ -72,8 +73,12 @@ Allow microphone access when Chrome asks. Tips:
 npm i -g vercel
 vercel                       # accept the detected Vite defaults
 vercel env add ELEVENLABS_API_KEY
+vercel blob create-store mockview-accounts --access private   # account storage (adds BLOB_READ_WRITE_TOKEN)
+openssl rand -hex 32 | vercel env add AUTH_SECRET production  # signs login sessions
 vercel --prod
 ```
+
+To run accounts locally, `vercel env pull .env.local` after creating the store, then add an `AUTH_SECRET` line to `.env.local`.
 
 ## 🗂️ Project structure
 
@@ -82,6 +87,8 @@ mockview/
 ├── api/tts.js                 # Vercel serverless proxy → ElevenLabs Text-to-Speech
 ├── api/stt.js                 # Vercel serverless proxy → ElevenLabs Speech-to-Text (Scribe)
 ├── server/elevenlabs.js       # shared ElevenLabs TTS + STT calls (dev + prod)
+├── api/auth.js                # Vercel serverless accounts API (sign up, log in, log out, prefs)
+├── server/auth.js             # accounts: scrypt hashes, signed session cookie, private Vercel Blob storage
 ├── server/guard.js            # same-origin check + per-IP rate limit
 ├── vite.config.js             # serves /api/tts and /api/stt during `npm run dev`
 ├── src/
@@ -101,7 +108,7 @@ mockview/
 │   │   ├── tts.js             # ElevenLabs client, cache, fallback
 │   │   ├── transcriber.js     # Web Speech API + ElevenLabs Scribe engines
 │   │   ├── reactions.js       # interviewer reactions and silence prompts
-│   │   ├── accounts.js        # username/password accounts (PBKDF2 hashes, localStorage)
+│   │   ├── accounts.js        # account client (calls /api/auth)
 │   │   └── audio.js           # shared AudioContext + analysers
 │   └── data/questions.js      # question banks, personas, mannerisms, sample data
 └── showcase/                  # ready-to-copy files for the ElevenLabs Showcase PR

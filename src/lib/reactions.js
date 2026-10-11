@@ -48,11 +48,17 @@ const LINES = {
     curt: ['You’re rushing.'],
   },
   number: {
-    warm: ['I like that you put a number on the result. That’s really strong.', 'Nice, the concrete numbers make that convincing.'],
+    warm: [
+      'I like that you put a number on the result. That’s really strong.',
+      'Nice, the concrete numbers make that convincing.',
+    ],
     curt: ['Good. The numbers help.'],
   },
   strong: {
-    warm: ['That’s a well-structured answer. Clear situation, what you did, and how it turned out.', 'Really solid. That’s exactly the kind of example I’m looking for.'],
+    warm: [
+      'That’s a well-structured answer. Clear situation, what you did, and how it turned out.',
+      'Really solid. That’s exactly the kind of example I’m looking for.',
+    ],
     curt: ['Solid answer.'],
   },
   ok: {

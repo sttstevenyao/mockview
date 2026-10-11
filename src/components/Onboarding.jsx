@@ -130,12 +130,7 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
             <p className="muted">Questions are picked from this field.</p>
             <div className="ob-tracks">
               {TRACKS.map((t) => (
-                <button
-                  type="button"
-                  key={t.id}
-                  className={a.track === t.id ? 'on' : ''}
-                  onClick={() => set('track', t.id)}
-                >
+                <button type="button" key={t.id} className={a.track === t.id ? 'on' : ''} onClick={() => set('track', t.id)}>
                   {t.label}
                 </button>
               ))}
@@ -205,8 +200,8 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
 
         {step === 4 && (
           <AuthForm
-            key={authMode}
             initialMode={authMode}
+            onModeChange={setAuthMode}
             prefs={pickPrefs(answers())}
             onSuccess={(u, mode) => onDone(answers(), u, mode)}
             secondary={

@@ -1,8 +1,14 @@
 const TEAM = ['Zexing Yao', 'Soham Bajaj', 'Kevin Wang', 'Daniel Kim']
 
 const BUILT_WITH = [
-  ['ElevenLabs Text to Speech', 'The interviewer’s voice and the “Hear Ideal Delivery” playback (eleven_multilingual_v2, eleven_flash_v2_5).'],
-  ['ElevenLabs Speech to Text (Scribe)', 'Transcribes your answers in browsers that block built-in speech recognition, like Brave.'],
+  [
+    'ElevenLabs Text to Speech',
+    'The interviewer’s voice and the “Hear Ideal Delivery” playback (eleven_multilingual_v2, eleven_flash_v2_5).',
+  ],
+  [
+    'ElevenLabs Speech to Text (Scribe)',
+    'Transcribes your answers in browsers that block built-in speech recognition, like Brave.',
+  ],
   ['Web Speech API', 'Live, zero-latency transcription in Chrome, Edge, and Safari.'],
   ['Web Audio API', 'Waveform visualizer, loudness, and pitch analysis of your voice.'],
   ['React + Vite', 'Front end and build tooling.'],

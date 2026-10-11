@@ -28,7 +28,11 @@ const fmt = (s) => {
 }
 const pick = (a) => a[Math.floor(Math.random() * a.length)]
 const BREAK = '<break time="0.6s" />' // ElevenLabs pause tag: a natural beat before the question
-const plain = (t) => t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+const plain = (t) =>
+  t
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 const NUDGE_AFTER_MS = 9000 // silence before the interviewer asks "what?"
 const MAX_NUDGES = 2 // after this many unanswered nudges, the interview stops
 
@@ -608,7 +612,9 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
                 S.current.lastActivity = Date.now()
               }}
               disabled={!listening || simulating}
-              placeholder={listening ? 'Mic not working? Type your answer here and press Enter' : 'Typing opens when it’s your turn'}
+              placeholder={
+                listening ? 'Mic not working? Type your answer here and press Enter' : 'Typing opens when it’s your turn'
+              }
               aria-label="Type your answer"
             />
             <button className="btn ghost" disabled={!listening || !typed.trim()}>
@@ -672,8 +678,8 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
           <div className="dialog">
             <h2 id="silent-title">We couldn’t hear you</h2>
             <p className="muted">
-              {persona.name} didn’t hear an answer for a while, so the interview stopped. Check that your microphone is
-              plugged in and allowed for this site, then restart. If voice still doesn’t work, you can type your answers.
+              {persona.name} didn’t hear an answer for a while, so the interview stopped. Check that your microphone is plugged in
+              and allowed for this site, then restart. If voice still doesn’t work, you can type your answers.
             </p>
             <div className="row">
               <button className="btn primary" onClick={onRestart}>
