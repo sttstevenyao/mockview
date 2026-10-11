@@ -52,7 +52,7 @@ The API key stays server-side, behind a small proxy ([`server/elevenlabs.js`](se
 - **Voice out:** ElevenLabs Text-to-Speech API
 - **Voice in:** Web Speech API (`webkitSpeechRecognition`) for zero-latency transcripts, with ElevenLabs Speech-to-Text (Scribe) as the fallback
 - **Audio analysis:** Web Audio API, with autocorrelation pitch detection, RMS loudness and an adaptive noise floor
-- **Grading engine:** a deterministic local rules engine ([`src/lib/analysis.js`](src/lib/analysis.js)) with regex dictionaries for fillers, hedges and red flags, STAR detection, rule-based rewrites, and an LCS word diff. No LLM calls, so scoring is instant and every point can be explained.
+- **Grading engine:** a deterministic local rules engine ([`src/lib/analysis.js`](src/lib/analysis.js)) with regex dictionaries for fillers, hedges and red flags, STAR detection, rule-based rewrites, and an LCS word diff. Scoring is instant, runs offline, and every point can be explained.
 - **Hosting:** Vercel (static site + serverless functions [`api/tts.js`](api/tts.js), [`api/stt.js`](api/stt.js) and [`api/auth.js`](api/auth.js))
 - **Accounts:** private Vercel Blob store, scrypt password hashes, HMAC-signed HttpOnly session cookie
 

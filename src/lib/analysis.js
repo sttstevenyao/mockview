@@ -1,5 +1,5 @@
 // MockView grading engine: deterministic, regex-driven, runs entirely in the
-// browser with zero latency. No LLM calls — every score is explainable.
+// browser with zero latency. Every score is explainable.
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
 export const countWords = (t) => (t.trim() ? t.trim().split(/\s+/).length : 0)

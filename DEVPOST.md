@@ -55,14 +55,14 @@ The interviewer **reacts to what you actually said**. A quantified STAR answer e
 - **ElevenLabs Text to Speech** is the interviewer's voice. Every line goes through `/v1/text-to-speech/{voice_id}`. Each persona's mannerisms map onto voice settings (pace to `speed`, expressiveness to lower `stability` and higher `style`), so the Bar Raiser *sounds* terse and the recruiter sounds warm. `<break time="0.6s"/>` tags add human pauses. Users choose `eleven_multilingual_v2` (most realistic) or `eleven_flash_v2_5` (lowest latency); "Hear ideal delivery" always uses Multilingual v2.
 - **No dead air:** while one question plays, the next question's audio is prefetched, and audio is cached per sentence.
 - **ElevenLabs Speech to Text (Scribe)** handles the other direction where browsers can't. Brave blocks the built-in recognizer and Firefox doesn't ship one, so there we record the mic in pause-to-pause clips, detected from the live loudness level, and transcribe each clip with `scribe_v1` as soon as you pause. Clips without detected speech are never sent, so silence can't turn into invented words.
-- **Speech in elsewhere:** the browser's Web Speech API gives zero-latency transcripts. We wrapped it to restart after Chrome's silence timeouts and pause it while the interviewer talks, so it never transcribes the AI's own voice.
+- **Speech in elsewhere:** the browser's Web Speech API gives zero-latency transcripts. We wrapped it to restart after Chrome's silence timeouts and pause it while the interviewer talks, so it never transcribes the interviewer's own voice.
 - **Grading engine:** a deterministic rules engine in the browser: regex dictionaries for fillers, hedges and 13 kinds of red flags, STAR detection, a confidence formula, a rule-based sentence rewriter, and a longest-common-subsequence word diff. Scoring is instant, and every point can be explained.
 - **Vocal analysis:** the Web Audio API feeds our own autocorrelation pitch detector, loudness meter and adaptive noise floor to score projection, pitch variety, steadiness and pauses.
 - **Backend:** Vercel serverless functions keep the ElevenLabs key off the client. Accounts live in a private Vercel Blob store, with scrypt password hashes and an HMAC-signed HttpOnly session cookie, so you can log in from any device.
 
 ## Challenges we ran into
 
-- **The AI heard itself.** With laptop speakers, speech recognition transcribed the interviewer's ElevenLabs voice as the user's answer. We made the flow strict turn-taking: the mic pauses while the interviewer speaks.
+- **The interviewer heard itself.** With laptop speakers, speech recognition transcribed the interviewer's ElevenLabs voice as the user's answer. We made the flow strict turn-taking: the mic pauses while the interviewer speaks.
 - **Chrome stops listening after a few seconds of silence**, which cut answers off mid-thought. Our transcriber restarts silently and stitches the results together.
 - **Brave blocks speech recognition.** The API exists but fails with a network error, because Brave won't send audio to Google. We detect Brave and that error and switch to ElevenLabs Scribe automatically.
 - **Transcripts have no punctuation**, so "find the weakest sentence" had no sentences. We used the recognizer's pause-delimited chunks as boundaries and split long runs at conjunctions.
@@ -76,7 +76,7 @@ The interviewer **reacts to what you actually said**. A quantified STAR answer e
 - Using ElevenLabs for **both sides of the conversation**: Text to Speech for the interviewer, and Speech to Text so the app works in any modern browser.
 - The **"Hear ideal delivery"** moment, where a student hears what a strong version of their own sentence sounds like.
 - An interviewer that **listens**: reactions grounded in what you said, and honest handling of silence.
-- Our own **pitch and loudness analysis** from raw audio samples, and a grading engine with zero AI latency that explains every score.
+- Our own **pitch and loudness analysis** from raw audio samples, and a grading engine that scores instantly in the browser and explains every point.
 
 ## What we learned
 
