@@ -12,6 +12,7 @@ import Onboarding from './components/Onboarding.jsx'
 import EditAnswers from './components/EditAnswers.jsx'
 import Intro from './components/Intro.jsx'
 import TopNav from './components/TopNav.jsx'
+import Toast from './components/Toast.jsx'
 import AuthForm from './components/AuthForm.jsx'
 import { DEFAULT_CONFIG, sampleResult } from './data/questions.js'
 import { initAudio } from './lib/audio.js'
@@ -47,6 +48,8 @@ export default function App() {
   }
   const revealPage = () => setIntro((v) => (v ? 'fading' : v))
   const [auth, setAuth] = useState(null) // 'login' | 'signup' dialog opened from the header
+  const [toast, setToast] = useState(null) // { id, text } after logging in or out
+  const notify = (text) => setToast({ id: Date.now(), text })
 
   // Restore the session cookie's account; if nobody is logged in, the setup questions pop up.
   useEffect(() => {
@@ -77,6 +80,7 @@ export default function App() {
   // Logging in restores that account's saved setup; signing up saves the current one.
   const signedIn = (u, mode, cfg = config) => {
     setUser(u)
+    notify(mode === 'login' ? `Logged in as ${u.email}` : `Account created for ${u.email}`)
     if (mode === 'login' && u.prefs)
       setConfig({
         ...DEFAULT_CONFIG,
@@ -109,6 +113,7 @@ export default function App() {
   const signOut = async () => {
     await logOut()
     setUser(null)
+    notify('Logged out')
     setConfig((c) => ({ ...DEFAULT_CONFIG, settings: c.settings, history: loadHistory() })) // appearance stays with the device
   }
 
@@ -149,7 +154,8 @@ export default function App() {
       <TopNav tab={phase} onTab={setPhase} user={user} onAuth={setAuth} onLogOut={signOut} />
       {/* Mounted as the opening animation fades, so the page's entrance cascade plays underneath */}
       {intro !== 'playing' && (
-        <div key={phase} className={`tab-view ${slide.current}`}>
+        // Keyed on the account too: logging in or out replays the page's entrance with the new setup.
+        <div key={`${phase}:${user?.email || ''}`} className={`tab-view ${slide.current}`}>
           {phase === 'progress' ? (
             <Progress history={config.history} onStart={() => setPhase('setup')} />
           ) : phase === 'credits' ? (
@@ -180,10 +186,12 @@ export default function App() {
               onStart={start}
               onSample={showSample}
               onSettings={() => setPhase('settings')}
+              onProgress={() => setPhase('progress')}
             />
           )}
         </div>
       )}
+      {toast && <Toast key={toast.id} text={toast.text} onDone={() => setToast(null)} />}
       <footer className="foot muted tiny mono">Built at HackRU Fall 2026 · Voice by ElevenLabs</footer>
       {onboarding && !intro && (
         <Onboarding initial={config} user={user} onDone={finishOnboarding} onClose={() => setOnboarding(false)} />

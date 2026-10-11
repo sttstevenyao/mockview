@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { LEVELS, PERSONAS, TRACKS, VOICES } from '../data/questions.js'
 import ResumePanel from './ResumePanel.jsx'
+import PracticeStats from './PracticeStats.jsx'
 import WaveOrb from './WaveOrb.jsx'
 import { initAudio } from '../lib/audio.js'
 import { checkTtsHealth, speak } from '../lib/tts.js'
@@ -17,7 +18,7 @@ function Check({ ok, warn, label, detail }) {
   )
 }
 
-export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, onSettings }) {
+export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, onSettings, onProgress }) {
   const [health, setHealth] = useState(null)
   const [previewing, setPreviewing] = useState(false)
   const [voiceStatus, setVoiceStatus] = useState(null) // result of the last Preview
@@ -211,6 +212,7 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
           <ResumePanel resume={cfg.resume} useResume={cfg.useResume} onChange={(patch) => setCfg((c) => ({ ...c, ...patch }))} />
         </div>
       </div>
+      <PracticeStats history={cfg.history} onProgress={onProgress} />
     </>
   )
 }

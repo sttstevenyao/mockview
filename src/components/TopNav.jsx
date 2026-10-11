@@ -40,25 +40,31 @@ export default function TopNav({ tab, onTab, user, onAuth, onLogOut }) {
         </div>
       </div>
       <div className="row nav-right">
-        {user ? (
-          <>
-            <span className="tiny muted hide-sm">
-              <b className="plain">{user.email}</b>
-            </span>
-            <button className="btn ghost sm" onClick={onLogOut}>
-              Log out
-            </button>
-          </>
-        ) : (
-          <>
-            <button className="btn ghost sm" onClick={() => onAuth('login')}>
-              Log in
-            </button>
-            <button className="btn primary sm" onClick={() => onAuth('signup')}>
-              Sign up
-            </button>
-          </>
-        )}
+        {/* Keyed on the account so logging in or out swaps the controls with an animation */}
+        <div key={user?.email || 'guest'} className="row acct-swap">
+          {user ? (
+            <>
+              <span className="acct-badge" aria-hidden="true">
+                {user.email[0].toUpperCase()}
+              </span>
+              <span className="tiny muted hide-sm">
+                <b className="plain">{user.email}</b>
+              </span>
+              <button className="btn ghost sm" onClick={onLogOut}>
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn ghost sm" onClick={() => onAuth('login')}>
+                Log in
+              </button>
+              <button className="btn primary sm" onClick={() => onAuth('signup')}>
+                Sign up
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   )
