@@ -3,6 +3,7 @@ import Brand from './Brand.jsx'
 
 const TABS = [
   ['setup', 'Practice'],
+  ['progress', 'Progress'],
   ['about', 'About'],
   ['credits', 'Credits'],
   ['settings', 'Settings'],

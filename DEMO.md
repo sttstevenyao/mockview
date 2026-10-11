@@ -15,7 +15,7 @@ Judging is in person at your table from 1:00 PM ET. Judges score **functionality
 
 **1. Hook (15 s).** "Most students know their stories. They lose the interview in how they tell them: rambling, saying 'um', forgetting the result. MockView is a practice interviewer you talk to out loud that tells you exactly how to say it better."
 
-**2. Setup (20 s).** On Practice: "You tell it your level and field, pick an interviewer, and optionally upload a resume so it asks about your own projects." Point at the three personas: "The Bar Raiser interrupts long answers. Each persona's mannerisms map to ElevenLabs voice settings, so they sound different."
+**2. Setup (20 s).** On Practice: "You tell it your level and field, pick an interviewer, and optionally upload a resume so it asks about your own projects." Point at the three interviewers: "Lightweight is encouraging, Harsh is skeptical and cuts off long answers. Each one's mannerisms map to ElevenLabs voice settings, so they sound different."
 
 **3. Live interview (60 s).** Click **Start interview**. The ElevenLabs voice asks the question.
 - Answer badly on purpose for 15 seconds: "So um, basically my manager was kind of terrible, and honestly it wasn't my fault…"

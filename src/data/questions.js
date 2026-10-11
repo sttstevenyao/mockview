@@ -432,35 +432,35 @@ export function extendQueue(queue, track) {
 export const PERSONAS = {
   friendly: {
     id: 'friendly',
-    name: 'Alex',
-    title: 'Friendly Recruiter',
+    name: 'Lightweight',
+    title: 'Encouraging interviewer',
     desc: 'Warm and encouraging. Says “mm-hmm”, never interrupts.',
     intro: (name, fmt, role, level) =>
-      `Hi ${name}! I'm Alex, and I'll be interviewing you today${role}. This is a ${fmt} behavioral round. ${level} Take a breath, use specific examples, and let's begin.`,
+      `Hi ${name}! I'll be interviewing you today${role}. This is a ${fmt} behavioral round. ${level} Take a breath, use specific examples, and let's begin.`,
     closing: (name) => `That wraps up our session, ${name}. Thanks so much. Let's look at your feedback together.`,
-    preview: "Hi there! I'm Alex. Ready when you are.",
+    preview: 'Hi there! Ready when you are.',
     mannerisms: { speed: 1.0, expressiveness: 0.7, acks: 'warm', backchannel: true, followUps: false, interruptSec: 0 },
   },
   neutral: {
     id: 'neutral',
-    name: 'Jordan',
-    title: 'Hiring Manager',
+    name: 'Moderate',
+    title: 'Professional interviewer',
     desc: 'Professional and even. Asks follow-ups when you’re vague.',
     intro: (name, fmt, role, level) =>
-      `Hello ${name}, I'm Jordan, the hiring manager. This will be a ${fmt} behavioral interview${role}. ${level} Let's get started.`,
+      `Hello ${name}, I'm the hiring manager. This will be a ${fmt} behavioral interview${role}. ${level} Let's get started.`,
     closing: (name) => `Thank you, ${name}. That concludes the interview. Your report is ready.`,
-    preview: "Hello, I'm Jordan, the hiring manager. Let's begin.",
+    preview: "Hello, I'm the hiring manager. Let's begin.",
     mannerisms: { speed: 1.0, expressiveness: 0.45, acks: 'neutral', backchannel: false, followUps: true, interruptSec: 0 },
   },
   tough: {
     id: 'tough',
-    name: 'Morgan',
-    title: 'Bar Raiser',
+    name: 'Harsh',
+    title: 'Skeptical interviewer',
     desc: 'Terse and skeptical. Probes for numbers, cuts off long answers.',
     intro: (name, fmt, role) =>
-      `${name}. I'm Morgan. This is a ${fmt} round${role}, and time is limited, so be concise and give me specifics. First question.`,
+      `${name}. This is a ${fmt} round${role}, and time is limited, so be concise and give me specifics. First question.`,
     closing: (name) => `We're done here, ${name}. Let's see how you did.`,
-    preview: "I'm Morgan. Be specific, and be concise.",
+    preview: 'Be specific, and be concise.',
     mannerisms: { speed: 1.08, expressiveness: 0.25, acks: 'curt', backchannel: false, followUps: true, interruptSec: 90 },
   },
 }

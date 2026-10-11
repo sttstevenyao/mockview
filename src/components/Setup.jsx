@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { LEVELS, PERSONAS, TRACKS, VOICES } from '../data/questions.js'
 import ResumePanel from './ResumePanel.jsx'
+import WaveOrb from './WaveOrb.jsx'
 import { initAudio } from '../lib/audio.js'
 import { checkTtsHealth, speak } from '../lib/tts.js'
 import { defaultEngine, ENGINE_LABEL } from '../lib/transcriber.js'
@@ -73,6 +74,7 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
             </>
           )}
         </h1>
+        <WaveOrb />
       </header>
 
       <div className="setup-grid">

@@ -91,6 +91,27 @@ function downloadTranscript(result, report) {
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
+// Score and filler-rate change compared with the previous saved session.
+function SinceLast({ prev, now }) {
+  const dScore = now.score - prev.score
+  const fillers = now.words ? Math.round((now.fillers / now.words) * 1000) / 10 : 0
+  const dFill = Math.round((fillers - prev.fillers) * 10) / 10
+  const sign = (n) => (n > 0 ? '+' : '')
+  return (
+    <div className="since-last tiny">
+      <span className="muted">Since last time</span>
+      <span className={`mono ${dScore >= 0 ? 'good' : 'bad'}`}>
+        {sign(dScore)}
+        {dScore} score
+      </span>
+      <span className={`mono ${dFill <= 0 ? 'good' : 'bad'}`}>
+        {sign(dFill)}
+        {dFill} fillers/100
+      </span>
+    </div>
+  )
+}
+
 function EmptyState({ onSample, onSetup }) {
   return (
     <div className="feedback">
@@ -197,7 +218,10 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
       </header>
 
       <section className="fb-summary panel">
-        <ScoreRing value={o.score} grade={o.grade} />
+        <div className="ring-col">
+          <ScoreRing value={o.score} grade={o.grade} />
+          {result.previous && <SinceLast prev={result.previous} now={o} />}
+        </div>
         <div className="tiles">
           <div className="tile">
             <span className="muted tiny">Questions</span>

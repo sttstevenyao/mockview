@@ -5,6 +5,9 @@ import Feedback from './components/Feedback.jsx'
 import Credits from './components/Credits.jsx'
 import About from './components/About.jsx'
 import Settings from './components/Settings.jsx'
+import Progress from './components/Progress.jsx'
+import { addSession, loadHistory, mergeHistory, saveHistory, summarize } from './lib/history.js'
+import { analyzeSession } from './lib/analysis.js'
 import Onboarding from './components/Onboarding.jsx'
 import EditAnswers from './components/EditAnswers.jsx'
 import Intro from './components/Intro.jsx'
@@ -21,7 +24,7 @@ export default function App() {
   const [user, setUser] = useState(null)
   const [phase, setPhase] = useState(sample ? 'feedback' : 'setup')
   // config.settings holds the Settings tab values; they travel with the rest of your saved setup.
-  const [config, setConfig] = useState(() => ({ ...DEFAULT_CONFIG, settings: loadSettings() }))
+  const [config, setConfig] = useState(() => ({ ...DEFAULT_CONFIG, settings: loadSettings(), history: loadHistory() }))
   const [result, setResult] = useState(sample ? sampleResult : null)
   const [runId, setRunId] = useState(0)
   const [onboarding, setOnboarding] = useState(false)
@@ -50,7 +53,13 @@ export default function App() {
     currentUser().then((u) => {
       if (u) {
         setUser(u)
-        if (u.prefs) setConfig((c) => ({ ...c, ...u.prefs, settings: withDefaults(u.prefs.settings || c.settings) }))
+        if (u.prefs)
+          setConfig((c) => ({
+            ...c,
+            ...u.prefs,
+            settings: withDefaults(u.prefs.settings || c.settings),
+            history: mergeHistory(c.history, u.prefs.history),
+          }))
       } else if (!sample) setOnboarding(true)
     })
   }, [])
@@ -60,6 +69,8 @@ export default function App() {
     saveSettings(config.settings)
   }, [config.settings])
 
+  useEffect(() => saveHistory(config.history), [config.history])
+
   const remember = (cfg, u = user) => {
     if (u) savePrefs(pickPrefs(cfg)).then((saved) => saved && setUser(saved))
   }
@@ -67,7 +78,12 @@ export default function App() {
   const signedIn = (u, mode, cfg = config) => {
     setUser(u)
     if (mode === 'login' && u.prefs)
-      setConfig({ ...DEFAULT_CONFIG, ...u.prefs, settings: withDefaults(u.prefs.settings || cfg.settings) })
+      setConfig({
+        ...DEFAULT_CONFIG,
+        ...u.prefs,
+        settings: withDefaults(u.prefs.settings || cfg.settings),
+        history: mergeHistory(cfg.history, u.prefs.history),
+      })
     else remember(cfg, u)
   }
 
@@ -93,7 +109,7 @@ export default function App() {
   const signOut = async () => {
     await logOut()
     setUser(null)
-    setConfig((c) => ({ ...DEFAULT_CONFIG, settings: c.settings })) // appearance stays with the device
+    setConfig((c) => ({ ...DEFAULT_CONFIG, settings: c.settings, history: loadHistory() })) // appearance stays with the device
   }
 
   if (phase === 'interview')
@@ -102,7 +118,15 @@ export default function App() {
         key={runId}
         config={config}
         onComplete={(r) => {
-          setResult(r)
+          // Save a summary of real sessions (not empty ones) to the practice history.
+          const report = analyzeSession(r.answers)
+          const previous = config.history[config.history.length - 1] || null
+          if (report.overall.words >= 3) {
+            const cfg = { ...config, history: addSession(config.history, summarize(report, config)) }
+            setConfig(cfg)
+            remember(cfg)
+          }
+          setResult({ ...r, previous })
           setPhase('feedback')
         }}
         onRestart={() => start(config)}
@@ -126,7 +150,9 @@ export default function App() {
       {/* Mounted as the opening animation fades, so the page's entrance cascade plays underneath */}
       {intro !== 'playing' && (
         <div key={phase} className="tab-view">
-          {phase === 'credits' ? (
+          {phase === 'progress' ? (
+            <Progress history={config.history} onStart={() => setPhase('setup')} />
+          ) : phase === 'credits' ? (
             <Credits />
           ) : phase === 'settings' ? (
             <Settings

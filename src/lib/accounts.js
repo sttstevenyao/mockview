@@ -3,7 +3,20 @@
 // sends automatically; this file never sees the password after submitting it.
 
 // The setup fields worth remembering between visits.
-const PREF_KEYS = ['name', 'track', 'role', 'level', 'mode', 'count', 'minutes', 'persona', 'mannerisms', 'voiceId', 'settings']
+const PREF_KEYS = [
+  'name',
+  'track',
+  'role',
+  'level',
+  'mode',
+  'count',
+  'minutes',
+  'persona',
+  'mannerisms',
+  'voiceId',
+  'settings',
+  'history',
+]
 export const pickPrefs = (cfg) => Object.fromEntries(PREF_KEYS.filter((k) => k in cfg).map((k) => [k, cfg[k]]))
 
 // Returns { user } or { error }.

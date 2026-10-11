@@ -97,7 +97,7 @@ export async function handleAuth({ method, body = {}, cookie, env, allowed }) {
     const id = sessionUser(cookie, secret)
     if (!id) return reply(401, { error: 'Not logged in.' })
     const prefs = body.prefs && typeof body.prefs === 'object' ? body.prefs : null
-    if (!prefs || JSON.stringify(prefs).length > 4000) return reply(400, { error: 'Invalid preferences.' })
+    if (!prefs || JSON.stringify(prefs).length > 16000) return reply(400, { error: 'Invalid preferences.' })
     const user = await readJson(accountPath(id), token)
     if (!user) return reply(401, { error: 'Account not found.' })
     user.prefs = prefs
@@ -117,7 +117,7 @@ export async function handleAuth({ method, body = {}, cookie, env, allowed }) {
     if (password.length < 6 || password.length > 200) return reply(400, { error: 'Password must be at least 6 characters.' })
     if (await readJson(accountPath(id), token)) return reply(409, { error: 'An account already uses that email.' })
     const salt = randomBytes(16).toString('hex')
-    const prefs = body.prefs && typeof body.prefs === 'object' && JSON.stringify(body.prefs).length <= 4000 ? body.prefs : null
+    const prefs = body.prefs && typeof body.prefs === 'object' && JSON.stringify(body.prefs).length <= 16000 ? body.prefs : null
     const user = { email, salt, hash: await hashPassword(password, salt), prefs, createdAt: new Date().toISOString() }
     try {
       await writeJson(accountPath(id), user, token, false) // fails if the same email signed up a moment ago

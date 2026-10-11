@@ -585,7 +585,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
           <div className={`viz-wrap ${vizMode}`}>
             <Visualizer mode={vizMode} synthetic={speaking || simulating} />
             <span className="viz-caption mono tiny">
-              {speaking ? persona.name.toUpperCase() : listening ? (simulating ? 'SIMULATED' : 'MIC LIVE') : 'STANDBY'}
+              {speaking ? 'INTERVIEWER' : listening ? (simulating ? 'SIMULATED' : 'MIC LIVE') : 'STANDBY'}
             </span>
             {opts.captions && caption && (
               <p className="caption" key={caption}>
@@ -667,7 +667,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
               <ol className="convo-list" ref={logRef}>
                 {log.map((l, i) => (
                   <li key={i} className={`turn ${l.who}`}>
-                    <span className="mono tiny who-tag">{l.who === 'you' ? 'YOU' : persona.name.toUpperCase()}</span>
+                    <span className="mono tiny who-tag">{l.who === 'you' ? 'YOU' : 'INTERVIEWER'}</span>
                     <span className={l.text === '(no answer heard)' ? 'muted' : ''}>{l.text}</span>
                   </li>
                 ))}

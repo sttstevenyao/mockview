@@ -3266,3 +3266,373 @@ button.brand:hover span {
     zoom: 1.12;
   }
 }
+
+/* ── Header: centered, browser-style tabs ──── */
+@media (min-width: 641px) {
+  .topnav {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
+  .nav-left {
+    display: contents;
+  }
+  .nav-left .brand {
+    justify-self: start;
+  }
+  .nav-left .tabs {
+    justify-self: center;
+  }
+  .nav-right {
+    justify-self: end;
+  }
+}
+.tabs {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+}
+.tabs button {
+  position: relative;
+  z-index: 1;
+  border: none;
+  border-bottom: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+}
+.tabs button.on {
+  color: var(--text);
+}
+/* the active-tab highlight slides between tabs */
+.tab-bar {
+  top: 3px;
+  bottom: 3px;
+  height: auto;
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow:
+    0 1px 2px rgba(31, 35, 40, 0.12),
+    0 0 0 1px var(--border);
+  opacity: 1;
+}
+:root[data-theme='dark'] .tab-bar {
+  background: var(--border);
+}
+
+/* ── Hero with the revolving wave ──────────── */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+  align-items: center;
+  gap: 24px;
+  max-width: none;
+  padding: 4px 0 14px;
+}
+.wave-orb {
+  width: 100%;
+  height: 150px;
+  display: block;
+}
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .wave-orb {
+    height: 110px;
+  }
+}
+
+/* ── Framed stage with a notched header ────── */
+:root {
+  --frame: #05070a; /* the outer frame; the notch is cut from it */
+  --stage: #0d1117; /* the recessed panel everything sits on */
+}
+:root[data-theme='light'] {
+  --frame: #ffffff;
+  --stage: #edf1f5;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --frame: #ffffff;
+    --stage: #edf1f5;
+  }
+}
+body:has(.setup) {
+  background: var(--frame);
+}
+.setup {
+  max-width: none;
+  margin: 10px;
+  min-height: calc(100vh - 20px);
+  padding: 0 28px 18px;
+  background: var(--stage);
+  border-radius: 22px;
+  box-shadow: inset 0 1px 4px rgba(31, 35, 40, 0.06);
+}
+.setup > .topnav,
+.setup > .tab-view,
+.setup > .foot {
+  width: 100%;
+  max-width: 1160px;
+  margin-inline: auto;
+}
+/* cards lift off the recessed stage */
+.setup .panel {
+  background: var(--panel);
+  border-color: transparent;
+  box-shadow:
+    0 1px 2px rgba(31, 35, 40, 0.06),
+    0 8px 24px -8px rgba(31, 35, 40, 0.12);
+}
+:root[data-theme='dark'] .setup .panel {
+  border-color: var(--border);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+}
+@media (min-width: 641px) {
+  .setup .topnav {
+    position: relative;
+    padding: 0 0 10px;
+    align-items: start;
+    background: transparent;
+  }
+  .setup .topnav .brand,
+  .setup .topnav .nav-right {
+    margin-top: 14px;
+  }
+  /* the tabs sit in a notch cut from the frame */
+  .setup .tabs {
+    background: var(--frame);
+    border: none;
+    border-radius: 0 0 18px 18px;
+    padding: 6px 10px 10px;
+  }
+  .setup .tabs::before,
+  .setup .tabs::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 18px;
+    height: 18px;
+  }
+  .setup .tabs::before {
+    left: -18px;
+    background: radial-gradient(circle at 0 100%, transparent 17.5px, var(--frame) 18px);
+  }
+  .setup .tabs::after {
+    right: -18px;
+    background: radial-gradient(circle at 100% 100%, transparent 17.5px, var(--frame) 18px);
+  }
+  .setup .tab-bar {
+    top: 6px;
+    bottom: 10px;
+    background: var(--stage);
+    box-shadow: none;
+  }
+}
+@media (max-width: 640px) {
+  .setup {
+    margin: 6px;
+    min-height: calc(100vh - 12px);
+    padding: 0 14px 14px;
+    border-radius: 16px;
+  }
+}
+@media (min-width: 1600px) and (min-height: 860px) {
+  .setup {
+    min-height: calc((100vh - 20px) / 1.18);
+  }
+}
+@media (min-width: 1800px) and (min-height: 1000px) {
+  .setup {
+    min-height: calc((100vh - 20px) / 1.3);
+  }
+}
+@media (min-width: 2300px) and (min-height: 1250px) {
+  .setup {
+    min-height: calc((100vh - 20px) / 1.5);
+  }
+}
+/* the frame is body padding, so the stage plus frame is exactly one screen tall */
+body:has(.setup) {
+  padding: 10px;
+}
+.setup {
+  margin: 0;
+}
+@media (max-width: 640px) {
+  body:has(.setup) {
+    padding: 6px;
+  }
+}
+
+/* ── Progress ──────────────────────────────── */
+:root {
+  --chart: #4493f8;
+}
+:root[data-theme='light'] {
+  --chart: #0969da;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --chart: #0969da;
+  }
+}
+.progress {
+  padding: 18px 0;
+}
+.progress .about-head h1 {
+  margin-bottom: 14px;
+}
+.progress-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.progress-tiles .tile {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.progress-tiles .tile b {
+  font-size: 24px;
+}
+.chart-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.chart {
+  margin: 0;
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 14px 14px 8px;
+  box-shadow: var(--card-shadow);
+}
+.chart figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.chart-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+.chart-plot {
+  position: relative;
+}
+.chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.chart-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.chart-axis {
+  fill: var(--muted);
+  font: 10px var(--mono);
+}
+.chart-band {
+  fill: var(--good);
+  opacity: 0.1;
+}
+.chart-line {
+  fill: none;
+  stroke: var(--chart);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.chart-dot {
+  fill: var(--chart);
+  stroke: var(--panel);
+  stroke-width: 2;
+  transition: r 0.15s;
+}
+.chart-dot.on {
+  r: 6;
+}
+.chart-cross {
+  stroke: var(--border-2);
+  stroke-dasharray: 3 3;
+}
+.chart-hit {
+  fill: transparent;
+  cursor: crosshair;
+}
+.chart-tip {
+  position: absolute;
+  top: -6px;
+  transform: translate(-50%, -100%);
+  background: var(--popover);
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  padding: 5px 9px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 6px 16px var(--shadow);
+}
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  font-size: 14px;
+}
+.history-table th,
+.history-table td {
+  padding: 9px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.history-table th {
+  font: 500 11px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.history-table .num {
+  text-align: right;
+}
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+@media (max-width: 860px) {
+  .chart-grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .progress-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .history-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+.ring-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.since-last {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}

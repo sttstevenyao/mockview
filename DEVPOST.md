@@ -26,11 +26,11 @@ We're all heading into internship season. Knowing your stories is one thing; say
 
 ## What it does
 
-**Setup.** A few pop-up questions: name, language, experience level, field, role, session length. Beginner gets basic warm-up questions ("Tell me about yourself"). The other levels get behavioral questions for one of 14 fields. Upload a resume and some questions come from your own projects. Pick an interviewer: friendly recruiter, hiring manager who asks follow-ups, or a bar raiser who cuts you off after 90 seconds.
+**Setup.** A few pop-up questions: name, language, experience level, field, role, session length. Beginner gets basic warm-up questions ("Tell me about yourself"). The other levels get behavioral questions for one of 14 fields. Upload a resume and some questions come from your own projects. Pick an interviewer by difficulty: Lightweight (encouraging), Moderate (professional, asks follow-ups) or Harsh (skeptical, cuts you off after 90 seconds).
 
 **Interview.** The interviewer asks each question out loud with an ElevenLabs voice. You answer into the mic and your words show up as you talk. The side panel tracks four things: a coaching tip, a STAR checklist, your pace (115 to 175 wpm is the target) and filler words. After each answer the interviewer reacts to what you actually said: credit for a quantified result, a callout when the result is missing, never praise for an empty answer. If it hears nothing it asks "Sorry, what was that?".
 
-**Report.** Your transcript with red flags and fillers highlighted. Click one to read what the interviewer was thinking ("'Honestly'? Were the other answers dishonest?"). A diff rewrites your weakest sentence: fillers and hedges out, blame turned into ownership, a measurable result added. Sentences that have nothing to do with the question get crossed out instead. **Hear ideal delivery** plays the rewrite in the same voice, next to your original. You also get a grade, vocal analysis, your recording and a transcript download.
+**Report.** Your transcript with red flags and fillers highlighted. Click one to read what the interviewer was thinking ("'Honestly'? Were the other answers dishonest?"). A diff rewrites your weakest sentence: fillers and hedges out, blame turned into ownership, a measurable result added. Sentences that have nothing to do with the question get crossed out instead. **Hear ideal delivery** plays the rewrite in the same voice, next to your original. You also get a grade, vocal analysis, your recording, a transcript download, and how you did compared with your last session. The Progress tab charts your score, filler rate and pace across every session.
 
 **Accessibility.** Larger text, high contrast, reduced motion, captions for everything the interviewer says, screen-reader announcements and keyboard shortcuts. For non-native speakers, every question can be shown and read aloud in Spanish, Chinese, Hindi, Korean or Portuguese while you practice answering in English.
 
@@ -59,7 +59,6 @@ We're all heading into internship season. Knowing your stories is one thing; say
 
 ## What's next for MockView
 
-- Practice history on your account, so you can watch your filler rate drop over time.
 - ElevenLabs Agents for fully conversational interviews.
 - Company- and role-specific question packs.
 - A career-center mode where advisors assign practice and review reports.

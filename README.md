@@ -16,7 +16,7 @@ Built at HackRU Fall 2026 (Rutgers). Education track. Entered for Best Newbie Ha
 
 ## What it does
 
-- **Interviewer:** three personas (friendly recruiter, hiring manager, bar raiser), four ElevenLabs voices. The recruiter says "mm-hmm", the hiring manager asks follow-ups on vague answers, the bar raiser cuts you off after 90 seconds.
+- **Interviewer:** three difficulty levels and four ElevenLabs voices. Lightweight is encouraging and says "mm-hmm", Moderate is professional and asks follow-ups on vague answers, Harsh is skeptical and cuts you off after 90 seconds.
 - **Reacts to what you said:** a quantified STAR answer gets credit, a missing result gets called out, an empty answer never gets praise. Silence gets "Sorry, what was that?", and enough of it ends the session.
 - **Live panel:** coaching tip, STAR checklist, pace bar (115 to 175 wpm is the target), filler-word counter. Everything else waits for the report.
 - **Report:** transcript with red-flag and filler highlights (click one for the interviewer's inner monologue), a diff that rewrites your weakest sentence, "Hear ideal delivery" in the same voice, vocal analysis (volume, pitch variety, steadiness, pauses), your own recording, and a transcript download. Sentences unrelated to the question get crossed out instead of polished.
@@ -26,6 +26,7 @@ Built at HackRU Fall 2026 (Rutgers). Education track. Entered for Best Newbie Ha
 - **Question translation:** Spanish, Chinese, Hindi, Korean, Portuguese. The translation shows under the English question and the same voice reads it aloud; you still answer in English.
 - **Accounts:** email + password, settings sync across devices. Optional.
 - **Typing:** if the mic isn't an option, type the answer instead.
+- **Progress:** every finished session is saved. The Progress tab charts score, filler rate and pace over time, and each report shows the change since your last session. Synced to your account when logged in.
 
 ## How ElevenLabs is used
 
@@ -81,6 +82,8 @@ src/
   App.jsx                                   page flow and tabs
   components/
     Intro.jsx                               opening animation
+    WaveOrb.jsx                             revolving dotted sound wave on the home page
+    Progress.jsx                            history charts and table
     Onboarding.jsx, EditAnswers.jsx         setup questions
     AuthForm.jsx                            sign up / log in
     Setup.jsx, ResumePanel.jsx              practice page
@@ -92,6 +95,7 @@ src/
     reactions.js                            interviewer reactions, silence prompts
     transcriber.js                          Web Speech + Scribe (real-time and clips)
     voiceAnalysis.js                        pitch, loudness, pauses
+    history.js                              saved session summaries
     tts.js, audio.js, accounts.js, settings.js, resume.js
   data/
     questions.js                            question banks, personas, sample data
