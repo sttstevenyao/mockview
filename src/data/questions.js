@@ -21,10 +21,10 @@ export const TRACKS = [
 ]
 
 export const LEVELS = [
-  { id: 'beginner', label: 'Beginner', line: 'These are warm-up questions. Short, clear answers are perfect.' },
-  { id: 'intern', label: 'Internship', line: 'Examples from classes, clubs, and projects are completely fine.' },
-  { id: 'newgrad', label: 'New grad', line: 'Feel free to draw on internships, projects, or school.' },
-  { id: 'experienced', label: 'Experienced', line: "I'll be looking for examples from your professional experience." },
+  { id: 'beginner', label: 'Beginner', who: 'A first interview, part-time job or campus job', line: 'These are warm-up questions. Short, clear answers are perfect.' },
+  { id: 'intern', label: 'Internship', who: 'An internship or co-op while you are in school', line: 'Examples from classes, clubs, and projects are completely fine.' },
+  { id: 'newgrad', label: 'New grad', who: 'Your first full-time job after graduating', line: 'Feel free to draw on internships, projects, or school.' },
+  { id: 'experienced', label: 'Experienced', who: 'A new role after a few years of work', line: "I'll be looking for examples from your professional experience." },
 ]
 
 // " for the Data Analyst Intern position" — spoken in the interviewer's intro.

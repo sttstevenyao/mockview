@@ -128,7 +128,7 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
 
           {step === 1 && (
             <div>
-              <h2 id="ob-title">What is your experience level?</h2>
+              <h2 id="ob-title">What is this interview for?</h2>
               <div className="ob-options">
                 {LEVELS.map((l, i) => (
                   <button
@@ -141,6 +141,7 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
                     }}
                   >
                     <b>{l.label}</b>
+                    <span className="muted tiny">{l.who}</span>
                   </button>
                 ))}
               </div>

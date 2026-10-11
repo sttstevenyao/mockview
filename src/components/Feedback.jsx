@@ -11,6 +11,27 @@ const tone = (v) => (v >= 70 ? 'good' : v >= 50 ? 'warn' : 'bad')
 const KIND = { flag: 'Red flag', filler: 'Filler', hedge: 'Hedge' }
 const fmtDur = (s) => `${Math.floor(s / 60)}m ${String(Math.round(s % 60)).padStart(2, '0')}s`
 
+// Where this grade sits on the scale, so it's clear A is the top and F the bottom.
+const SCALE = [
+  ['A', '88+'],
+  ['B', '64+'],
+  ['C', '50+'],
+  ['D', '35+'],
+  ['F', '<35'],
+]
+function GradeScale({ grade }) {
+  return (
+    <ol className="grade-scale mono tiny" aria-label="Grade scale, out of 100">
+      {SCALE.map(([g, range]) => (
+        <li key={g} className={grade[0] === g ? 'on' : ''}>
+          <b>{g}</b>
+          <span>{range}</span>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
 function ScoreRing({ value, grade }) {
   const r = 52
   const c = 2 * Math.PI * r
@@ -233,6 +254,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
       <section className="fb-summary panel">
         <div className="ring-col">
           <ScoreRing value={o.score} grade={o.grade} />
+          <GradeScale grade={o.grade} />
           {result.previous && <SinceLast prev={result.previous} now={o} />}
         </div>
         <div className="tiles">

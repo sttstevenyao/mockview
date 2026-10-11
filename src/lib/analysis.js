@@ -716,7 +716,8 @@ export function grade(score) {
   if (score >= 64) return 'B-'
   if (score >= 58) return 'C+'
   if (score >= 50) return 'C'
-  return 'D'
+  if (score >= 35) return 'D'
+  return 'F'
 }
 
 export function analyzeSession(answers, langId = 'en') {
