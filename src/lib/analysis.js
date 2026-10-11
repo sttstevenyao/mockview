@@ -637,7 +637,7 @@ export function foreignTip(m, wpm = m.wpm, langId) {
 
 function analyzeForeign(answer, langId) {
   const text = answer.text || ''
-  const metrics = foreignMetrics(text, answer.speakingSec || answer.durationSec || 0, langId)
+  const metrics = foreignMetrics(text, answer.typed ? 0 : answer.speakingSec || answer.durationSec || 0, langId)
   if (metrics.words < 15) metrics.wpm = 0
   const words = metrics.words
   const issues = []
@@ -670,8 +670,8 @@ function analyzeForeign(answer, langId) {
 export function analyzeAnswer(answer, langId = 'en') {
   if (langId !== 'en') return analyzeForeign(answer, langId)
   const text = answer.text || ''
-  // Pace uses time actually spent speaking, not the idle time before clicking Next.
-  const metrics = liveMetrics(text, answer.speakingSec || answer.durationSec || 0)
+  // Pace uses time actually spent speaking, not the idle time before clicking Next. Typed answers have no pace.
+  const metrics = liveMetrics(text, answer.typed ? 0 : answer.speakingSec || answer.durationSec || 0)
   if (metrics.words < 15) metrics.wpm = 0 // too few words for a meaningful pace
   const basic = Boolean(answer.question?.basic)
   const quality = contentQuality(text, answer.question?.text, basic)

@@ -49,12 +49,13 @@ export function summarize(report, config, result = {}) {
 function detailOf(result, config) {
   if (!result.answers) return null
   return {
-    answers: result.answers.map(({ question, text, chunks, durationSec, speakingSec, vocal }) => ({
+    answers: result.answers.map(({ question, text, chunks, durationSec, speakingSec, typed, vocal }) => ({
       question,
       text,
       chunks,
       durationSec,
       speakingSec,
+      typed,
       vocal,
     })),
     log: result.log || [],

@@ -79,7 +79,7 @@ export function reactionKind(answer, langId = 'en') {
     const words = countWordsIn(text, langId)
     return words < 3 ? 'empty' : words < 25 ? 'short' : words >= 70 ? 'clear' : 'ok'
   }
-  const m = liveMetrics(text, answer?.speakingSec || answer?.durationSec || 0)
+  const m = liveMetrics(text, answer?.typed ? 0 : answer?.speakingSec || answer?.durationSec || 0)
   const basic = Boolean(answer?.question?.basic)
   const q = contentQuality(text, answer?.question?.text || '', basic)
   let kind

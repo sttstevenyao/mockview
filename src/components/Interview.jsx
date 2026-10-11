@@ -146,6 +146,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
       transcriber: null,
       meter: null,
       simUsed: false,
+      typedUsed: false,
       interrupted: false,
       lastActivity: Date.now(),
       nudges: 0,
@@ -227,6 +228,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
     s.answering = true
     s.lastWordAt = 0
     s.simUsed = false
+    s.typedUsed = false
     s.interrupted = false
     s.transcriber.begin()
     s.meter.start()
@@ -313,15 +315,17 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
     const vocal = s.meter.stop()
     const durationSec = (Date.now() - s.answerStart) / 1000
     const speakingSec = s.lastWordAt > s.answerStart ? (s.lastWordAt - s.answerStart) / 1000 + 0.5 : durationSec
-    // Vocal scores only describe real mic audio, never a simulated answer.
+    // Pace and vocal scores only describe real speech, never a simulated or typed answer.
+    const spoken = !s.simUsed && !s.typedUsed
     const answer = {
       question: s.questions[s.qIndex],
       text,
       chunks,
       durationSec,
       speakingSec,
-      vocal: s.simUsed ? null : vocal,
-      audioUrl: s.simUsed ? null : audioUrl,
+      typed: s.typedUsed,
+      vocal: spoken ? vocal : null,
+      audioUrl: spoken ? audioUrl : null,
     }
     s.answers.push(answer)
     addLog('you', text || '(no answer heard)')
@@ -400,6 +404,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
     const t = typed.trim()
     if (!t || !s.answering) return // works while the interviewer is mid-prompt too
     s.transcriber.append(/[.!?]$/.test(t) ? t : t + '.')
+    s.typedUsed = true // typing speed isn't speaking pace
     s.lastActivity = Date.now()
     s.nudges = 0
     setTyped('')
@@ -425,10 +430,11 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
     const s = S.current
     if (s.stage !== 'listening') return
     const text = `${s.final} ${s.interim}`.trim()
-    const sec = (Date.now() - s.answerStart) / 1000
+    const sec = s.typedUsed ? 0 : (Date.now() - s.answerStart) / 1000 // no pace for typed answers
     const m = IN === 'en' ? liveMetrics(text, sec) : foreignMetrics(text, sec, IN)
     // Smooth pace so the marker doesn't jump with every recognized word.
-    if (m.words > 0) s.wpm = s.wpm ? s.wpm * 0.6 + m.wpm * 0.4 : m.wpm
+    if (s.typedUsed) s.wpm = 0
+    else if (m.words > 0) s.wpm = s.wpm ? s.wpm * 0.6 + m.wpm * 0.4 : m.wpm
     const tip = IN === 'en' ? liveTip(m, s.wpm, s.questions[s.qIndex]?.basic) : foreignTip(m, s.wpm, IN)
     setMetrics({ ...m, wpm: Math.round(s.wpm), tip })
   }
