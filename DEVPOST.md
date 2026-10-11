@@ -27,7 +27,7 @@ Practice behavioral interviews out loud with an ElevenLabs-voiced interviewer, g
 
 ## Inspiration
 
-All four of us are first-time hackers heading into internship season. Our first real interviews taught us something uncomfortable: the hard part is saying the answer well. We rambled, said "um" constantly, forgot to mention results, and never got honest feedback, because practicing out loud with a friend is awkward and recruiters rarely tell you why you didn't move forward.
+All three of us are first-time hackers heading into internship season. Our first real interviews taught us something uncomfortable: the hard part is saying the answer well. We rambled, said "um" constantly, forgot to mention results, and never got honest feedback, because practicing out loud with a friend is awkward and recruiters rarely tell you why you didn't move forward.
 
 Career centers can't sit with every student for unlimited mock interviews, and reading "use the STAR method" doesn't teach you what a strong answer *sounds like*. We wanted a coach you could practice with at 2 AM before an interview: one that talks to you like a real interviewer, reacts to how you speak in real time, and then shows you, and plays for you, how to say it better. That became MockView.
 
@@ -47,12 +47,14 @@ The interviewer **reacts to what you actually said**. A quantified STAR answer e
 
 **3. Get your report.** Your transcript appears with **red pills** for red flags and **amber pills** for fillers and hedges. Click one to read the **interviewer's inner monologue**, like *"'Honestly'? Were the other answers dishonest?"* A **GitHub-style diff** rewrites your weakest sentence: it cuts fillers and hedges, turns blame into ownership, upgrades passive verbs, and adds a measurable result. Press **Hear ideal delivery** and ElevenLabs reads the improved sentence in a confident voice, next to your original. You also get a grade, strengths, focus areas, a "How you sounded" vocal breakdown, playback of your own recording, and a downloadable transcript.
 
-**Settings** cover light, dark or system theme, reduced motion, skipping the interviewer's introduction, reactions, how long a silence triggers a prompt, live tips, the live transcript, and the voice model and speed.
+**Accessibility and language support.** Larger text, high contrast, reduced motion, and captions for everything the interviewer says, with a screen-reader live region and full keyboard control. For non-native speakers, every question can be shown and read aloud in **Spanish, Chinese, Hindi, Korean or Portuguese** by the same ElevenLabs voice (Multilingual v2), so you understand the question in your own language and practice answering in English.
+
+**Settings** also cover theme, skipping the introduction, reactions, silence prompts, live tips, the live transcript, and the voice model and speed.
 
 ## How we built it
 
 - **Frontend:** React 18 + Vite with a hand-built design system (no UI library), light and dark themes, SVG and canvas visualizations.
-- **ElevenLabs Text to Speech** is the interviewer's voice. Every line goes through `/v1/text-to-speech/{voice_id}`. Each persona's mannerisms map onto voice settings (pace to `speed`, expressiveness to lower `stability` and higher `style`), so the Bar Raiser *sounds* terse and the recruiter sounds warm. `<break time="0.6s"/>` tags add human pauses. Users choose `eleven_multilingual_v2` (most realistic) or `eleven_flash_v2_5` (lowest latency); "Hear ideal delivery" always uses Multilingual v2.
+- **ElevenLabs Text to Speech** is the interviewer's voice. Every line goes through `/v1/text-to-speech/{voice_id}`. Each persona's mannerisms map onto voice settings (pace to `speed`, expressiveness to lower `stability` and higher `style`), so the Bar Raiser *sounds* terse and the recruiter sounds warm. `<break time="0.6s"/>` tags add human pauses. Users choose `eleven_multilingual_v2` (most realistic) or `eleven_flash_v2_5` (lowest latency); "Hear ideal delivery" always uses Multilingual v2. The same voice reads each question's translation in Spanish, Chinese, Hindi, Korean or Portuguese, from a hand-translated bank of all 71 questions and follow-ups.
 - **No dead air:** while one question plays, the next question's audio is prefetched, and audio is cached per sentence.
 - **ElevenLabs Speech to Text (Scribe)** handles the other direction where browsers can't. Brave blocks the built-in recognizer and Firefox doesn't ship one, so there we record the mic in pause-to-pause clips, detected from the live loudness level, and transcribe each clip with `scribe_v1` as soon as you pause. Clips without detected speech are never sent, so silence can't turn into invented words.
 - **Speech in elsewhere:** the browser's Web Speech API gives zero-latency transcripts. We wrapped it to restart after Chrome's silence timeouts and pause it while the interviewer talks, so it never transcribes the interviewer's own voice.
@@ -72,7 +74,8 @@ The interviewer **reacts to what you actually said**. A quantified STAR answer e
 
 ## Accomplishments that we're proud of
 
-- Shipping a complete product as **four first-time hackers**: onboarding, accounts, a live interview, a feedback report, and settings, deployed and usable by anyone with a browser.
+- Shipping a complete product as **three first-time hackers**: onboarding, accounts, a live interview, a feedback report, and settings, deployed and usable by anyone with a browser.
+- **Accessibility built in**: captions, larger text, high contrast, reduced motion, keyboard control, and questions in five languages for non-native speakers.
 - Using ElevenLabs for **both sides of the conversation**: Text to Speech for the interviewer, and Speech to Text so the app works in any modern browser.
 - The **"Hear ideal delivery"** moment, where a student hears what a strong version of their own sentence sounds like.
 - An interviewer that **listens**: reactions grounded in what you said, and honest handling of silence.
@@ -91,7 +94,7 @@ The interviewer **reacts to what you actually said**. A quantified STAR answer e
 - **ElevenLabs Agents** for fully conversational interviews with adaptive follow-ups.
 - Company- and role-specific question packs.
 - A career-center mode where advisors assign practice sets and review reports.
-- Interviews in other languages, using ElevenLabs' multilingual voices.
+- Full interviews in other languages, with grading rules for each language.
 
 ---
 

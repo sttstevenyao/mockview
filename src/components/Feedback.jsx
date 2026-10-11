@@ -15,7 +15,15 @@ function ScoreRing({ value, grade }) {
   return (
     <svg viewBox="0 0 124 124" className={`ring lg ${tone(value)}`}>
       <circle cx="62" cy="62" r={r} className="ring-track" />
-      <circle cx="62" cy="62" r={r} className="ring-value" strokeDasharray={c} strokeDashoffset={c * (1 - value / 100)} />
+      <circle
+        cx="62"
+        cy="62"
+        r={r}
+        className="ring-value"
+        strokeDasharray={c}
+        strokeDashoffset={c * (1 - value / 100)}
+        style={{ '--c': c }}
+      />
       <text x="62" y="62" textAnchor="middle" className="ring-text">
         {grade}
       </text>
@@ -32,9 +40,7 @@ function VocalReport({ vocal }) {
     return (
       <div className="vocal-report">
         <h3>How you sounded</h3>
-        <p className="muted tiny">
-          No microphone audio for this answer (simulated, or mic blocked), so there’s no vocal analysis.
-        </p>
+        <p className="muted tiny">No mic audio for this answer.</p>
       </div>
     )
   const bars = [
@@ -93,10 +99,7 @@ function EmptyState({ onSample, onSetup }) {
       </header>
       <div className="panel empty">
         <h2>We didn’t capture any answers</h2>
-        <p className="muted">
-          Allow microphone access when the browser asks, or type your answers in the box under the live transcript. You can also
-          open a sample report.
-        </p>
+
         <div className="row center">
           <button className="btn primary" onClick={onSample}>
             View sample report
@@ -283,7 +286,6 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
             <span>
               <i className="lg-hedge" /> Hedge
             </span>
-            <span className="muted">Click a highlight to hear what the interviewer was thinking.</span>
           </div>
 
           <div className="fb-transcript" ref={bodyRef} onClick={() => setPop(null)}>
@@ -349,7 +351,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
 
           {!a.weakest ? (
             <div className="star-guide">
-              <p className="muted">There isn’t a real answer here to rewrite. Here’s how to structure one for this question:</p>
+              <p className="muted">No answer to rewrite. Structure it like this:</p>
               <ol>
                 <li>
                   <b>Situation:</b> Where were you, and when? (“During my internship at…”)
@@ -367,7 +369,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
               <p className="muted tiny">Aim for 60 to 90 seconds (about 150 to 250 words).</p>
             </div>
           ) : !a.rewrite ? (
-            <p className="muted">Your weakest sentence here is already clean and quantified. Nice work.</p>
+            <p className="muted">Nothing to rewrite here.</p>
           ) : (
             <>
               <div className="diff">
@@ -416,11 +418,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
               <div className={`viz-wrap small ${playing ? 'voice' : 'idle'}`}>
                 <Visualizer mode={playing ? 'voice' : 'idle'} synthetic={!!playing} height={70} bars={44} />
               </div>
-              <p className="muted tiny mono">
-                {voiceSrc === 'browser'
-                  ? 'Playing with browser voice (ElevenLabs unavailable).'
-                  : 'Ideal delivery voiced by ElevenLabs eleven_multilingual_v2 · rewrite by MockView’s local rules engine.'}
-              </p>
+              {voiceSrc === 'browser' && <p className="muted tiny">Browser voice (ElevenLabs unavailable)</p>}
             </>
           )}
           <VocalReport vocal={a.vocal} />

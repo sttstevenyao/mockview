@@ -1,25 +1,18 @@
 const TEAM = [
   ['Zexing Yao', 'Project lead'],
   ['Kevin Wang', 'UI/UX designer'],
-  ['Soham Bajaj', 'Testing, feedback and project direction'],
   ['Daniel Kim', 'Programmer'],
 ]
 
 const BUILT_WITH = [
-  [
-    'ElevenLabs Text to Speech',
-    'The interviewer’s voice and the “Hear Ideal Delivery” playback (eleven_multilingual_v2, eleven_flash_v2_5).',
-  ],
-  [
-    'ElevenLabs Speech to Text (Scribe)',
-    'Transcribes your answers in browsers that block built-in speech recognition, like Brave.',
-  ],
-  ['Web Speech API', 'Live, zero-latency transcription in Chrome, Edge, and Safari.'],
-  ['Web Audio API', 'Waveform visualizer, loudness, and pitch analysis of your voice.'],
-  ['React + Vite', 'Front end and build tooling.'],
-  ['PDF.js (Mozilla)', 'Reads your resume in the browser to generate personal questions. The file never leaves your device.'],
-  ['Vercel', 'Hosting and the serverless functions that keep the ElevenLabs key private.'],
-  ['IBM Plex Sans & Mono', 'Typefaces, via Google Fonts.'],
+  ['ElevenLabs Text to Speech', 'Interviewer voice and ideal-delivery playback'],
+  ['ElevenLabs Speech to Text', 'Transcription in Brave and Firefox'],
+  ['Web Speech API', 'Live transcription'],
+  ['Web Audio API', 'Waveform and voice analysis'],
+  ['React + Vite', 'Front end'],
+  ['PDF.js', 'Resume parsing'],
+  ['Vercel', 'Hosting, serverless functions, storage'],
+  ['IBM Plex', 'Type'],
 ]
 
 export default function Credits() {
@@ -28,7 +21,7 @@ export default function Credits() {
       <header className="credits-head">
         <h1>Credits</h1>
         <p className="muted">
-          MockView was built in 24 hours at <b className="plain">HackRU Fall 2026</b>, Rutgers University’s hackathon.
+          Built in 24 hours at <b className="plain">HackRU Fall 2026</b>.
         </p>
       </header>
 
@@ -73,12 +66,9 @@ export default function Credits() {
           </div>
         </dl>
       </section>
-
       <section className="credits-block">
         <h2 className="mono tiny muted">THANKS</h2>
-        <p className="muted">
-          To the HackRU organizers, mentors, and volunteers, and to ElevenLabs for supporting student builders.
-        </p>
+        <p className="muted">HackRU organizers, mentors and volunteers, and ElevenLabs.</p>
       </section>
     </div>
   )

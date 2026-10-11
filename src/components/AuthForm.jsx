@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { logIn, PASSWORD_RULE, signUp, USERNAME_RULE } from '../lib/accounts.js'
+import { logIn, signUp } from '../lib/accounts.js'
 
 // Sign up (username + password, optional email) or log in (username or email + password).
 // onSuccess(user, mode) fires after the account is created or the password checks out.
@@ -35,11 +35,6 @@ export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, onM
   return (
     <form onSubmit={submit} noValidate>
       <h2 id="ob-title">{mode === 'signup' ? 'Create an account' : 'Log in'}</h2>
-      <p className="muted">
-        {mode === 'signup'
-          ? 'Save your settings so they load automatically whenever you log in, on any device.'
-          : 'Use your username, or the email attached to your account.'}
-      </p>
 
       {mode === 'signup' ? (
         <>
@@ -53,12 +48,10 @@ export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, onM
               onChange={(e) => setUsername(e.target.value)}
               placeholder="e.g. alex_k"
             />
-            <span className="tiny muted hint">{USERNAME_RULE}</span>
           </label>
           <label className="field">
             <span>Password</span>
             <input type="password" value={password} autoComplete="new-password" onChange={(e) => setPassword(e.target.value)} />
-            <span className="tiny muted hint">{PASSWORD_RULE}</span>
           </label>
           <label className="field">
             <span>
@@ -72,7 +65,6 @@ export default function AuthForm({ initialMode = 'signup', prefs, onSuccess, onM
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
             />
-            <span className="tiny muted hint">Add one to log in with your email.</span>
           </label>
         </>
       ) : (

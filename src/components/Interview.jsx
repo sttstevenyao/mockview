@@ -17,9 +17,10 @@ import {
 } from '../data/questions.js'
 import { liveMetrics, liveTip, segmentText } from '../lib/analysis.js'
 import { fetchSpeech, speak, stopSpeaking } from '../lib/tts.js'
-import { browserNote, createTranscriber, defaultEngine } from '../lib/transcriber.js'
+import { createTranscriber, defaultEngine } from '../lib/transcriber.js'
 import { getAnalysers, getMicStream, initMic } from '../lib/audio.js'
 import { NUDGES, reactTo, SILENCE_GOODBYE } from '../lib/reactions.js'
+import { languageInfo, translateQuestion } from '../data/translations.js'
 import { createVoiceMeter } from '../lib/voiceAnalysis.js'
 
 const fmt = (s) => {
@@ -111,6 +112,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
   const [log, setLog] = useState([])
   const [showLog, setShowLog] = useState(true)
   const [silentExit, setSilentExit] = useState(false)
+  const [caption, setCaption] = useState('') // what the interviewer is saying right now
   const transcriptRef = useRef(null)
   const logRef = useRef(null)
 
@@ -156,17 +158,19 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
     setStage(stage)
   }
 
-  const say = async (text, onBegin) => {
+  const say = async (text, onBegin, { log = true } = {}) => {
     if (!plain(text)) return
-    addLog('interviewer', text)
+    if (log) addLog('interviewer', text)
     await speak(text, voiceOpts, (prov, err) => {
       S.current.provider = prov
       setProvider(prov)
       setTtsError(err || null)
       setSpeaking(true)
+      setCaption(plain(text))
       onBegin?.()
     })
     setSpeaking(false)
+    setCaption('')
   }
 
   async function askQuestion(i) {
@@ -206,6 +210,11 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
       if (next) fetchSpeech(line(s.nextLead, next.text), voiceOpts).catch(() => {})
     })
     if (s.ended || s.qIndex !== i) return
+    const tr = translateQuestion(q, opts.helpLang)
+    if (tr && opts.readTranslation) {
+      await say(tr, null, { log: false })
+      if (s.ended || s.qIndex !== i) return
+    }
 
     s.answerStart = Date.now()
     s.wpm = 0
@@ -368,6 +377,23 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
     await sayOver(s.questions[s.qIndex].text)
   }
 
+  // Reads the current question in the chosen help language (ElevenLabs multilingual voice).
+  async function hearTranslation() {
+    const s = S.current
+    const tr = translateQuestion(s.questions[s.qIndex], opts.helpLang)
+    if (!tr || s.stage !== 'listening' || s.sim) return
+    s.transcriber.pauseMic()
+    s.meter.pause()
+    s.recorder?.pause()
+    go('asking')
+    await say(tr, null, { log: false })
+    if (s.ended) return
+    go('listening')
+    s.transcriber.resumeMic()
+    s.meter.resume()
+    s.recorder?.resume()
+  }
+
   function submitTyped(e) {
     e.preventDefault()
     const s = S.current
@@ -446,6 +472,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
       if (e.key === 'n' || e.key === 'ArrowRight') nextQuestion()
       if (e.key === 's') simulateAnswer()
       if (e.key === 'r') repeatQuestion()
+      if (e.key === 't') hearTranslation()
     }
     window.addEventListener('keydown', keys)
     askQuestion(0)
@@ -478,6 +505,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
   const remaining = config.minutes * 60 - elapsed
   const vizMode = speaking ? 'voice' : listening ? 'mic' : 'idle'
   const finalSegs = segmentText(transcript.final)
+  const translation = translateQuestion(question, opts.helpLang)
 
   return (
     <div className="interview">
@@ -541,37 +569,37 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
                   : `Q${qNumber}`}
             </span>
             <p key={question?.id}>{question ? question.text : 'Preparing your first question…'}</p>
+            {translation && (
+              <div className="q-translation" key={`${question?.id}-tr`}>
+                <p lang={opts.helpLang}>{translation}</p>
+                <button className="btn ghost sm" onClick={hearTranslation} disabled={!listening || simulating}>
+                  {languageInfo(opts.helpLang).speak} <kbd>T</kbd>
+                </button>
+              </div>
+            )}
           </div>
 
           <div className={`viz-wrap ${vizMode}`}>
             <Visualizer mode={vizMode} synthetic={speaking || simulating} />
             <span className="viz-caption mono tiny">
-              {speaking
-                ? `${persona.name.toUpperCase()} IS SPEAKING`
-                : listening
-                  ? simulating
-                    ? 'SIMULATED ANSWER'
-                    : 'MIC LIVE'
-                  : 'STANDBY'}
+              {speaking ? persona.name.toUpperCase() : listening ? (simulating ? 'SIMULATED' : 'MIC LIVE') : 'STANDBY'}
             </span>
+            {opts.captions && caption && (
+              <p className="caption" key={caption}>
+                {caption}
+              </p>
+            )}
+          </div>
+          <div className="sr-only" aria-live="polite">
+            {caption}
           </div>
 
           <div className="transcript" ref={transcriptRef}>
             {!opts.showTranscript ? (
-              <span className="muted">
-                {listening
-                  ? 'Live transcript is off. Your answer is still recorded and appears in the report.'
-                  : 'Listen to the question…'}
-              </span>
+              <span className="muted">{listening ? 'Transcript hidden' : 'Listen to the question…'}</span>
             ) : !transcript.final && !transcript.interim ? (
               <span className="muted">
-                {pending
-                  ? 'Transcribing…'
-                  : listening
-                    ? engine === 'scribe'
-                      ? 'Start speaking. Your words appear here each time you pause.'
-                      : 'Start speaking. Your words appear here in real time.'
-                    : 'Listen to the question…'}
+                {pending ? 'Transcribing…' : listening ? 'Start speaking' : 'Listen to the question…'}
               </span>
             ) : (
               <>
@@ -598,9 +626,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
                 S.current.lastActivity = Date.now()
               }}
               disabled={!listening || simulating}
-              placeholder={
-                listening ? 'Mic not working? Type your answer here and press Enter' : 'Typing opens when it’s your turn'
-              }
+              placeholder="Or type your answer"
               aria-label="Type your answer"
             />
             <button className="btn ghost" disabled={!listening || !typed.trim()}>
@@ -610,18 +636,10 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
 
           {(micStatus === 'denied' || micStatus === 'not-allowed' || engine === 'none') && (
             <div className="notice">
-              {engine === 'none'
-                ? 'This browser can’t capture speech. Type your answers below, or switch to Chrome or Edge.'
-                : 'Microphone access is blocked. Allow the mic in your browser’s address bar, or type your answers below.'}
+              {engine === 'none' ? 'Voice input isn’t available in this browser.' : 'Microphone blocked.'}
             </div>
           )}
-          {engine === 'scribe' && micStatus !== 'denied' && (
-            <div className="notice info">
-              {browserNote || 'Your browser’s speech service is blocked, so MockView transcribes with ElevenLabs Scribe instead.'}{' '}
-              Words appear after each pause.
-            </div>
-          )}
-          {sttError && <div className="notice">ElevenLabs Scribe: {sttError}. You can type your answer instead.</div>}
+          {sttError && <div className="notice">Transcription error: {sttError}</div>}
 
           <div className="controls">
             <button className="btn ghost" onClick={repeatQuestion} disabled={!listening || simulating}>
@@ -644,7 +662,6 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
             </button>
             {showLog && (
               <ol className="convo-list" ref={logRef}>
-                {log.length === 0 && <li className="muted tiny">Everything said in this session is logged here.</li>}
                 {log.map((l, i) => (
                   <li key={i} className={`turn ${l.who}`}>
                     <span className="mono tiny who-tag">{l.who === 'you' ? 'YOU' : persona.name.toUpperCase()}</span>
@@ -661,10 +678,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
         <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="silent-title">
           <div className="dialog">
             <h2 id="silent-title">We couldn’t hear you</h2>
-            <p className="muted">
-              {persona.name} didn’t hear an answer for a while, so the interview stopped. Check that your microphone is plugged in
-              and allowed for this site, then restart. If voice still doesn’t work, you can type your answers.
-            </p>
+            <p className="muted">Check your microphone and try again.</p>
             <div className="row">
               <button className="btn primary" onClick={onRestart}>
                 Restart interview

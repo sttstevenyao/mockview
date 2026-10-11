@@ -475,12 +475,19 @@ export const INTERRUPT_OPTIONS = [
   { value: 120, label: 'After 2 min' },
 ]
 
+export const FOLLOW_UPS = {
+  fu1: 'Can you expand on that with a specific example?',
+  fu2: 'What did you personally do there?',
+  fu3: 'Can you put a number on that? What was the measurable impact?',
+  fu4: 'And how did it turn out in the end?',
+}
+
 // Picks a follow-up probe when an answer is missing something; null if it's solid.
 export function followUpFor(metrics) {
-  if (metrics.words < 12) return 'Can you expand on that with a specific example?'
-  if (!metrics.star.action) return 'What did you personally do there?'
-  if (!metrics.hasNumber) return 'Can you put a number on that? What was the measurable impact?'
-  if (!metrics.star.result) return 'And how did it turn out in the end?'
+  if (metrics.words < 12) return FOLLOW_UPS.fu1
+  if (!metrics.star.action) return FOLLOW_UPS.fu2
+  if (!metrics.hasNumber) return FOLLOW_UPS.fu3
+  if (!metrics.star.result) return FOLLOW_UPS.fu4
   return null
 }
 

@@ -62,9 +62,6 @@ export default function ResumePanel({ resume, useResume, onChange }) {
 
       {!resume ? (
         <>
-          <p className="muted tiny">
-            Get questions about your own projects and experience. Read on your device and never uploaded.
-          </p>
           <div className="row">
             <button className="btn ghost sm" onClick={() => input.current?.click()} disabled={status?.busy}>
               {status?.busy ? 'Reading…' : 'Upload PDF'}

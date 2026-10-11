@@ -1,12 +1,10 @@
 import { DEFAULT_SETTINGS } from '../lib/settings.js'
+import { HELP_LANGUAGES } from '../data/translations.js'
 
-function Row({ title, desc, children }) {
+function Row({ title, children }) {
   return (
     <div className="set-row">
-      <div>
-        <div className="set-title">{title}</div>
-        {desc && <div className="muted tiny">{desc}</div>}
-      </div>
+      <div className="set-title">{title}</div>
       <div className="set-control">{children}</div>
     </div>
   )
@@ -39,52 +37,83 @@ function Switch({ checked, onChange, label }) {
   )
 }
 
-export default function Settings({ settings, onChange, user }) {
+export default function Settings({ settings, onChange }) {
   const set = (k) => (v) => onChange({ ...settings, [k]: v })
   return (
     <div className="settings">
       <header className="about-head">
         <h1>Settings</h1>
-        <p className="muted">
-          {user
-            ? 'Saved to your account, so they follow you to any device.'
-            : 'Saved in this browser. Log in to keep them across devices.'}
-        </p>
       </header>
 
       <section className="set-group">
         <h2>Appearance</h2>
-        <Row title="Theme" desc="System follows your device’s light or dark setting.">
+        <Row title="Theme">
           <Choice
             label="Theme"
             value={settings.theme}
             onChange={set('theme')}
             options={[
-              ['system', 'System'],
-              ['dark', 'Dark'],
               ['light', 'Light'],
+              ['dark', 'Dark'],
+              ['system', 'System'],
             ]}
           />
         </Row>
-        <Row title="Reduce motion" desc="Turns off pop-up and tab animations.">
+        <Row title="Text size">
+          <Choice
+            label="Text size"
+            value={settings.textSize}
+            onChange={set('textSize')}
+            options={[
+              ['default', 'Default'],
+              ['large', 'Large'],
+              ['larger', 'Larger'],
+            ]}
+          />
+        </Row>
+        <Row title="High contrast">
+          <Switch label="High contrast" checked={settings.highContrast} onChange={set('highContrast')} />
+        </Row>
+        <Row title="Reduce motion">
           <Switch label="Reduce motion" checked={settings.reduceMotion} onChange={set('reduceMotion')} />
         </Row>
       </section>
 
       <section className="set-group">
+        <h2>Language support</h2>
+        <Row title="Translate questions into">
+          <select
+            className="set-select"
+            value={settings.helpLang}
+            onChange={(e) => set('helpLang')(e.target.value)}
+            aria-label="Translate questions into"
+          >
+            {HELP_LANGUAGES.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </Row>
+        <Row title="Read the translation aloud">
+          <Switch label="Read the translation aloud" checked={settings.readTranslation} onChange={set('readTranslation')} />
+        </Row>
+        <Row title="Interviewer captions">
+          <Switch label="Interviewer captions" checked={settings.captions} onChange={set('captions')} />
+        </Row>
+      </section>
+
+      <section className="set-group">
         <h2>Interview</h2>
-        <Row title="Skip the introduction" desc="The interviewer asks the first question right away.">
+        <Row title="Skip the introduction">
           <Switch label="Skip the introduction" checked={settings.skipIntro} onChange={set('skipIntro')} />
         </Row>
-        <Row title="Reactions after answers" desc="The interviewer responds to each answer before the next question.">
+        <Row title="Reactions after answers">
           <Switch label="Reactions after answers" checked={settings.reactions} onChange={set('reactions')} />
         </Row>
-        <Row
-          title="Ask again when it’s quiet"
-          desc="After this much silence the interviewer asks “Sorry, what was that?”, and stops after repeated silence."
-        >
+        <Row title="Ask again after silence">
           <Choice
-            label="Silence prompt delay"
+            label="Ask again after silence"
             value={settings.silenceSec}
             onChange={set('silenceSec')}
             options={[
@@ -95,17 +124,17 @@ export default function Settings({ settings, onChange, user }) {
             ]}
           />
         </Row>
-        <Row title="Live coaching tips" desc="A short tip in the feedback panel while you answer.">
-          <Switch label="Live coaching tips" checked={settings.coaching} onChange={set('coaching')} />
+        <Row title="Live tips">
+          <Switch label="Live tips" checked={settings.coaching} onChange={set('coaching')} />
         </Row>
-        <Row title="Live transcript" desc="Show your words as you speak. Turn off if it distracts you.">
+        <Row title="Live transcript">
           <Switch label="Live transcript" checked={settings.showTranscript} onChange={set('showTranscript')} />
         </Row>
       </section>
 
       <section className="set-group">
-        <h2>Interviewer voice</h2>
-        <Row title="Voice model" desc="Realistic uses ElevenLabs Multilingual v2. Fast uses Flash v2.5 for lower latency.">
+        <h2>Voice</h2>
+        <Row title="Model">
           <Choice
             label="Voice model"
             value={settings.voiceQuality}
@@ -116,7 +145,7 @@ export default function Settings({ settings, onChange, user }) {
             ]}
           />
         </Row>
-        <Row title="Speaking speed" desc="Applied on top of the persona’s own pace.">
+        <Row title="Speed">
           <Choice
             label="Speaking speed"
             value={settings.voiceSpeed}

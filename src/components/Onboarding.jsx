@@ -9,12 +9,6 @@ export const MODES = [
   { id: 'endless', title: 'Endless mode', desc: 'Questions keep coming until you stop.' },
 ]
 
-const LEVEL_HINT = {
-  intern: 'Applying for internships. Class, club, and project examples are fine.',
-  newgrad: 'Graduating soon or recently graduated.',
-  experienced: 'You have professional experience to draw on.',
-}
-
 // Pop-up questions shown when the page opens. Answers become the interview setup;
 // the last step offers to save them to an account. Returning users can log in instead.
 // onDone(answers, user, mode): user is null when they skip; mode is 'signup' or 'login'.
@@ -81,7 +75,6 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
               }}
             >
               <h2 id="ob-title">What should the interviewer call you?</h2>
-              <p className="muted">Your first name is fine. The interviewer greets you with it.</p>
               <input
                 ref={firstInput}
                 className="ob-input"
@@ -106,7 +99,6 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
           {step === 1 && (
             <div>
               <h2 id="ob-title">What is your experience level?</h2>
-              <p className="muted">This changes what the interviewer expects from your examples.</p>
               <div className="ob-options">
                 {LEVELS.map((l, i) => (
                   <button
@@ -119,7 +111,6 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
                     }}
                   >
                     <b>{l.label}</b>
-                    <span className="muted tiny">{LEVEL_HINT[l.id]}</span>
                   </button>
                 ))}
               </div>
@@ -139,7 +130,6 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
               }}
             >
               <h2 id="ob-title">What kind of job are you interviewing for?</h2>
-              <p className="muted">Questions are picked from this field.</p>
               <div className="ob-tracks">
                 {TRACKS.map((t) => (
                   <button type="button" key={t.id} className={a.track === t.id ? 'on' : ''} onClick={() => set('track', t.id)}>
@@ -178,7 +168,6 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
                     onClick={() => set('mode', m.id)}
                   >
                     <b>{m.title}</b>
-                    <span className="muted tiny">{m.desc}</span>
                   </button>
                 ))}
               </div>
@@ -198,7 +187,6 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
                   <input type="range" min="2" max="30" value={a.minutes} onChange={(e) => set('minutes', +e.target.value)} />
                 </label>
               )}
-              {a.mode === 'endless' && <p className="muted tiny">Press End interview whenever you’re done.</p>}
               <div className="ob-actions">
                 <button className="btn ghost" onClick={back}>
                   Back

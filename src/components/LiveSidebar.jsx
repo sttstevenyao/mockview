@@ -3,10 +3,10 @@
 // (confidence, hedges, vocal analysis) wait for the report.
 
 const STAR_KEYS = [
-  ['situation', 'Situation', 'Where and when'],
-  ['task', 'Task', 'What was at stake'],
-  ['action', 'Action', 'What you did'],
-  ['result', 'Result', 'How it ended'],
+  ['situation', 'Situation'],
+  ['task', 'Task'],
+  ['action', 'Action'],
+  ['result', 'Result'],
 ]
 
 const SLOW = 115 // same ideal range as the report
@@ -20,7 +20,7 @@ function Pace({ wpm }) {
   return (
     <div className="card">
       <div className="card-label">
-        Pace <span className={`tiny ${cls}`}>{zone || 'Waiting for you to speak'}</span>
+        Pace <span className={`tiny ${cls}`}>{zone}</span>
       </div>
       <div className="pace-bar">
         <div className="pace-ideal" style={{ left: pct(SLOW), width: `calc(${pct(FAST)} - ${pct(SLOW)})` }} />
@@ -55,7 +55,7 @@ function Fillers({ count, breakdown }) {
             </span>
           ))
         ) : (
-          <span className="muted tiny">None yet. Pausing is better than “um”.</span>
+          <span className="muted tiny">None yet</span>
         )}
       </div>
     </div>
@@ -88,11 +88,10 @@ export default function LiveSidebar({ metrics, stage, coaching, children }) {
           Answer structure <span className="muted tiny">STAR</span>
         </div>
         <ul className="star-list">
-          {STAR_KEYS.map(([k, label, hint]) => (
+          {STAR_KEYS.map(([k, label]) => (
             <li key={k} className={metrics.star[k] ? 'hit' : ''}>
               <span className="star-box">{metrics.star[k] ? '✓' : ''}</span>
               <span>{label}</span>
-              <span className="muted tiny">{hint}</span>
             </li>
           ))}
         </ul>

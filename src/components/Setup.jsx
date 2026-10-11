@@ -3,7 +3,8 @@ import { LEVELS, PERSONAS, TRACKS, VOICES } from '../data/questions.js'
 import ResumePanel from './ResumePanel.jsx'
 import { initAudio } from '../lib/audio.js'
 import { checkTtsHealth, speak } from '../lib/tts.js'
-import { browserNote, defaultEngine, ENGINE_LABEL } from '../lib/transcriber.js'
+import { defaultEngine, ENGINE_LABEL } from '../lib/transcriber.js'
+import PrepStrip from './PrepStrip.jsx'
 
 function Check({ ok, warn, label, detail }) {
   const cls = ok ? 'good' : warn ? 'warn' : 'bad'
@@ -75,10 +76,6 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
             ? `Welcome, ${cfg.name && cfg.name !== 'Candidate' ? cfg.name : user.username}.`
             : 'Practice the interview before it counts.'}
         </h1>
-        <p className="muted">
-          An ElevenLabs-voiced interviewer asks behavioral questions out loud, grades your delivery as you talk, and shows you how
-          to say it better.
-        </p>
       </header>
 
       <div className="setup-grid">
@@ -120,7 +117,6 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
               </button>
             ))}
           </div>
-          <p className="muted tiny persona-desc">{PERSONAS[cfg.persona].desc}</p>
           <ul className="persona-traits">
             {traits(cfg.mannerisms).map((t) => (
               <li key={t}>{t}</li>
@@ -184,17 +180,10 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
               }
             />
           </ul>
-          {browserNote && <p className="tiny muted">{browserNote}</p>}
-          <p className="tiny muted start-opts">
-            {cfg.settings.skipIntro ? 'Intro skipped' : 'With introduction'} ·{' '}
-            {cfg.settings.reactions ? 'reactions on' : 'reactions off'} ·{' '}
-            {cfg.settings.coaching ? 'live tips on' : 'live tips off'}.{' '}
-            <button className="link tiny" onClick={onSettings}>
-              Change in Settings
-            </button>
-          </p>
         </section>
       </div>
+
+      <PrepStrip voiceOpts={voiceOpts} />
     </>
   )
 }
