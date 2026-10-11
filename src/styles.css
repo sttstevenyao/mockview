@@ -4314,3 +4314,7 @@ body:has(.setup) {
     padding-bottom: 80px;
   }
 }
+.setup .dock .tabs,
+.dock .tabs {
+  background: color-mix(in srgb, var(--panel) 66%, transparent);
+}
