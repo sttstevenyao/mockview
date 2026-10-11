@@ -62,7 +62,8 @@ function Fillers({ count, breakdown }) {
   )
 }
 
-export default function LiveSidebar({ metrics, stage, coaching }) {
+// children: the conversation log, which fills the rest of the column.
+export default function LiveSidebar({ metrics, stage, coaching, children }) {
   const live = stage === 'listening'
   return (
     <aside className="sidebar">
@@ -99,6 +100,7 @@ export default function LiveSidebar({ metrics, stage, coaching }) {
 
       <Pace wpm={metrics.wpm} />
       <Fillers count={metrics.fillers} breakdown={metrics.fillerBreakdown} />
+      {children}
     </aside>
   )
 }

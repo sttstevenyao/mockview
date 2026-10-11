@@ -2407,3 +2407,35 @@ button.brand:hover span {
 .setup-grid {
   grid-auto-rows: auto;
 }
+
+/* Conversation log lives in the feedback column and takes the remaining height. */
+.ibody {
+  grid-template-columns: minmax(0, 1fr) 380px;
+}
+.sidebar .convo {
+  flex: 1 1 auto;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar .convo-list {
+  flex: 1 1 0;
+  max-height: none;
+  min-height: 0;
+}
+.sidebar .turn {
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+@media (max-width: 980px) {
+  .ibody {
+    grid-template-columns: 1fr;
+  }
+}
+.sidebar .convo-list {
+  align-content: start;
+}
+.sidebar .convo:not(:has(.convo-list)) {
+  flex: 0 0 auto;
+  min-height: 0;
+}

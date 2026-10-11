@@ -17,7 +17,7 @@ import {
 } from '../data/questions.js'
 import { liveMetrics, liveTip, segmentText } from '../lib/analysis.js'
 import { fetchSpeech, speak, stopSpeaking } from '../lib/tts.js'
-import { browserNote, createTranscriber, defaultEngine, ENGINE_LABEL } from '../lib/transcriber.js'
+import { browserNote, createTranscriber, defaultEngine } from '../lib/transcriber.js'
 import { getAnalysers, getMicStream, initMic } from '../lib/audio.js'
 import { NUDGES, reactTo, SILENCE_GOODBYE } from '../lib/reactions.js'
 import { createVoiceMeter } from '../lib/voiceAnalysis.js'
@@ -634,13 +634,13 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
               {config.mode === 'count' && qNumber >= config.count && !mann.followUps ? 'Finish' : 'Next'} <kbd>N</kbd>
             </button>
           </div>
+        </main>
 
+        <LiveSidebar metrics={metrics} stage={stage} coaching={opts.coaching}>
           <section className="convo">
             <button className="convo-head" onClick={() => setShowLog((v) => !v)}>
-              <span className="mono tiny">CONVERSATION LOG · {log.length}</span>
-              <span className="muted tiny mono">
-                {ENGINE_LABEL[engine]} · {showLog ? 'hide' : 'show'}
-              </span>
+              <span className="mono tiny">CONVERSATION · {log.length}</span>
+              <span className="muted tiny mono">{showLog ? 'hide' : 'show'}</span>
             </button>
             {showLog && (
               <ol className="convo-list" ref={logRef}>
@@ -654,9 +654,7 @@ export default function Interview({ config, onComplete, onRestart, onExit }) {
               </ol>
             )}
           </section>
-        </main>
-
-        <LiveSidebar metrics={metrics} stage={stage} coaching={opts.coaching} />
+        </LiveSidebar>
       </div>
 
       {silentExit && (
