@@ -107,16 +107,6 @@ export default function ResumePanel({ resume, useResume, onChange }) {
             <span className="switch" />
             <span>Ask questions from my resume</span>
           </label>
-          {useResume && (
-            <details className="resume-qs-wrap">
-              <summary className="tiny">See the {resume.questions.length} questions</summary>
-              <ol className="resume-qs">
-                {resume.questions.map((q) => (
-                  <li key={q.id}>{q.text}</li>
-                ))}
-              </ol>
-            </details>
-          )}
         </>
       )}
       {status?.error && <p className="tiny warn">{status.error}</p>}

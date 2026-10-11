@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Setup from './components/Setup.jsx'
 import Interview from './components/Interview.jsx'
 import Feedback from './components/Feedback.jsx'
@@ -23,26 +23,26 @@ export default function App() {
   const sample = window.location.hash === '#sample'
   const [user, setUser] = useState(null)
   const [phase, setPhase] = useState(sample ? 'feedback' : 'setup')
+  // Tab pages slide in from the side of the tab you moved to.
+  const TAB_ORDER = ['setup', 'progress', 'about', 'credits', 'settings']
+  const lastTab = useRef(phase)
+  const slide = useRef('')
+  if (lastTab.current !== phase) {
+    const from = TAB_ORDER.indexOf(lastTab.current)
+    const to = TAB_ORDER.indexOf(phase)
+    slide.current = from < 0 || to < 0 ? '' : to > from ? 'from-right' : 'from-left'
+    lastTab.current = phase
+  }
   // config.settings holds the Settings tab values; they travel with the rest of your saved setup.
   const [config, setConfig] = useState(() => ({ ...DEFAULT_CONFIG, settings: loadSettings(), history: loadHistory() }))
   const [result, setResult] = useState(sample ? sampleResult : null)
   const [runId, setRunId] = useState(0)
   const [onboarding, setOnboarding] = useState(false)
   const [editing, setEditing] = useState(false) // one-screen editor for setup answers
-  // Opening animation: once per browser session, skipped with reduced motion or a direct link to the sample.
-  const [intro, setIntro] = useState(() => {
-    try {
-      const reduced =
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduce'
-      return !sample && !reduced && !sessionStorage.getItem('mockview.intro') ? 'playing' : false
-    } catch {
-      return false
-    }
-  })
+  // Opening animation on every visit; skipped with reduced motion or a direct link to the sample. Click to skip.
+  // index.html already removed #boot when there should be no intro (reduced motion, #sample).
+  const [intro, setIntro] = useState(() => (document.getElementById('boot') ? 'playing' : false))
   const endIntro = () => {
-    try {
-      sessionStorage.setItem('mockview.intro', '1')
-    } catch {}
     setIntro(false)
   }
   const revealPage = () => setIntro((v) => (v ? 'fading' : v))
@@ -149,7 +149,7 @@ export default function App() {
       <TopNav tab={phase} onTab={setPhase} user={user} onAuth={setAuth} onLogOut={signOut} />
       {/* Mounted as the opening animation fades, so the page's entrance cascade plays underneath */}
       {intro !== 'playing' && (
-        <div key={phase} className="tab-view">
+        <div key={phase} className={`tab-view ${slide.current}`}>
           {phase === 'progress' ? (
             <Progress history={config.history} onStart={() => setPhase('setup')} />
           ) : phase === 'credits' ? (

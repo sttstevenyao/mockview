@@ -26,8 +26,119 @@
         if (s.highContrast) document.documentElement.dataset.contrast = 'high'
       } catch (e) {}
     </script>
+    <style>
+      /* Opening animation. Inline so it paints before the app's JS and CSS load. */
+      #boot { --b: #f6f8fa; --t: #1f2328; --a: #0969da; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: var(--t); }
+      html[data-theme='dark'] #boot { --b: #07090d; --t: #e6edf3; --a: #58a6ff; }
+      @media (prefers-color-scheme: dark) { html:not([data-theme]) #boot { --b: #07090d; --t: #e6edf3; --a: #58a6ff; } }
+      #boot.skip { animation: intro-out 0.3s ease forwards; }
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        background: var(--b);
+        cursor: pointer;
+        animation: intro-out 0.5s cubic-bezier(0.6, 0, 0.4, 1) 1.25s forwards;
+      }
+      #boot .intro-mark {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        animation: intro-mark 1.25s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+      #boot .intro-bars {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        height: 72px;
+      }
+      #boot .intro-bars i {
+        width: 10px;
+        height: calc(72px * var(--h));
+        border-radius: 5px;
+        background: var(--t);
+        transform-origin: center;
+        animation:
+          bar-in 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) var(--d) both,
+          bar-pulse 0.7s ease-in-out calc(var(--d) + 0.55s) 2 alternate;
+      }
+      #boot .intro-bars i.accent {
+        background: var(--a);
+      }
+      #boot .intro-word {
+        overflow: hidden;
+        font-size: 44px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+      }
+      #boot .intro-word span {
+        display: block;
+        animation: word-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.35s both;
+      }
+      #boot .intro-word b {
+        color: var(--a);
+      }
+      @keyframes bar-in {
+        from {
+          transform: scaleY(0);
+          opacity: 0;
+        }
+      }
+      @keyframes bar-pulse {
+        to {
+          transform: scaleY(0.55);
+        }
+      }
+      @keyframes word-in {
+        from {
+          transform: translateY(110%);
+        }
+      }
+      @keyframes intro-mark {
+        from {
+          transform: scale(0.94);
+        }
+      }
+      @keyframes intro-out {
+        to {
+          opacity: 0;
+          visibility: hidden;
+          transform: scale(1.03);
+        }
+      }
+      @media (max-width: 520px) {
+        #boot .intro-word {
+          font-size: 32px;
+        }
+        #boot .intro-bars {
+          height: 52px;
+        }
+        #boot .intro-bars i {
+          height: calc(52px * var(--h));
+          width: 8px;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="boot" aria-hidden="true">
+      <div class="intro-mark">
+        <div class="intro-bars">
+          <i style="--h: 0.34; --d: 0ms"></i><i style="--h: 0.62; --d: 70ms"></i><i class="accent" style="--h: 1; --d: 140ms"></i><i style="--h: 0.7; --d: 210ms"></i><i style="--h: 0.3; --d: 280ms"></i>
+        </div>
+        <div class="intro-word"><span>Mock<b>View</b></span></div>
+      </div>
+    </div>
+    <script>
+      // No intro for reduced motion or the sample report link.
+      try {
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduce'
+        if (reduce || location.hash === '#sample') document.getElementById('boot').remove()
+      } catch (e) {}
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -2282,8 +2282,28 @@ button.brand:hover span {
     transform: translateY(8px);
   }
 }
+.tab-view.from-right {
+  animation: tab-from-right 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.tab-view.from-left {
+  animation: tab-from-left 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes tab-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+}
+@keyframes tab-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-48px);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .tab-view {
+  .tab-view,
+  .tab-view.from-right,
+  .tab-view.from-left {
     animation: none;
   }
   .tab-bar {
@@ -2922,97 +2942,6 @@ button.brand:hover span {
   margin-top: 12px;
 }
 
-/* ── Opening animation ─────────────────────── */
-.intro {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: grid;
-  place-items: center;
-  background: var(--bg);
-  cursor: pointer;
-  animation: intro-out 0.5s cubic-bezier(0.6, 0, 0.4, 1) 1.25s forwards;
-}
-.intro-mark {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  animation: intro-mark 1.25s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-.intro-bars {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 72px;
-}
-.intro-bars i {
-  width: 10px;
-  height: calc(72px * var(--h));
-  border-radius: 5px;
-  background: var(--text);
-  transform-origin: center;
-  animation:
-    bar-in 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) var(--d) both,
-    bar-pulse 0.7s ease-in-out calc(var(--d) + 0.55s) 2 alternate;
-}
-.intro-bars i.accent {
-  background: var(--accent);
-}
-.intro-word {
-  overflow: hidden;
-  font-size: 44px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-.intro-word span {
-  display: block;
-  animation: word-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.35s both;
-}
-.intro-word b {
-  color: var(--accent);
-}
-@keyframes bar-in {
-  from {
-    transform: scaleY(0);
-    opacity: 0;
-  }
-}
-@keyframes bar-pulse {
-  to {
-    transform: scaleY(0.55);
-  }
-}
-@keyframes word-in {
-  from {
-    transform: translateY(110%);
-  }
-}
-@keyframes intro-mark {
-  from {
-    transform: scale(0.94);
-  }
-}
-@keyframes intro-out {
-  to {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(1.03);
-  }
-}
-@media (max-width: 520px) {
-  .intro-word {
-    font-size: 32px;
-  }
-  .intro-bars {
-    height: 52px;
-  }
-  .intro-bars i {
-    height: calc(52px * var(--h));
-    width: 8px;
-  }
-}
-
 /* ── Polish ────────────────────────────────── */
 :root {
   --card-shadow: none;
@@ -3635,4 +3564,10 @@ body:has(.setup) {
   flex-direction: column;
   align-items: center;
   gap: 2px;
+}
+
+/* Tab slides should never show a horizontal scrollbar mid-animation. */
+html,
+body {
+  overflow-x: clip;
 }

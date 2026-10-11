@@ -1,38 +1,40 @@
 import { useEffect } from 'react'
 
-const BARS = [0.34, 0.62, 1, 0.7, 0.3]
-
-// Opening animation: the logo's waveform rises, the wordmark slides in, then the app.
+// Opening animation. The markup and CSS live in index.html (#boot) so it is on screen
+// from the first paint, before the app loads. This times the hand-off to the page:
 // onReveal fires as it starts fading (so the page can animate in underneath), onDone when it's gone.
+// Its CSS clock starts at page load, so the timers subtract the time already spent loading.
 export default function Intro({ onReveal, onDone }) {
   useEffect(() => {
-    const a = setTimeout(onReveal, 1250)
-    const b = setTimeout(onDone, 1750)
+    const el = document.getElementById('boot')
+    if (!el) {
+      onReveal()
+      onDone()
+      return
+    }
+    const spent = performance.now()
+    const finish = () => {
+      el.remove()
+      onDone()
+    }
+    const a = setTimeout(onReveal, Math.max(0, 1250 - spent))
+    const b = setTimeout(finish, Math.max(0, 1750 - spent))
+    let c
+    const skip = () => {
+      clearTimeout(a)
+      clearTimeout(b)
+      el.classList.add('skip')
+      onReveal()
+      c = setTimeout(finish, 300)
+    }
+    el.addEventListener('click', skip, { once: true })
     return () => {
       clearTimeout(a)
       clearTimeout(b)
+      clearTimeout(c)
+      el.removeEventListener('click', skip)
     }
   }, [])
 
-  const skip = () => {
-    onReveal()
-    onDone()
-  }
-
-  return (
-    <div className="intro" onClick={skip} aria-hidden="true">
-      <div className="intro-mark">
-        <div className="intro-bars">
-          {BARS.map((h, i) => (
-            <i key={i} className={i === 2 ? 'accent' : ''} style={{ '--h': h, '--d': `${i * 70}ms` }} />
-          ))}
-        </div>
-        <div className="intro-word">
-          <span>
-            Mock<b>View</b>
-          </span>
-        </div>
-      </div>
-    </div>
-  )
+  return null
 }
