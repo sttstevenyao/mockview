@@ -110,7 +110,7 @@ showcase/                                   files for the ElevenLabs Showcase PR
 | | |
 |---|---|
 | Zexing Yao | Project lead |
-| Kevin Wang | Pitcher, UI/UX design |
+| Kevin Wang | Pitcher, UI design |
 | Daniel Kim | Asst. Programmer |
 | Soham Bajaj | Domain expert |
 

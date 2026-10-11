@@ -1,6 +1,6 @@
 const TEAM = [
   ['Zexing Yao', 'Project lead'],
-  ['Kevin Wang', 'Pitcher & UI/UX designer'],
+  ['Kevin Wang', 'Pitcher & UI designer'],
   ['Daniel Kim', 'Asst. Programmer'],
   ['Soham Bajaj', 'Domain expert'],
 ]
