@@ -19,8 +19,9 @@ export function saveHistory(history) {
 }
 
 // Builds the summary stored for a session from analyzeSession()'s report.
-export function summarize(report, config) {
+export function summarize(report, config, result = {}) {
   const o = report.overall
+  const main = report.answers.filter((a) => !a.question?.followUp).length
   return {
     at: new Date().toISOString(),
     score: o.score,
@@ -30,6 +31,8 @@ export function summarize(report, config) {
     star: o.starCoverage,
     flags: o.flags,
     questions: report.answers.length,
+    planned: result.planned && main < result.planned ? result.planned : null, // set when ended early
+    lang: report.lang || 'en',
     level: config.level,
     track: config.track,
   }

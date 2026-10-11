@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Brand from './Brand.jsx'
 import Visualizer from './Visualizer.jsx'
 import { analyzeSession, diffWords } from '../lib/analysis.js'
+import { translateQuestion } from '../data/translations.js'
+import { lang as langInfo } from '../data/i18n.js'
 import { speak, stopSpeaking } from '../lib/tts.js'
 import { vocalNotes } from '../lib/voiceAnalysis.js'
 
@@ -135,7 +137,7 @@ function EmptyState({ onSample, onSetup }) {
 }
 
 export default function Feedback({ result, config, onRestart, onSetup, onSample }) {
-  const report = useMemo(() => analyzeSession(result.answers), [result])
+  const report = useMemo(() => analyzeSession(result.answers, result.lang), [result])
   const [active, setActive] = useState(report.weakestIndex)
   const [pop, setPop] = useState(null)
   const [playing, setPlaying] = useState(null)
@@ -161,6 +163,16 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
   const a = report.answers[active]
   const diff = a.rewrite ? diffWords(a.weakest.text, a.rewrite.text) : null
   const m = a.metrics
+  // Answers in another language skip the English-only checks: red flags, hedges, STAR, rewrites.
+  const foreign = report.lang && report.lang !== 'en'
+  // Ended before the planned set (endless mode always ends by hand, so it never counts as early).
+  const answered = report.answers.filter((x) => !x.question?.followUp).length
+  const early =
+    (result.reason === 'manual' || result.reason === 'silence') &&
+    config.mode !== 'endless' &&
+    (!result.planned || answered < result.planned)
+  // The question as the interviewer asked it, when that was another language.
+  const asked = result.outLang && result.outLang !== 'en' ? translateQuestion(a.question, result.outLang) : null
 
   const openPill = (seg, e) => {
     e.stopPropagation()
@@ -203,6 +215,7 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
         <div className="muted tiny mono hide-sm">
           INTERVIEW REPORT · {new Date().toLocaleDateString()} · {fmtDur(result.totalSec)}
           {result.reason === 'sample' && ' · SAMPLE DATA'}
+          {early && ` · ENDED EARLY${result.planned ? ` · ${answered} OF ${result.planned} QUESTIONS` : ''}`}
         </div>
         <div className="row">
           <button className="btn ghost" onClick={() => downloadTranscript(result, report)}>
@@ -238,18 +251,22 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
             <span className="muted tiny">Filler words</span>
             <b className="mono amber">{o.fillers}</b>
           </div>
-          <div className="tile">
-            <span className="muted tiny">Red flags</span>
-            <b className={`mono ${o.flags ? 'red' : 'good'}`}>{o.flags}</b>
-          </div>
+          {!foreign && (
+            <div className="tile">
+              <span className="muted tiny">Red flags</span>
+              <b className={`mono ${o.flags ? 'red' : 'good'}`}>{o.flags}</b>
+            </div>
+          )}
           <div className="tile">
             <span className="muted tiny">Vocal delivery</span>
             <b className={`mono ${o.vocal == null ? 'muted' : tone(o.vocal)}`}>{o.vocal ?? 'n/a'}</b>
           </div>
-          <div className="tile">
-            <span className="muted tiny">STAR coverage</span>
-            <b className="mono">{o.starCoverage === null ? 'n/a' : `${o.starCoverage}%`}</b>
-          </div>
+          {!foreign && (
+            <div className="tile">
+              <span className="muted tiny">STAR coverage</span>
+              <b className="mono">{o.starCoverage === null ? 'n/a' : `${o.starCoverage}%`}</b>
+            </div>
+          )}
         </div>
         <div className="notes">
           <div>
@@ -286,7 +303,16 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
               </button>
             ))}
           </div>
-          <h3 className="fb-q">{a.question?.text}</h3>
+          {asked && asked !== a.question?.text ? (
+            <>
+              <h3 className="fb-q" lang={result.outLang} dir={langInfo(result.outLang).rtl ? 'rtl' : undefined}>
+                {asked}
+              </h3>
+              <p className="q-english tiny muted">{a.question?.text}</p>
+            </>
+          ) : (
+            <h3 className="fb-q">{a.question?.text}</h3>
+          )}
           {a.audioUrl && (
             <div className="recording">
               <span className="mono tiny muted">YOUR RECORDING</span>
@@ -301,15 +327,19 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
             </div>
           )}
           <div className="legend tiny">
-            <span>
-              <i className="lg-flag" /> Red flag
-            </span>
+            {!foreign && (
+              <span>
+                <i className="lg-flag" /> Red flag
+              </span>
+            )}
             <span>
               <i className="lg-filler" /> Filler
             </span>
-            <span>
-              <i className="lg-hedge" /> Hedge
-            </span>
+            {!foreign && (
+              <span>
+                <i className="lg-hedge" /> Hedge
+              </span>
+            )}
           </div>
 
           <div className="fb-transcript" ref={bodyRef} onClick={() => setPop(null)}>
@@ -353,106 +383,117 @@ export default function Feedback({ result, config, onRestart, onSetup, onSample 
             <span className={`chip ${tone(a.confidence)}`}>Confidence {a.confidence}</span>
             <span className="chip">{Math.round(m.wpm)} wpm</span>
             <span className="chip amber">{m.fillers} fillers</span>
-            <span className="chip">{m.hedges} hedges</span>
-            <span className={`chip ${m.flags ? 'red' : ''}`}>{m.flags} red flags</span>
-            {['situation', 'task', 'action', 'result'].map((k) => (
-              <span key={k} className={`chip star-chip ${m.star[k] ? 'good' : 'off'}`}>
-                {m.star[k] ? '✓' : '○'} {k[0].toUpperCase()}
-              </span>
-            ))}
+            {!foreign && (
+              <>
+                <span className="chip">{m.hedges} hedges</span>
+                <span className={`chip ${m.flags ? 'red' : ''}`}>{m.flags} red flags</span>
+                {['situation', 'task', 'action', 'result'].map((k) => (
+                  <span key={k} className={`chip star-chip ${m.star[k] ? 'good' : 'off'}`}>
+                    {m.star[k] ? '✓' : '○'} {k[0].toUpperCase()}
+                  </span>
+                ))}
+              </>
+            )}
           </div>
         </section>
 
         <section className="panel fb-right">
-          <div className="right-head">
-            <h3>Rewrite your weakest sentence</h3>
-            {diff && (
-              <span className="mono tiny">
-                <span className="red">−{diff.removed}</span> <span className="good">+{diff.added}</span>
-              </span>
-            )}
-          </div>
-
-          {!a.weakest ? (
-            <div className="star-guide">
-              <p className="muted">No answer to rewrite. Structure it like this:</p>
-              <ol>
-                <li>
-                  <b>Situation:</b> Where were you, and when? (“During my internship at…”)
-                </li>
-                <li>
-                  <b>Task:</b> What were you responsible for, or what was at stake?
-                </li>
-                <li>
-                  <b>Action:</b> What did <i>you</i> do? Use “I”, with two or three concrete steps.
-                </li>
-                <li>
-                  <b>Result:</b> How did it end, with a number? e.g. “As a result, {a.question?.resultHint}.”
-                </li>
-              </ol>
-              <p className="muted tiny">Aim for 60 to 90 seconds (about 150 to 250 words).</p>
-            </div>
-          ) : !a.rewrite ? (
-            <p className="muted">Nothing to rewrite here.</p>
-          ) : (
+          {foreign ? null : (
             <>
-              <div className="diff">
-                <div className="diff-file mono tiny">
-                  <span>answer_q{active + 1}.txt</span>
-                  {a.rewrite.nonsense ? (
-                    <span className="nonsense-tag">nonsense</span>
-                  ) : (
-                    <span className="muted">suggested change</span>
-                  )}
-                </div>
-                <div className="diff-line del">
-                  <span className="ln mono">1</span>
-                  <span className="sign mono">−</span>
-                  <span className="code">
-                    {diff.left.map((w, i) => (
-                      <span key={i} className={w.removed ? 'x-del' : ''}>
-                        {w.text}{' '}
-                      </span>
-                    ))}
+              <div className="right-head">
+                <h3>Rewrite your weakest sentence</h3>
+                {diff && (
+                  <span className="mono tiny">
+                    <span className="red">−{diff.removed}</span> <span className="good">+{diff.added}</span>
                   </span>
-                </div>
-                <div className="diff-line add">
-                  <span className="ln mono">1</span>
-                  <span className="sign mono">+</span>
-                  <span className="code">
-                    {a.rewrite.nonsense ? (
-                      <span className="muted">(removed)</span>
-                    ) : (
-                      diff.right.map((w, i) => (
-                        <span key={i} className={w.added ? 'x-add' : ''}>
-                          {w.text}{' '}
-                        </span>
-                      ))
-                    )}
-                  </span>
-                </div>
+                )}
               </div>
 
-              <ul className="changes">
-                {a.rewrite.changes.map((c) => (
-                  <li key={c}>{c}</li>
-                ))}
-              </ul>
-
-              {!a.rewrite.nonsense && (
+              {!a.weakest ? (
+                <div className="star-guide">
+                  <p className="muted">No answer to rewrite. Structure it like this:</p>
+                  <ol>
+                    <li>
+                      <b>Situation:</b> Where were you, and when? (“During my internship at…”)
+                    </li>
+                    <li>
+                      <b>Task:</b> What were you responsible for, or what was at stake?
+                    </li>
+                    <li>
+                      <b>Action:</b> What did <i>you</i> do? Use “I”, with two or three concrete steps.
+                    </li>
+                    <li>
+                      <b>Result:</b> How did it end, with a number? e.g. “As a result, {a.question?.resultHint}.”
+                    </li>
+                  </ol>
+                  <p className="muted tiny">Aim for 60 to 90 seconds (about 150 to 250 words).</p>
+                </div>
+              ) : !a.rewrite ? (
+                <p className="muted">Nothing to rewrite here.</p>
+              ) : (
                 <>
-                  <div className="playback">
-                    <button className={`btn primary ${playing === 'ideal' ? 'active' : ''}`} onClick={() => play('ideal')}>
-                      {playing === 'ideal' ? 'Stop' : 'Hear ideal delivery'}
-                    </button>
-                    <button className={`btn ghost ${playing === 'original' ? 'active' : ''}`} onClick={() => play('original')}>
-                      {playing === 'original' ? 'Stop' : 'Hear original'}
-                    </button>
+                  <div className="diff">
+                    <div className="diff-file mono tiny">
+                      <span>answer_q{active + 1}.txt</span>
+                      {a.rewrite.nonsense ? (
+                        <span className="nonsense-tag">nonsense</span>
+                      ) : (
+                        <span className="muted">suggested change</span>
+                      )}
+                    </div>
+                    <div className="diff-line del">
+                      <span className="ln mono">1</span>
+                      <span className="sign mono">−</span>
+                      <span className="code">
+                        {diff.left.map((w, i) => (
+                          <span key={i} className={w.removed ? 'x-del' : ''}>
+                            {w.text}{' '}
+                          </span>
+                        ))}
+                      </span>
+                    </div>
+                    <div className="diff-line add">
+                      <span className="ln mono">1</span>
+                      <span className="sign mono">+</span>
+                      <span className="code">
+                        {a.rewrite.nonsense ? (
+                          <span className="muted">(removed)</span>
+                        ) : (
+                          diff.right.map((w, i) => (
+                            <span key={i} className={w.added ? 'x-add' : ''}>
+                              {w.text}{' '}
+                            </span>
+                          ))
+                        )}
+                      </span>
+                    </div>
                   </div>
-                  <div className={`viz-wrap small ${playing ? 'voice' : 'idle'}`}>
-                    <Visualizer mode={playing ? 'voice' : 'idle'} synthetic={!!playing} height={70} bars={44} />
-                  </div>
-                  {voiceSrc === 'browser' && <p className="muted tiny">Browser voice (ElevenLabs unavailable)</p>}
+
+                  <ul className="changes">
+                    {a.rewrite.changes.map((c) => (
+                      <li key={c}>{c}</li>
+                    ))}
+                  </ul>
+
+                  {!a.rewrite.nonsense && (
+                    <>
+                      <div className="playback">
+                        <button className={`btn primary ${playing === 'ideal' ? 'active' : ''}`} onClick={() => play('ideal')}>
+                          {playing === 'ideal' ? 'Stop' : 'Hear ideal delivery'}
+                        </button>
+                        <button
+                          className={`btn ghost ${playing === 'original' ? 'active' : ''}`}
+                          onClick={() => play('original')}
+                        >
+                          {playing === 'original' ? 'Stop' : 'Hear original'}
+                        </button>
+                      </div>
+                      <div className={`viz-wrap small ${playing ? 'voice' : 'idle'}`}>
+                        <Visualizer mode={playing ? 'voice' : 'idle'} synthetic={!!playing} height={70} bars={44} />
+                      </div>
+                      {voiceSrc === 'browser' && <p className="muted tiny">Browser voice (ElevenLabs unavailable)</p>}
+                    </>
+                  )}
                 </>
               )}
             </>

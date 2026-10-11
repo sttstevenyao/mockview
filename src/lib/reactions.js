@@ -1,6 +1,6 @@
 // What the interviewer says back after each answer, based on what was actually said.
 // An empty or near-empty answer never gets praise — the interviewer says it heard nothing.
-import { contentQuality, liveMetrics } from './analysis.js'
+import { contentQuality, countWordsIn, liveMetrics } from './analysis.js'
 
 const pick = (a) => a[Math.floor(Math.random() * a.length)]
 
@@ -71,9 +71,14 @@ const LINES = {
   },
 }
 
-// acks: the persona's acknowledgement style ('warm' | 'neutral' | 'curt' | 'none').
-export function reactTo(answer, acks = 'warm') {
+// Which kind of reaction an answer earns. Answers in other languages only have
+// length to go on (the phrase checks are English).
+export function reactionKind(answer, langId = 'en') {
   const text = answer?.text || ''
+  if (langId !== 'en') {
+    const words = countWordsIn(text, langId)
+    return words < 3 ? 'empty' : words < 25 ? 'short' : words >= 70 ? 'clear' : 'ok'
+  }
   const m = liveMetrics(text, answer?.speakingSec || answer?.durationSec || 0)
   const basic = Boolean(answer?.question?.basic)
   const q = contentQuality(text, answer?.question?.text || '', basic)
@@ -90,7 +95,15 @@ export function reactTo(answer, acks = 'warm') {
   else if (m.hasNumber) kind = 'number'
   else if (m.starCount >= 3) kind = 'strong'
   else kind = 'ok'
+  return kind
+}
+
+// acks: the persona's acknowledgement style ('warm' | 'neutral' | 'curt' | 'none').
+// say(kind) gives the line in another language; English lines come from the table above.
+export function reactTo(answer, acks = 'warm', { langId = 'en', say } = {}) {
+  const kind = reactionKind(answer, langId)
   // A silent interviewer still says when it heard nothing, but skips the rest.
   if (acks === 'none' && kind !== 'empty' && kind !== 'nonAnswer') return ''
+  if (say) return say(kind)
   return pick(LINES[kind][acks === 'curt' ? 'curt' : 'warm'])
 }

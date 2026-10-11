@@ -27,7 +27,7 @@ Judging is in person at your table from 1:00 PM ET. Judges score **functionality
 - Point at the diff: "It rewrites your weakest sentence: cuts fillers, turns blame into ownership, adds a measurable result."
 - Click **Hear ideal delivery**. Let it play. "That's the moment we built this for: hearing what a strong version of *your* sentence sounds like."
 
-**4b. Accessibility (15 s, optional).** In Settings, set Translate questions to Español and start again: the question appears in Spanish under the English, and the button reads it aloud in the same voice. "For students interviewing in their second language."
+**4b. Accessibility (15 s, optional).** In Settings, set Interviewer language to Español and start again: the same voice asks the question in Spanish, with the English underneath. "For students interviewing in their second language."
 
 **5. Technical close (25 s).** "ElevenLabs runs both directions: Text to Speech for the interviewer, and Speech to Text with Scribe when the browser can't transcribe, like in Brave. Grading is a rules engine in the browser, so it's instant and every point is explainable. Accounts sync across devices. We're three first-time hackers, and it's live right now at mockview-ruddy.vercel.app."
 

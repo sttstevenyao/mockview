@@ -29,7 +29,7 @@ export default function About({ onStart }) {
         <ul className="about-list">
           <li>Students heading into internship and new-grad interviews</li>
           <li>Anyone who rambles or freezes under pressure</li>
-          <li>Non-native English speakers, with questions translated into five languages</li>
+          <li>Non-native English speakers, with interviews in 12 languages</li>
           <li>Career centers and clubs running practice sessions</li>
         </ul>
       </section>

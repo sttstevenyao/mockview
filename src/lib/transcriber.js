@@ -6,6 +6,7 @@
 // Typed answers and "Simulate answer" words are injected through append().
 // In Scribe mode, real-time streaming (scribe_v2_realtime) is tried first; the clip
 // approach below is the fallback.
+import { LANGS } from '../data/i18n.js'
 import { getAnalysers, getMicStream } from './audio.js'
 
 const SR = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)
@@ -40,7 +41,8 @@ const toBase64 = (blob) =>
     r.readAsDataURL(blob)
   })
 
-export function createTranscriber({ onUpdate, onError, onEngine }) {
+export function createTranscriber({ onUpdate, onError, onEngine, lang = 'en' }) {
+  const L = LANGS[lang] || LANGS.en
   let engine = defaultEngine
   let micOn = false
   let finalText = ''
@@ -71,7 +73,7 @@ export function createTranscriber({ onUpdate, onError, onEngine }) {
     rec = new SR()
     rec.continuous = true
     rec.interimResults = true
-    rec.lang = 'en-US'
+    rec.lang = L.speech
     rec.onresult = (e) => {
       let live = ''
       for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -139,7 +141,7 @@ export function createTranscriber({ onUpdate, onError, onEngine }) {
       const r = await fetch('/api/stt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audio, mime }),
+        body: JSON.stringify({ audio, mime, lang: L.scribe }),
       })
       const data = await r.json().catch(() => ({}))
       if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`)
@@ -245,7 +247,7 @@ export function createTranscriber({ onUpdate, onError, onEngine }) {
       conn = sdk.Scribe.connect({
         token,
         modelId: 'scribe_v2_realtime',
-        languageCode: 'en',
+        languageCode: L.scribe,
         commitStrategy: sdk.CommitStrategy.VAD,
         microphone: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       })

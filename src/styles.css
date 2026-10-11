@@ -2592,22 +2592,13 @@ button.brand:hover span {
   min-width: 160px;
 }
 
-/* ── Translation and captions ──────────────── */
-.q-translation {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--border-2);
-  animation: rise 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-.q-translation p {
-  margin: 0;
-  font-size: 16px;
-  line-height: 1.5;
+/* ── Question language and captions ────────── */
+.question-card p.q-english {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
   color: var(--muted);
+  animation: rise 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both;
 }
 .viz-wrap .caption {
   position: absolute;
@@ -3650,4 +3641,26 @@ body {
   .history-table {
     animation: none;
   }
+}
+
+.ob-langs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ob-langs .ob-lang select {
+  width: 100%;
+}
+.ob-lang select:disabled,
+.set-select:disabled {
+  opacity: 0.55;
+}
+@media (max-width: 520px) {
+  .ob-langs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fb-q + .q-english {
+  margin: -4px 0 10px;
 }

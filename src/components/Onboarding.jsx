@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { LEVELS, TRACKS } from '../data/questions.js'
 import { pickPrefs } from '../lib/accounts.js'
 import AuthForm from './AuthForm.jsx'
-import { HELP_LANGUAGES } from '../data/translations.js'
+import { LANGS, LANG_IDS } from '../data/i18n.js'
 
 export const MODES = [
   { id: 'count', title: 'Fixed questions', desc: 'A set number of questions, then your report.' },
@@ -25,7 +25,8 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
     mode: initial.mode,
     count: initial.count,
     minutes: initial.minutes,
-    helpLang: initial.settings?.helpLang || 'off',
+    outLang: initial.settings?.outLang || 'en',
+    inLang: initial.settings?.inLang || 'en',
   })
   const [dir, setDir] = useState('fwd') // which way the step content slides in
   const [closing, setClosing] = useState(false)
@@ -85,16 +86,30 @@ export default function Onboarding({ initial, user, startWithLogin, onDone, onCl
                 onChange={(e) => set('name', e.target.value)}
                 placeholder="Your name"
               />
-              <label className="field ob-lang">
-                <span>Your language</span>
-                <select value={a.helpLang} onChange={(e) => set('helpLang', e.target.value)}>
-                  {HELP_LANGUAGES.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.id === 'off' ? 'English' : `${l.label} (questions translated)`}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="ob-langs">
+                <label className="field ob-lang">
+                  <span>Output language</span>
+                  <select
+                    value={a.outLang}
+                    onChange={(e) =>
+                      setA((x) => ({ ...x, outLang: e.target.value, inLang: x.inLang === 'en' ? 'en' : e.target.value }))
+                    }
+                  >
+                    {LANG_IDS.map((id) => (
+                      <option key={id} value={id}>
+                        {LANGS[id].label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field ob-lang">
+                  <span>Answer language</span>
+                  <select value={a.inLang} onChange={(e) => set('inLang', e.target.value)} disabled={a.outLang === 'en'}>
+                    <option value="en">English</option>
+                    {a.outLang !== 'en' && <option value={a.outLang}>{LANGS[a.outLang].label}</option>}
+                  </select>
+                </label>
+              </div>
               <div className="ob-actions">
                 {user ? (
                   <span />

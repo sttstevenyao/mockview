@@ -26,17 +26,17 @@ We're all heading into internship season. Knowing your stories is one thing; say
 
 ## What it does
 
-**Setup.** A few pop-up questions: name, language, experience level, field, role, session length. Beginner gets basic warm-up questions ("Tell me about yourself"). The other levels get behavioral questions for one of 14 fields. Upload a resume and some questions come from your own projects. Pick an interviewer by difficulty: Lightweight (encouraging), Moderate (professional, asks follow-ups) or Harsh (skeptical, cuts you off after 90 seconds).
+**Setup.** A few pop-up questions: name, output and answer language, experience level, field, role, session length. Beginner gets basic warm-up questions ("Tell me about yourself"). The other levels get behavioral questions for one of 14 fields. Upload a resume and some questions come from your own projects. Pick an interviewer by difficulty: Lightweight (encouraging), Moderate (professional, asks follow-ups) or Harsh (skeptical, cuts you off after 90 seconds).
 
 **Interview.** The interviewer asks each question out loud with an ElevenLabs voice. You answer into the mic and your words show up as you talk. The side panel tracks four things: a coaching tip, a STAR checklist, your pace (115 to 175 wpm is the target) and filler words. After each answer the interviewer reacts to what you actually said: credit for a quantified result, a callout when the result is missing, never praise for an empty answer. If it hears nothing it asks "Sorry, what was that?".
 
 **Report.** Your transcript with red flags and fillers highlighted. Click one to read what the interviewer was thinking ("'Honestly'? Were the other answers dishonest?"). A diff rewrites your weakest sentence: fillers and hedges out, blame turned into ownership, a measurable result added. Sentences that have nothing to do with the question get crossed out instead. **Hear ideal delivery** plays the rewrite in the same voice, next to your original. You also get a grade, vocal analysis, your recording, a transcript download, and how you did compared with your last session. The Progress tab charts your score, filler rate and pace across every session.
 
-**Accessibility.** Larger text, high contrast, reduced motion, captions for everything the interviewer says, screen-reader announcements and keyboard shortcuts. For non-native speakers, every question can be shown and read aloud in Spanish, Chinese, Hindi, Korean or Portuguese while you practice answering in English.
+**Accessibility.** Larger text, high contrast, reduced motion, captions for everything the interviewer says, screen-reader announcements and keyboard shortcuts. The interviewer can run the whole interview in 12 languages (English, Spanish, French, German, Portuguese, Russian, Arabic, Hindi, Chinese, Japanese, Korean and Vietnamese). You can answer in English while hearing the questions in your first language, or answer in that language too. Speech recognition follows your answer language.
 
 ## How we built it
 
-- **ElevenLabs Text to Speech** for every interviewer line. Persona pace and expressiveness map to `speed`, `stability` and `style`, and `<break>` tags add pauses. `eleven_v4` by default, `eleven_flash_v2_5` as a faster option. The same voice reads question translations from a hand-translated bank of 81 questions and follow-ups.
+- **ElevenLabs Text to Speech** for every interviewer line. Persona pace and expressiveness map to `speed`, `stability` and `style`, and `<break>` tags add pauses. `eleven_v4` by default, `eleven_flash_v2_5` as a faster option. The same voice speaks all 12 languages, using `language_code` so it sounds native, from a hand-translated bank of 81 questions and follow-ups per language.
 - **ElevenLabs Speech to Text.** Chrome, Edge and Safari use the browser's own recognizer. Brave and Firefox stream the mic to real-time Scribe (`scribe_v2_realtime`) over a WebSocket, using a single-use token from our server, so words appear while you speak. If that fails it falls back to sending pause-to-pause clips to the batch API.
 - **Grading** is a rules engine in the browser: regex dictionaries for fillers, hedges and 13 kinds of red flags, STAR detection, a relevance check for off-topic sentences, rule-based rewrites and a word diff. It scores instantly and every point traces back to a phrase.
 - **Voice analysis** with the Web Audio API: our own autocorrelation pitch detector, loudness meter and adaptive noise floor.
@@ -49,7 +49,7 @@ We're all heading into internship season. Knowing your stories is one thing; say
 - ElevenLabs on both sides of the conversation: the interviewer's voice, and real-time transcription where the browser can't do it.
 - Hearing your own weakest sentence read back the way a confident candidate would say it.
 - An interviewer that listens: reactions based on what you said, honest handling of silence, and nonsense called out instead of polished.
-- Accessibility and five languages built in from the start.
+- Accessibility and 12 languages built in from the start.
 
 ## What we learned
 
@@ -62,7 +62,7 @@ We're all heading into internship season. Knowing your stories is one thing; say
 - ElevenLabs Agents for fully conversational interviews.
 - Company- and role-specific question packs.
 - A career-center mode where advisors assign practice and review reports.
-- Full interviews in other languages, with grading rules for each.
+- STAR and red-flag grading rules for each language, not only English.
 
 ---
 

@@ -99,8 +99,8 @@ export default function App() {
     setResult(sampleResult())
     setPhase('feedback')
   }
-  const finishOnboarding = ({ helpLang, ...answers }, u, mode) => {
-    const cfg = { ...config, ...answers, settings: { ...config.settings, helpLang } }
+  const finishOnboarding = ({ outLang, inLang, ...answers }, u, mode) => {
+    const cfg = { ...config, ...answers, settings: { ...config.settings, outLang, inLang } }
     setConfig(cfg)
     if (u) signedIn(u, mode, cfg)
     else remember(cfg)
@@ -119,10 +119,10 @@ export default function App() {
         config={config}
         onComplete={(r) => {
           // Save a summary of real sessions (not empty ones) to the practice history.
-          const report = analyzeSession(r.answers)
+          const report = analyzeSession(r.answers, r.lang)
           const previous = config.history[config.history.length - 1] || null
           if (report.overall.words >= 3) {
-            const cfg = { ...config, history: addSession(config.history, summarize(report, config)) }
+            const cfg = { ...config, history: addSession(config.history, summarize(report, config, r)) }
             setConfig(cfg)
             remember(cfg)
           }

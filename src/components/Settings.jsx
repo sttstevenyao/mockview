@@ -1,5 +1,5 @@
 import { DEFAULT_SETTINGS } from '../lib/settings.js'
-import { HELP_LANGUAGES } from '../data/translations.js'
+import { LANGS, LANG_IDS } from '../data/i18n.js'
 
 function Row({ title, children }) {
   return (
@@ -80,23 +80,34 @@ export default function Settings({ settings, onChange }) {
       </section>
 
       <section className="set-group">
-        <h2>Language support</h2>
-        <Row title="Translate questions into">
+        <h2>Language</h2>
+        <Row title="Interviewer language">
           <select
             className="set-select"
-            value={settings.helpLang}
-            onChange={(e) => set('helpLang')(e.target.value)}
-            aria-label="Translate questions into"
+            value={settings.outLang}
+            onChange={(e) =>
+              onChange({ ...settings, outLang: e.target.value, inLang: settings.inLang === 'en' ? 'en' : e.target.value })
+            }
+            aria-label="Interviewer language"
           >
-            {HELP_LANGUAGES.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.label}
+            {LANG_IDS.map((id) => (
+              <option key={id} value={id}>
+                {LANGS[id].label}
               </option>
             ))}
           </select>
         </Row>
-        <Row title="Read the translation aloud">
-          <Switch label="Read the translation aloud" checked={settings.readTranslation} onChange={set('readTranslation')} />
+        <Row title="Answer language">
+          <select
+            className="set-select"
+            value={settings.inLang}
+            onChange={(e) => set('inLang')(e.target.value)}
+            disabled={settings.outLang === 'en'}
+            aria-label="Answer language"
+          >
+            <option value="en">English</option>
+            {settings.outLang !== 'en' && <option value={settings.outLang}>{LANGS[settings.outLang].label}</option>}
+          </select>
         </Row>
         <Row title="Interviewer captions">
           <Switch label="Interviewer captions" checked={settings.captions} onChange={set('captions')} />

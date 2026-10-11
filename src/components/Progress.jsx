@@ -188,7 +188,10 @@ export default function Progress({ history, onStart }) {
               </td>
               <td>{label(LEVELS, s.level)}</td>
               <td>{label(TRACKS, s.track)}</td>
-              <td className="num mono">{s.questions}</td>
+              <td className="num mono">
+                {s.questions}
+                {s.planned ? <span className="muted"> of {s.planned}</span> : null}
+              </td>
               <td className="num mono">
                 {s.score} <span className="muted">{s.grade}</span>
               </td>

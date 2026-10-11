@@ -23,7 +23,7 @@ export function health(apiKey) {
 
 const num = (v, lo, hi, dflt) => (Number.isFinite(+v) ? Math.min(hi, Math.max(lo, +v)) : dflt)
 
-export async function synthesize({ text, voiceId, quality, speed, expressiveness, apiKey }) {
+export async function synthesize({ text, voiceId, quality, speed, expressiveness, lang, apiKey }) {
   if (!hasKey(apiKey)) return json(503, { error: 'ELEVENLABS_API_KEY isn’t set in .env' })
   apiKey = apiKey.trim()
   if (typeof text !== 'string' || !text.trim() || text.length > 900) {
@@ -42,15 +42,22 @@ export async function synthesize({ text, voiceId, quality, speed, expressiveness
     speed: num(speed, 0.7, 1.2, 1),
   }
 
-  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=mp3_44100_128`, {
-    method: 'POST',
-    headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
-    body: JSON.stringify({
-      text,
-      model_id: high ? MODELS.high : MODELS.fast,
-      voice_settings: voiceSettings,
-    }),
-  })
+  // The interviewer's language: the same voice speaks it natively instead of with an English accent.
+  const language = /^[a-z]{2}$/.test(lang || '') && lang !== 'en' ? lang : null
+  const call = (withLang) =>
+    fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=mp3_44100_128`, {
+      method: 'POST',
+      headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
+      body: JSON.stringify({
+        text,
+        model_id: high ? MODELS.high : MODELS.fast,
+        voice_settings: voiceSettings,
+        ...(withLang ? { language_code: language } : {}),
+      }),
+    })
+  let res = await call(Boolean(language))
+  // A model that doesn't take language_code still reads the translated text correctly.
+  if (language && res.status === 400) res = await call(false)
 
   if (!res.ok) {
     let detail = `ElevenLabs returned HTTP ${res.status}`
@@ -64,7 +71,7 @@ export async function synthesize({ text, voiceId, quality, speed, expressiveness
 }
 
 // Speech-to-text with ElevenLabs Scribe. `audio` is a base64 clip recorded in the browser.
-export async function transcribe({ audio, mime, apiKey }) {
+export async function transcribe({ audio, mime, lang, apiKey }) {
   if (!hasKey(apiKey)) return json(503, { error: 'ELEVENLABS_API_KEY isn’t set in .env' })
   if (typeof audio !== 'string' || !audio || audio.length > 3_000_000) {
     return json(400, { error: 'audio is required (max ~2 MB)' })
@@ -72,7 +79,7 @@ export async function transcribe({ audio, mime, apiKey }) {
   const type = /^audio\/[\w.+-]+(;[\w=.-]+)?$/.test(mime || '') ? mime : 'audio/webm'
   const form = new FormData()
   form.append('model_id', process.env.ELEVENLABS_STT_MODEL || 'scribe_v1')
-  form.append('language_code', 'en')
+  form.append('language_code', /^[a-z]{2}$/.test(lang || '') ? lang : 'en')
   form.append('tag_audio_events', 'false') // no "(laughs)" / "(silence)" tags in the transcript
   form.append('file', new Blob([Buffer.from(audio, 'base64')], { type }), 'answer.' + (type.includes('mp4') ? 'mp4' : 'webm'))
 

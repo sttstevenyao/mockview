@@ -1,6 +1,8 @@
 // MockView grading engine: deterministic, regex-driven, runs entirely in the
 // browser with zero latency. Every score is explainable.
 
+import { LINES } from '../data/i18n.js'
+
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
 export const countWords = (t) => (t.trim() ? t.trim().split(/\s+/).length : 0)
 
@@ -534,7 +536,139 @@ export function diffWords(a, b) {
   }
 }
 
-export function analyzeAnswer(answer) {
+// ───────────────────────── Answers in other languages ─────────────────────────
+// The phrase lists above are English. For an answer in another language, grading sticks to
+// what holds in any language: length, pace, that language's filler words, and the voice.
+const segmenters = {}
+export function countWordsIn(text, langId = 'en') {
+  if (langId === 'en' || typeof Intl === 'undefined' || !Intl.Segmenter) return countWords(text)
+  const seg = (segmenters[langId] ||= new Intl.Segmenter(langId, { granularity: 'word' }))
+  let n = 0
+  for (const w of seg.segment(text)) if (w.isWordLike) n++
+  return n
+}
+const escapeRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+// Fillers: whole words where the language uses spaces, plain substrings for zh and ja.
+function fillerCounts(text, langId) {
+  const list = LINES[langId]?.fillers || []
+  const spaced = !UNSPACED.includes(langId)
+  const breakdown = {}
+  let total = 0
+  for (const f of list) {
+    const re = spaced ? new RegExp(`(?<![\\p{L}])${escapeRe(f)}(?![\\p{L}])`, 'giu') : new RegExp(escapeRe(f), 'g')
+    const n = (text.match(re) || []).length
+    if (n) {
+      breakdown[f] = n
+      total += n
+    }
+  }
+  return { fillers: total, fillerBreakdown: breakdown }
+}
+const UNSPACED = ['zh', 'ja']
+const NO_STAR = { situation: false, task: false, action: false, result: false }
+
+// The transcript with that language's filler words marked, in the same shape as segmentText().
+function foreignSegments(text, langId) {
+  const list = LINES[langId]?.fillers || []
+  if (!text || !list.length) return text ? [{ type: 'text', text }] : []
+  const spaced = !UNSPACED.includes(langId)
+  const alt = [...list]
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRe)
+    .join('|')
+  const re = spaced ? new RegExp(`(?<![\\p{L}])(?:${alt})(?![\\p{L}])`, 'giu') : new RegExp(alt, 'g')
+  const segs = []
+  let at = 0
+  for (const m of text.matchAll(re)) {
+    if (m.index > at) segs.push({ type: 'text', text: text.slice(at, m.index) })
+    segs.push({
+      type: 'filler',
+      text: m[0],
+      label: m[0].toLowerCase(),
+      key: `${m.index}`,
+      mono: 'A filler word. The answer reads stronger without it.',
+      fix: 'Pause for a beat instead.',
+    })
+    at = m.index + m[0].length
+  }
+  if (at < text.length) segs.push({ type: 'text', text: text.slice(at) })
+  return segs
+}
+
+export function foreignMetrics(text, seconds, langId) {
+  const words = countWordsIn(text, langId)
+  const { fillers, fillerBreakdown } = fillerCounts(text, langId)
+  const wpm = seconds >= 2 && words ? Math.min(260, words / (seconds / 60)) : 0
+  const hasNumber = /\d/.test(text)
+  const rate = words ? (fillers / words) * 100 : 0
+  let confidence = 0
+  if (words >= 3) {
+    confidence = 62 + Math.min(24, words / 4)
+    confidence -= Math.min(25, rate * 3)
+    // Word counts in zh and ja don't line up with English pace targets, so pace isn't judged there.
+    if (wpm && !UNSPACED.includes(langId) && (wpm > 185 || wpm < 95)) confidence -= 10
+    if (hasNumber) confidence += 5
+  }
+  return {
+    repetitive: false,
+    words,
+    wpm,
+    fillers,
+    fillerBreakdown,
+    hedges: 0,
+    flags: 0,
+    star: NO_STAR,
+    starCount: 0,
+    hasNumber,
+    iCount: 0,
+    weCount: 0,
+    confidence: Math.round(clamp(confidence, 0, 96)),
+  }
+}
+
+export function foreignTip(m, wpm = m.wpm, langId) {
+  if (m.words < 4) return 'Listening…'
+  if (m.words > 15 && (m.fillers / m.words) * 100 > 6) return 'Fewer filler words. A short pause works better.'
+  if (UNSPACED.includes(langId)) return 'Good delivery. Keep going.'
+  if (wpm > 180) return 'You’re rushing. Slow down.'
+  if (wpm && wpm < 95 && m.words > 20) return 'Pick up the pace a little.'
+  return 'Good delivery. Keep going.'
+}
+
+function analyzeForeign(answer, langId) {
+  const text = answer.text || ''
+  const metrics = foreignMetrics(text, answer.speakingSec || answer.durationSec || 0, langId)
+  if (metrics.words < 15) metrics.wpm = 0
+  const words = metrics.words
+  const issues = []
+  let cap = 100
+  if (!words) {
+    issues.push('No answer was recorded.')
+    cap = 0
+  } else if (words < 12) {
+    issues.push(`Only ${words} words. Aim for 60 to 90 seconds.`)
+    cap = 15
+  } else if (words < 40) {
+    issues.push(`Too short (${words} words). Aim for 60 to 90 seconds.`)
+    cap = 30 + words
+  }
+  const confidence = Math.min(cap, metrics.confidence)
+  metrics.confidence = confidence
+  return {
+    ...answer,
+    text,
+    metrics,
+    quality: { words, repetitive: false, offTopic: false, nonAnswer: words < 5, issues, cap },
+    sentences: [],
+    weakest: null,
+    rewrite: null,
+    segments: foreignSegments(text, langId),
+    confidence,
+  }
+}
+
+export function analyzeAnswer(answer, langId = 'en') {
+  if (langId !== 'en') return analyzeForeign(answer, langId)
   const text = answer.text || ''
   // Pace uses time actually spent speaking, not the idle time before clicking Next.
   const metrics = liveMetrics(text, answer.speakingSec || answer.durationSec || 0)
@@ -585,8 +719,9 @@ export function grade(score) {
   return 'D'
 }
 
-export function analyzeSession(answers) {
-  const items = answers.map(analyzeAnswer)
+export function analyzeSession(answers, langId = 'en') {
+  const foreign = langId !== 'en'
+  const items = answers.map((a) => analyzeAnswer(a, langId))
   const words = items.reduce((s, a) => s + a.metrics.words, 0)
   const sum = (key) => items.reduce((s, a) => s + a.metrics[key], 0)
 
@@ -600,7 +735,7 @@ export function analyzeSession(answers) {
   const hedges = sum('hedges')
   const flags = sum('flags')
   // STAR and numbers only apply to story questions, not the Beginner level's basic ones.
-  const stories = items.filter((a) => !a.question?.basic)
+  const stories = foreign ? [] : items.filter((a) => !a.question?.basic)
   const starCoverage = stories.length
     ? Math.round((stories.reduce((s, a) => s + a.metrics.starCount, 0) / (stories.length * 4)) * 100)
     : null
@@ -626,9 +761,10 @@ export function analyzeSession(answers) {
     (starCoverage >= 75 ? strengths : focus).push(
       starCoverage >= 75 ? 'Well-structured STAR answers' : `Complete the STAR structure (${starCoverage}% coverage)`,
     )
-  ;(flags === 0 ? strengths : focus).push(
-    flags === 0 ? 'No red flags, professional framing throughout' : `Reframe ${flags} red-flag phrase${flags > 1 ? 's' : ''}`,
-  )
+  if (!foreign)
+    (flags === 0 ? strengths : focus).push(
+      flags === 0 ? 'No red flags, professional framing throughout' : `Reframe ${flags} red-flag phrase${flags > 1 ? 's' : ''}`,
+    )
   if (stories.length && quantified === stories.length) strengths.push('You quantified your impact in every answer')
   else if (stories.length) focus.push('Quantify results: percentages, time saved, users, dollars')
   if (hedges > items.length * 2) focus.push('Drop hedges like “I think” and “maybe”')
@@ -644,10 +780,15 @@ export function analyzeSession(answers) {
   if (items.length && items.every((a) => a.quality.nonAnswer)) {
     strengths.length = 0
     focus.length = 0
-    focus.push('Give complete answers: 60 to 90 seconds each, using the STAR structure')
+    focus.push(
+      foreign
+        ? 'Give complete answers: 60 to 90 seconds each'
+        : 'Give complete answers: 60 to 90 seconds each, using the STAR structure',
+    )
   }
 
   return {
+    lang: langId,
     answers: items,
     weakestIndex,
     strengths: strengths.slice(0, 3),
