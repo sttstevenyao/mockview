@@ -7,6 +7,7 @@ import About from './components/About.jsx'
 import Settings from './components/Settings.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import EditAnswers from './components/EditAnswers.jsx'
+import Intro from './components/Intro.jsx'
 import TopNav from './components/TopNav.jsx'
 import AuthForm from './components/AuthForm.jsx'
 import { DEFAULT_CONFIG, sampleResult } from './data/questions.js'
@@ -25,6 +26,23 @@ export default function App() {
   const [runId, setRunId] = useState(0)
   const [onboarding, setOnboarding] = useState(false)
   const [editing, setEditing] = useState(false) // one-screen editor for setup answers
+  // Opening animation: once per browser session, skipped with reduced motion or a direct link to the sample.
+  const [intro, setIntro] = useState(() => {
+    try {
+      const reduced =
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduce'
+      return !sample && !reduced && !sessionStorage.getItem('mockview.intro') ? 'playing' : false
+    } catch {
+      return false
+    }
+  })
+  const endIntro = () => {
+    try {
+      sessionStorage.setItem('mockview.intro', '1')
+    } catch {}
+    setIntro(false)
+  }
+  const revealPage = () => setIntro((v) => (v ? 'fading' : v))
   const [auth, setAuth] = useState(null) // 'login' | 'signup' dialog opened from the header
 
   // Restore the session cookie's account; if nobody is logged in, the setup questions pop up.
@@ -103,41 +121,47 @@ export default function App() {
     )
   return (
     <div className="setup">
+      {intro && <Intro onReveal={revealPage} onDone={endIntro} />}
       <TopNav tab={phase} onTab={setPhase} user={user} onAuth={setAuth} onLogOut={signOut} />
-      <div key={phase} className="tab-view">
-        {phase === 'credits' ? (
-          <Credits />
-        ) : phase === 'settings' ? (
-          <Settings
-            settings={config.settings}
-            user={user}
-            onChange={(settings) => {
-              const cfg = { ...config, settings }
-              setConfig(cfg)
-              remember(cfg)
-            }}
-          />
-        ) : phase === 'about' ? (
-          <About
-            onStart={() => {
-              setPhase('setup')
-              window.scrollTo(0, 0)
-            }}
-          />
-        ) : (
-          <Setup
-            cfg={config}
-            setCfg={setConfig}
-            user={user}
-            onEdit={() => setEditing(true)}
-            onStart={start}
-            onSample={showSample}
-            onSettings={() => setPhase('settings')}
-          />
-        )}
-      </div>
+      {/* Mounted as the opening animation fades, so the page's entrance cascade plays underneath */}
+      {intro !== 'playing' && (
+        <div key={phase} className="tab-view">
+          {phase === 'credits' ? (
+            <Credits />
+          ) : phase === 'settings' ? (
+            <Settings
+              settings={config.settings}
+              user={user}
+              onChange={(settings) => {
+                const cfg = { ...config, settings }
+                setConfig(cfg)
+                remember(cfg)
+              }}
+            />
+          ) : phase === 'about' ? (
+            <About
+              onStart={() => {
+                setPhase('setup')
+                window.scrollTo(0, 0)
+              }}
+            />
+          ) : (
+            <Setup
+              cfg={config}
+              setCfg={setConfig}
+              user={user}
+              onEdit={() => setEditing(true)}
+              onStart={start}
+              onSample={showSample}
+              onSettings={() => setPhase('settings')}
+            />
+          )}
+        </div>
+      )}
       <footer className="foot muted tiny mono">Built at HackRU Fall 2026 · Voice by ElevenLabs</footer>
-      {onboarding && <Onboarding initial={config} user={user} onDone={finishOnboarding} onClose={() => setOnboarding(false)} />}
+      {onboarding && !intro && (
+        <Onboarding initial={config} user={user} onDone={finishOnboarding} onClose={() => setOnboarding(false)} />
+      )}
       {editing && (
         <EditAnswers
           initial={config}

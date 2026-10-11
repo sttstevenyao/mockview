@@ -63,9 +63,15 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
     <>
       <header className="hero">
         <h1>
-          {user
-            ? `Welcome, ${cfg.name && cfg.name !== 'Candidate' ? cfg.name : user.email.split('@')[0]}.`
-            : 'Practice the interview before it counts.'}
+          {user ? (
+            <>
+              Welcome, <em>{cfg.name && cfg.name !== 'Candidate' ? cfg.name : user.email.split('@')[0]}.</em>
+            </>
+          ) : (
+            <>
+              Practice the interview <em>before it counts.</em>
+            </>
+          )}
         </h1>
       </header>
 
@@ -103,6 +109,9 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
                 className={`persona ${cfg.persona === p.id ? 'on' : ''}`}
                 onClick={() => choosePersona(p.id)}
               >
+                <span className={`avatar-sm av-${p.id}`} aria-hidden="true">
+                  {p.name[0]}
+                </span>
                 <b>{p.name}</b>
                 <span className="muted tiny">{p.desc}</span>
               </button>
@@ -128,6 +137,20 @@ export default function Setup({ cfg, setCfg, user, onEdit, onStart, onSample, on
         </section>
 
         <section className="panel start-panel">
+          <div className="host">
+            <span className={`avatar-sm lg av-${cfg.persona}`} aria-hidden="true">
+              {PERSONAS[cfg.persona].name[0]}
+            </span>
+            <div className="host-who">
+              <b>{PERSONAS[cfg.persona].name}</b>
+              <span className="muted tiny">{PERSONAS[cfg.persona].title}</span>
+            </div>
+            <span className="mini-wave" aria-hidden="true">
+              {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                <i key={i} style={{ '--i': i }} />
+              ))}
+            </span>
+          </div>
           <button
             className="btn primary big-btn"
             onClick={() =>
