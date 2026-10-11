@@ -16,7 +16,7 @@ Practice behavioral interviews out loud with an ElevenLabs-voiced interviewer, g
 **Superlatives:** Best Newbie Hack, Use of ElevenLabs
 **Built with:** `javascript` `react` `vite` `css` `node.js` `elevenlabs` `web-speech-api` `web-audio-api` `vercel` `vercel-blob`
 
-**Gallery** (upload in this order, from `docs/screenshots/`): `interview.png`, `report.png`, `report-monologue.png`, `practice.png`, `onboarding.png`
+**Gallery** (upload in this order, from `docs/screenshots/`): `interview.png`, `report.png`, `report-monologue.png`, `settings.png`, `practice.png`, `onboarding-levels.png`, `onboarding.png`
 
 ---
 

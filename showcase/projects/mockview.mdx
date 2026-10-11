@@ -28,9 +28,11 @@ MockView is a customizable behavioral interview simulator built in 24 hours at H
 - **Feedback report**: your transcript with clickable red-flag and filler pills that reveal the "interviewer's inner monologue", plus a GitHub-style diff that rewrites your weakest sentence.
 - **Hear Ideal Delivery**: plays the rewritten sentence with ElevenLabs `eleven_multilingual_v2`, next to your original for contrast.
 - **Reactive interviewer**: responds to what you actually said after each answer, asks "Sorry, what was that?" when it hears nothing, and stops after repeated silence.
-- **Works in any modern browser**: where built-in speech recognition is blocked (Brave) or missing (Firefox), answers are transcribed with ElevenLabs Speech-to-Text (Scribe).
+- **Works in any modern browser**: where built-in speech recognition is blocked (Brave) or missing (Firefox), answers stream to ElevenLabs real-time Scribe (`scribe_v2_realtime`), so words appear as you speak.
+- **Accessibility and languages**: larger text, high contrast, reduced motion, interviewer captions and keyboard shortcuts. Every question can be shown and read aloud in Spanish, Chinese, Hindi, Korean or Portuguese with ElevenLabs Multilingual v2.
+- **Beginner level**: basic warm-up questions with lighter grading, alongside internship, new-grad and experienced levels across 14 fields.
 - **Flexible sessions**: a fixed number of questions, a timed session, or Endless Mode, with optional questions generated from your resume.
-- **Accounts and settings**: log in from any device; light or dark theme, skip the introduction, voice model and speed.
+- **Accounts and settings**: email sign-in that syncs your setup across devices; theme, voice model and speed, and interview options.
 
 ## How It Works
 
@@ -42,7 +44,7 @@ MockView is a customizable behavioral interview simulator built in 24 hours at H
 
 ## Technologies Used
 
-- ElevenLabs API: Text-to-Speech (Multilingual v2, Flash v2.5, voice settings, SSML break tags) and Speech-to-Text (Scribe v1)
+- ElevenLabs API: Text-to-Speech (Multilingual v2, Flash v2.5, voice settings, break tags) and Speech-to-Text (real-time Scribe v2, batch Scribe as fallback)
 - React 18 + Vite
 - Web Speech API, Web Audio API
 - Vercel serverless functions

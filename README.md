@@ -11,6 +11,8 @@ Built at HackRU Fall 2026 (Rutgers). Education track. Entered for Best Newbie Ha
 | Interview | Practice page |
 |---|---|
 | ![Interview with the live feedback panel](docs/screenshots/interview.png) | ![Practice page](docs/screenshots/practice.png) |
+| **Accessibility and language settings** | **Levels, including Beginner** |
+| ![Settings with high contrast and Korean translation](docs/screenshots/settings.png) | ![Experience level picker](docs/screenshots/onboarding-levels.png) |
 
 ## What it does
 
