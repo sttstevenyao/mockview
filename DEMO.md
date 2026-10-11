@@ -7,7 +7,9 @@ Judging is in person at your table from 1:00 PM ET. Judges score **functionality
 - Open https://mockview-ruddy.vercel.app in **Chrome** on the demo laptop. Allow the microphone.
 - Log in, so the pop-up questions don't appear mid-demo.
 - In **Settings**, turn on **Skip the introduction** so the first question comes right away.
+- Make sure **Reduce motion** is off in Settings, so the animations show.
 - Click **Preview voice** once to warm up audio.
+- All three of you need to be at the table: the rules require every team member in person for judging.
 - Have a second tab open on https://mockview-ruddy.vercel.app/#sample in case the hall is too loud for the mic.
 - If the room is loud, use headphones for audio, or use **Simulate answer** (press S) for one answer.
 
@@ -27,7 +29,9 @@ Judging is in person at your table from 1:00 PM ET. Judges score **functionality
 - Point at the diff: "It rewrites your weakest sentence: cuts fillers, turns blame into ownership, adds a measurable result."
 - Click **Hear ideal delivery**. Let it play. "That's the moment we built this for: hearing what a strong version of *your* sentence sounds like."
 
-**4b. Accessibility (15 s, optional).** In Settings, set Interviewer language to Español and start again: the same voice asks the question in Spanish, with the English underneath. "For students interviewing in their second language."
+**4b. Progress (10 s).** Open the Progress tab: "Every session is saved. Score, filler words and pace over time, and any past report opens again with one click."
+
+**4c. Accessibility (15 s, optional).** In Settings, set Interviewer language to Español and start again: the same voice asks the question in Spanish, with the English underneath. "For students interviewing in their second language."
 
 **5. Technical close (25 s).** "ElevenLabs runs both directions: Text to Speech for the interviewer, and Speech to Text with Scribe when the browser can't transcribe, like in Brave. Grading is a rules engine in the browser, so it's instant and every point is explainable. Accounts sync across devices. We're three first-time hackers, and it's live right now at mockview-ruddy.vercel.app."
 
@@ -41,6 +45,6 @@ Judging is in person at your table from 1:00 PM ET. Judges score **functionality
 - **Is the resume uploaded?** No. It's parsed in the browser with PDF.js.
 - **Who is it for?** Students preparing for internship and new-grad interviews, career centers, and non-native speakers working on delivery. (Education track.)
 
-## Optional video (2 minutes)
+## Demo video
 
-HackRU doesn't require one. If you record it anyway (QuickTime: File > New Screen Recording), follow the script above in order: hook, setup, a bad answer with the panel reacting, the interviewer's reaction, the report, clicking a red pill, **Hear ideal delivery**, and the technical close. Upload to YouTube as unlisted and add the link to Devpost and to `videoUrl` in `showcase/projects/mockview.mdx`.
+`mockview-demo.mp4` (about 2 minutes) walks through setup, a Spanish-language interview, the live panel, the report, Progress and the accessibility settings. Upload it to YouTube as unlisted and add the link to Devpost and to `videoUrl` in `showcase/projects/mockview.mdx`.

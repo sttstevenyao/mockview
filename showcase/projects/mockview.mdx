@@ -32,7 +32,8 @@ MockView is a customizable behavioral interview simulator built in 24 hours at H
 - **Accessibility and languages**: larger text, high contrast, reduced motion, interviewer captions and keyboard shortcuts. The interviewer speaks 12 languages with ElevenLabs, and you can answer in any of them.
 - **Beginner level**: basic warm-up questions with lighter grading, alongside internship, new-grad and experienced levels across 14 fields.
 - **Flexible sessions**: a fixed number of questions, a timed session, or Endless Mode, with optional questions generated from your resume.
-- **Accounts and settings**: email sign-in that syncs your setup across devices; theme, voice model and speed, and interview options.
+- **Progress over time**: every session is saved with a percentage score and an A to F grade. Rings on the practice page, charts for score, filler rate and pace, and any recent report can be reopened in full.
+- **Accounts and settings**: email sign-in that syncs your setup and history across devices; theme, voice model and speed, and interview options.
 
 ## How It Works
 
@@ -40,7 +41,8 @@ MockView is a customizable behavioral interview simulator built in 24 hours at H
 - The next question's audio is **prefetched** while the current one plays, so there is no dead air between questions.
 - A tiny server proxy (a Vite middleware locally, a Vercel function in production) keeps the API key off the client.
 - The interviewer's audio runs through a Web Audio `AnalyserNode` that drives the live waveform visualizer.
-- Speech input uses the browser's Web Speech API for zero-latency transcripts, and falls back to **ElevenLabs Scribe** (`/v1/speech-to-text`, `scribe_v1`) with pause-to-pause clips when that API is blocked or missing. A local rules engine (regex dictionaries plus STAR heuristics) scores content instantly. A pitch and loudness analyser on the mic stream (autocorrelation pitch detection with an adaptive noise floor) scores vocal delivery.
+- Speech input uses the browser's Web Speech API for zero-latency transcripts. Where that API is blocked or missing, the mic streams to **ElevenLabs real-time Scribe** (`scribe_v2_realtime`) over a WebSocket opened with a single-use token, with batch Scribe (`/v1/speech-to-text`) clips as a fallback.
+- For other languages, the same voice reads hand-translated questions with `language_code` set, and Scribe and the browser recognizer switch to the answer language. A local rules engine (regex dictionaries plus STAR heuristics) scores content instantly. A pitch and loudness analyser on the mic stream (autocorrelation pitch detection with an adaptive noise floor) scores vocal delivery.
 
 ## Technologies Used
 
@@ -66,7 +68,8 @@ Open `/#sample` on the live demo to jump straight to a sample feedback report.
 ## Future Plans
 
 - ElevenLabs Agents for fully conversational, adaptive follow-up questions
-- Company-specific question packs and progress tracking across sessions
+- Company-specific question packs
+- STAR and red-flag grading for every supported language
 
 ## Acknowledgments
 
